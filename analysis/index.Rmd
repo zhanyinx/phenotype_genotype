@@ -1,0 +1,18 @@
+---
+title: "Home"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+This  website contains scRNA-seq data analyses and integration with targeted mutation for scmseq project.
+
+# SCM-seq data analysis
+
+- [prova](00_malignant_non_malignant_annotations.html)
+
+
+
