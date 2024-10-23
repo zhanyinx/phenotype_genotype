@@ -12,9 +12,9 @@
 <meta name="author" content="Zhan Yinxiu" />
 
 
-<title>Analysis title</title>
+<title>Malignant cell identification</title>
 
-<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
@@ -37,6 +37,22 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.29/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.4/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="site_libs/jszip-1.13.4/jszip.min.js"></script>
+<script src="site_libs/pdfmake-1.13.4/pdfmake.js"></script>
+<script src="site_libs/pdfmake-1.13.4/vfs_fonts.js"></script>
+<link href="site_libs/dt-ext-buttons-1.13.4/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.13.4/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.4/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.4/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.4/js/buttons.print.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
 <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
@@ -366,9 +382,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Analysis title</h1>
+<h1 class="title toc-ignore">Malignant cell identification</h1>
 <h4 class="author">Zhan Yinxiu</h4>
-<h4 class="date">15 October, 2024</h4>
+<h4 class="date">18 October, 2024</h4>
 
 </div>
 
@@ -376,7 +392,7 @@ div.tocify {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -387,8 +403,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -397,18 +413,17 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-10-15
+<strong>Last updated:</strong> 2024-10-18
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
-<strong>Knit directory:</strong>
-<code>/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/chiara_samples/to_Zhan/phenotype_genotype/</code>
-<span class="glyphicon glyphicon-question-sign" aria-hidden="true"
+<strong>Knit directory:</strong> <code>phenotype_genotype/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
 title="This is the local directory in which the code in this file was executed.">
 </span>
 </p>
@@ -514,30 +529,72 @@ run.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongabsolute">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>File paths:</strong> absolute </a>
 </p>
 </div>
-<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div id="strongFilepathsstrongabsolute" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr
-project makes it easier to run your code on other machines.</p>
+<p>
+Using absolute paths to the files within your workflowr project makes it
+difficult for you and others to run your code on a different machine.
+Change the absolute path(s) below to the suggested relative path(s) to
+make your code more reproducible.
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+absolute
+</th>
+<th style="text-align:left;">
+relative
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/src/functions.R
+</td>
+<td style="text-align:left;">
+src/functions.R
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/final_seurat.rds
+</td>
+<td style="text-align:left;">
+data/final_seurat.rds
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/00_malignant_non_malignant_annotation.rds
+</td>
+<td style="text-align:left;">
+data/00_malignant_non_malignant_annotation.rds
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetreee764fdefd3d4102f61c1a2e1d6be50776a217697targetblanke764fdea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetreef70129fb3020529ffca20f890174e900e8926617targetblankf70129fa">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/zhanyinx/phenotype_genotype/tree/e764fdefd3d4102f61c1a2e1d6be50776a217697" target="_blank">e764fde</a>
+<a href="https://github.com/ieoresearch/phenotype_genotype/tree/f70129fb3020529ffca20f890174e900e8926617" target="_blank">f70129f</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetreee764fdefd3d4102f61c1a2e1d6be50776a217697targetblanke764fdea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetreef70129fb3020529ffca20f890174e900e8926617targetblankf70129fa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +604,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/zhanyinx/phenotype_genotype/tree/e764fdefd3d4102f61c1a2e1d6be50776a217697" target="_blank">e764fde</a>.
+<a href="https://github.com/ieoresearch/phenotype_genotype/tree/f70129fb3020529ffca20f890174e900e8926617" target="_blank">f70129f</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -562,17 +619,12 @@ were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    output/
+    Ignored:    .Rproj.user/
+    Ignored:    data/
+    Ignored:    src/
 
 Untracked files:
-    Untracked:  _workflowr.yml
-    Untracked:  analysis/
-    Untracked:  data/
-    Untracked:  src/
-
-Unstaged changes:
-    Modified:   .gitignore
-    Modified:   README.md
+    Untracked:  phenotype_genotype.Rproj
 
 </code></pre>
 <p>
@@ -587,15 +639,701 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/00_malignant_non_malignant_annotations.Rmd</code>) and
+HTML (<code>docs/00_malignant_non_malignant_annotations.html</code>)
+files. If you’ve configured a remote Git repository (see
+<code>?wflow_git_remote</code>), click on the hyperlinks in the table
+below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/f70129fb3020529ffca20f890174e900e8926617/analysis/00_malignant_non_malignant_annotations.Rmd" target="_blank">f70129f</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-18
+</td>
+<td>
+Rebuild to associate with workflowr tracking
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/analysis/00_malignant_non_malignant_annotations.Rmd" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+<td>
+:sparkles: Add malignant cell annotation
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/00_malignant_non_malignant_annotations.html" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+<td>
+:sparkles: Add malignant cell annotation
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/7d264d79cbdc1388ffc30f7176023ef1a293183e/analysis/00_malignant_non_malignant_annotations.Rmd" target="_blank">7d264d7</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-15
+</td>
+<td>
+:sparkles: Test
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/7d264d79cbdc1388ffc30f7176023ef1a293183e/docs/00_malignant_non_malignant_annotations.html" target="_blank">7d264d7</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-15
+</td>
+<td>
+:sparkles: Test
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
 </div>
-<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-1-1.png" width="576" style="display: block; margin: auto;" /></p>
+<div id="objective" class="section level1">
+<h1>Objective</h1>
+<p>The objective of this analysis is to conduct an exploratory data
+analysis on the Seurat object created by Chiara Caprioli. This object
+contains single-cell RNA sequencing (scRNA-seq) data from various
+samples, including AML2, AML3, AML4, AML5, AML6, hBM1, hBM2, hBM3,
+sAML1, and sAML16. The hBM1, hBM2, and hBM3 samples represent healthy
+donors, serving as controls, while the others are associated with
+different acute myeloid leukemia (AML) cases.</p>
+<p><strong>Information Contained in the Seurat Object</strong>: The
+Seurat object stores several layers of information, including gene
+expression data, metadata for each cell, and detailed cell type
+annotations based on the strategy from the Triana paper. Specifically,
+cell type annotations have been generated using various tools and
+methods for assigning and validating cell identities.</p>
+<p><strong>Cell Type Annotation Strategy</strong> (based on the strategy
+from the <a
+href="https://www.nature.com/articles/s41590-021-01059-0">Triana
+Study</a>): The following variables are present within the Seurat
+object:</p>
+<ul>
+<li><p>lineage: This variable indicates the predicted cell lineage for
+each cell, as determined using scmap, a tool designed to project
+single-cell data onto a reference atlas of known cell types or states.
+This provides a reference-based classification of cell types.</p></li>
+<li><p>lineage_similarity_score: This score is also derived from scmap
+and represents the degree of similarity between a cell and its predicted
+lineage in the reference atlas. It quantifies how confidently the cell
+can be matched to the reference cell types.</p></li>
+<li><p>aggregated_ct: This represents manually curated, broader
+categories of cell types (check out the code first chunck).</p></li>
+<li><p>singleR_label: The cell type labels are predicted using SingleR,
+an automated tool for cell type annotation. SingleR compares the
+expression profile of each cell to reference datasets and assigns the
+most likely cell type based on gene expression similarities.</p></li>
+<li><p>singleR_score: This variable reflects the confidence score
+assigned by SingleR, indicating how closely the cell’s expression
+profile matches its predicted reference cell type.</p></li>
+</ul>
+<p><strong>Tools Used</strong>:</p>
+<ul>
+<li><p>scmap: A reference-based method that projects single-cell RNA-seq
+data onto a predefined reference atlas. It helps assign cell types based
+on similarity to known cell populations.</p></li>
+<li><p>SingleR: An automated tool that annotates cell types by comparing
+single-cell gene expression data to reference datasets. It uses the
+correlation between a cell’s gene expression profile and reference
+profiles to predict cell types.</p></li>
+</ul>
+<p>These annotations, combined with the other data stored in the Seurat
+object, provide a comprehensive view of the scRNA-seq data, allowing for
+in-depth analysis and interpretation of cell types across the
+samples.</p>
+</div>
+<div id="exploratory-data-analysis" class="section level1">
+<h1>Exploratory data analysis</h1>
+<p>We have confirmed that doublets were successfully filtered out. The
+number of cells per sample ranges from 2,000 to nearly 6,000, as shown
+in the table below.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-782715c6e6448907f7d2" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["AML2","AML3","AML4","AML5","AML6","hBM1","hBM2","hBM3","sAML1","sAML16"],["singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet"],[4729,5924,2057,2779,4431,4506,5861,5172,3615,4231]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>sample_id<\/th>\n      <th>scDblFinder.class<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":0}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<div id="umap-visualisation" class="section level2">
+<h2>Umap visualisation</h2>
+<p>We evaluated data integration by analyzing the UMAP reduction and
+quantifying the proportion of each cell type across patients. As shown
+by both the UMAP visualization and the barplot quantification, T cells
+were enriched in the healthy bone marrow (hBM) samples, as expected. In
+contrast, AML patients exhibited variability in cell type distributions,
+with notable enrichment in early myeloid and HSC_MPP populations.
+Additionally, patient-specific differences were observed: sAML16 was
+enriched in monocytes, while AML4 had a higher proportion of
+Eo_baso_mast cells.</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-umap_celltype_sampleid-1">
+Past versions of umap_celltype_sampleid-1.png
+</button>
+</p>
+<div id="fig-umap_celltype_sampleid-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/quantification-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-quantification-1">
+Past versions of quantification-1.png
+</button>
+</p>
+<div id="fig-quantification-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/quantification-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Next, we present the UMAP visualization color-coded by manually
+grouped lineages. The cell types most likely to contain cancer cells,
+specifically “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, and
+“Eo_baso_mast”, Erythroid and MK, are primarily clustered in the lower
+region of the UMAP.</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/umap_celltype_grouped-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-umap_celltype_grouped-1">
+Past versions of umap_celltype_grouped-1.png
+</button>
+</p>
+<div id="fig-umap_celltype_grouped-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/umap_celltype_grouped-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- ```{r umap_celltype_grouped1, fig.height=6, fig.width=6} -->
+<!-- cancer_cells <- c("Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK") -->
+<!--   tmp = srat -->
+<!--   tmp$aggregated_ct[tmp$aggregated_ct %in% cancer_cells] = "cancer-like" -->
+<!--   tmp$aggregated_ct[tmp$aggregated_ct!="cancer"] = "other" -->
+<!--   print(mydimplot( -->
+<!--     tmp, -->
+<!--     var = "aggregated_ct", -->
+<!--     reduction = "umap", -->
+<!--     label = TRUE -->
+<!--   )) -->
+<!-- ``` -->
+</div>
+</div>
+<div id="malignant-cell-annotation" class="section level1">
+<h1>Malignant cell annotation</h1>
+<p>To identify highly confident malignant cells, we focus on cell types
+known to be more likely to harbor malignancy, including “Early_myeloid”,
+“HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, and
+“MK”. We require that malignant cells be part of these predefined cell
+types based on aggregated annotations.</p>
+<p>Next, we impose an additional criterion: malignant cells should
+cluster distinctly from healthy bone marrow cells. Specifically, we
+require that these cells belong to clusters predominantly composed of
+malignant cells, with an adjustable threshold for determining the degree
+of malignancy within a cluster. This ensures that the cells are not just
+grouped with normal cells but form distinct populations.</p>
+<p>Finally, to strengthen the confidence in identifying malignant cells,
+we assess the relative expansion of each cell type within each patient
+compared to normal samples. Malignant cells should be expanded in AML
+patients compared to healthy controls, reinforcing the idea that their
+presence is abnormal.</p>
+<div id="assess-the-cluster-composition" class="section level2">
+<h2>Assess the cluster composition</h2>
+<p>Below, we present a bar plot showing the proportion of normal and
+malignant cells in each cluster, quantifying the fraction of each cell
+type per cluster.</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-3-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>To determine which clusters to evaluate for malignant cell presence,
+we plotted the distribution of the fraction of healthy cells across all
+clusters. We set the threshold at 0.9, selecting clusters with a lower
+proportion of healthy cells for further assessment of malignancy.</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-4-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The UMAP visualisation below show the clusters to be considered for
+malignant cell presence</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-5-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="assess-expansion-pattern-in-aggregated-cell-type"
+class="section level2">
+<h2>Assess expansion pattern in aggregated cell type</h2>
+<p>To identify the malignant cell type, we analyzed the distribution of
+cell type expansions for the sample. The distribution showed a bimodal
+pattern. Based on this, we set a cutoff of a 4-fold expansion to define
+malignant cells.</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-7-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-8-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="combining-filters" class="section level2">
+<h2>Combining filters</h2>
+<p>Next, we require that all filters are met. Specifically, the cell
+must belong to one of the following categories: “Early_myeloid”,
+“HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, “MK”.
+Additionally, the cell must be part of a cluster enriched in malignant
+cells, and its cell type must show expansion.</p>
+<p>Notably, removing the criterion for inclusion in a specific cell type
+and specific cluster results in an increase of only 0.8% in the total
+malignant cell population. The criteria that is the most stringent is
+the expansion criteria.</p>
+<div id="malignant-cell" class="section level3">
+<h3>Malignant cell</h3>
+<p>The UMAP visualization displays malignant cells, accompanied by a bar
+plot that quantifies the malignant cell fraction within each sample.</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-10-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
+Past versions of unnamed-chunk-10-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-10-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We then compared our definition of malignant cells with Tier I from
+Chiara Caprioli. As demonstrated in the heatmap below, the two
+definitions show a strong similarity.</p>
+<p><img src="figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-12-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
+Past versions of unnamed-chunk-12-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/79c2d59dc9de85acf5ed8001c8066003520016ca/docs/figure/00_malignant_non_malignant_annotations.Rmd/unnamed-chunk-12-1.png" target="_blank">79c2d59</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Below, we present a table highlighting the origins of the cells that
+show inconsistencies, whether from patient samples or cell lines.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-7f2e8bbd475421ad5ec3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-7f2e8bbd475421ad5ec3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["AML2","AML3","AML4","AML5","AML6","sAML1","sAML16"],[79,1016,47,104,759,102,360]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>ID<\/th>\n      <th>Number of cells<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":1}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-bdb697fcf84443e89835" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bdb697fcf84443e89835">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["Early_myeloid","Eo_baso_mast","Erythroid","HSC_MPP","Late_myeloid","MK","Mono"],[373,6,707,173,522,17,669]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>ID<\/th>\n      <th>Number of cells<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":1}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -604,9 +1342,9 @@ Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.4.1 (2024-06-14)
-Platform: x86_64-pc-linux-gnu
-Running under: Ubuntu 22.04.5 LTS
+<pre><code>R version 4.3.1 (2023-06-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 22.04.3 LTS
 
 Matrix products: default
 BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -626,19 +1364,53 @@ tzcode source: system (glibc)
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
+other attached packages:
+ [1] mclust_6.0.0       SeuratObject_4.1.3 Seurat_4.3.0.1     lubridate_1.9.2   
+ [5] forcats_1.0.0      stringr_1.5.0      dplyr_1.1.3        purrr_1.0.2       
+ [9] readr_2.1.4        tidyr_1.3.0        tibble_3.2.1       ggplot2_3.4.2     
+[13] tidyverse_2.0.0   
+
 loaded via a namespace (and not attached):
- [1] vctrs_0.6.5       cli_3.6.3         knitr_1.48        rlang_1.1.4      
- [5] xfun_0.48         highr_0.11        stringi_1.8.4     promises_1.3.0   
- [9] jsonlite_1.8.9    workflowr_1.7.1   glue_1.8.0        rprojroot_2.0.4  
-[13] git2r_0.33.0      htmltools_0.5.8.1 httpuv_1.6.15     sass_0.4.9       
-[17] fansi_1.0.6       rmarkdown_2.28    jquerylib_0.1.4   evaluate_1.0.1   
-[21] tibble_3.2.1      fastmap_1.2.0     yaml_2.3.10       lifecycle_1.0.4  
-[25] stringr_1.5.1     compiler_4.4.1    codetools_0.2-20  fs_1.6.4         
-[29] Rcpp_1.0.13       pkgconfig_2.0.3   rstudioapi_0.16.0 later_1.3.2      
-[33] digest_0.6.37     R6_2.5.1          utf8_1.2.4        pillar_1.9.0     
-[37] magrittr_2.0.3    bslib_0.8.0       tools_4.4.1       cachem_1.1.0     </code></pre>
-</div>
-</div>
+  [1] RColorBrewer_1.1-3     rstudioapi_0.15.0      jsonlite_1.8.7        
+  [4] magrittr_2.0.3         spatstat.utils_3.0-3   farver_2.1.1          
+  [7] rmarkdown_2.24         fs_1.6.3               vctrs_0.6.3           
+ [10] ROCR_1.0-11            spatstat.explore_3.2-3 htmltools_0.5.6       
+ [13] sass_0.4.7             sctransform_0.3.5      parallelly_1.36.0     
+ [16] KernSmooth_2.23-22     bslib_0.5.1            htmlwidgets_1.6.2     
+ [19] ica_1.0-3              plyr_1.8.8             plotly_4.10.2         
+ [22] zoo_1.8-12             cachem_1.0.8           whisker_0.4.1         
+ [25] igraph_1.4.3           mime_0.12              lifecycle_1.0.3       
+ [28] pkgconfig_2.0.3        Matrix_1.5-3           R6_2.5.1              
+ [31] fastmap_1.1.1          fitdistrplus_1.1-11    future_1.33.0         
+ [34] shiny_1.7.5            digest_0.6.33          colorspace_2.1-0      
+ [37] patchwork_1.1.3        rprojroot_2.0.3        tensor_1.5            
+ [40] irlba_2.3.5.1          crosstalk_1.2.0        labeling_0.4.3        
+ [43] progressr_0.14.0       fansi_1.0.4            spatstat.sparse_3.0-2 
+ [46] timechange_0.2.0       httr_1.4.7             polyclip_1.10-4       
+ [49] abind_1.4-5            compiler_4.3.1         withr_2.5.0           
+ [52] highr_0.10             MASS_7.3-60            tools_4.3.1           
+ [55] lmtest_0.9-40          httpuv_1.6.11          future.apply_1.11.0   
+ [58] goftest_1.2-3          glue_1.6.2             nlme_3.1-162          
+ [61] promises_1.2.1         grid_4.3.1             Rtsne_0.16            
+ [64] cluster_2.1.4          reshape2_1.4.4         generics_0.1.3        
+ [67] gtable_0.3.4           spatstat.data_3.0-1    tzdb_0.4.0            
+ [70] data.table_1.14.8      hms_1.1.3              sp_2.0-0              
+ [73] utf8_1.2.3             spatstat.geom_3.2-5    RcppAnnoy_0.0.21      
+ [76] ggrepel_0.9.3          RANN_2.6.1             pillar_1.9.0          
+ [79] later_1.3.1            splines_4.3.1          lattice_0.21-8        
+ [82] survival_3.5-5         deldir_1.0-9           tidyselect_1.2.0      
+ [85] miniUI_0.1.1.1         pbapply_1.7-2          knitr_1.44            
+ [88] git2r_0.32.0           gridExtra_2.3          scattermore_1.2       
+ [91] xfun_0.40              matrixStats_1.0.0      DT_0.29               
+ [94] stringi_1.7.12         workflowr_1.7.1        lazyeval_0.2.2        
+ [97] yaml_2.3.7             evaluate_0.21          codetools_0.2-19      
+[100] cli_3.6.1              uwot_0.1.16            xtable_1.8-4          
+[103] reticulate_1.32.0      munsell_0.5.0          jquerylib_0.1.4       
+[106] Rcpp_1.0.11            globals_0.16.2         spatstat.random_3.1-6 
+[109] png_0.1-8              parallel_4.3.1         ellipsis_0.3.2        
+[112] listenv_0.9.0          viridisLite_0.4.2      scales_1.2.1          
+[115] ggridges_0.5.4         leiden_0.4.3           rlang_1.1.1           
+[118] cowplot_1.1.1         </code></pre>
 </div>
 </div>
 </div>

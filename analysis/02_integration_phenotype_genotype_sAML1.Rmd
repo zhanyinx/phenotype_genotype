@@ -1,0 +1,813 @@
+---
+title: "Genotype phenotype sAML1"
+author: 
+- Zhan Yinxiu
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(SeuratObject)
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(mclust)
+  library(maftools)
+  library(ggplot2)
+  library(plotly)
+  library("AnnotationDbi")
+  library("org.Hs.eg.db")
+  library("clusterProfiler")
+  library(ReactomePA)
+  source("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/src/functions.R")
+})
+
+```
+
+# Objective
+
+The objective of the analysis is to integrate the genotype data from the enrichemnt experiment with the expression data.
+We start with sAML1. 
+
+# Genotype data
+
+The genotype data has been analyzed using [NanoGen](https://github.com/dimadatascience/NanoGen), a custom pipeline designed to call mutations from targeted enrichment data. NanoGen follows a multi-step process to ensure accurate mutation detection. It starts by using Blaze to identify cell barcodes, ensuring that each cell’s data is correctly assigned. It then collapses Unique Molecular Identifiers (UMIs) to eliminate PCR duplicates and other biases, allowing for a more accurate representation of the original sample.
+
+One key feature of NanoGen is its ability to call consensus at the base level, rather than at the sequence level, providing a more precise identification of mutations. NanoGen applies a negative binomial model to distinguish between true mutated reads and background noise, improving the reliability of mutation calls. To address the issue of mutated allele dropout, NanoGen imposes a strict threshold: it requires at least five distinct wild-type (WT) UMIs for a cell to be confidently classified as wild-type (WT).
+
+## Data exploration
+
+First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
+
+```{r}
+genotype_file = "/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/enrichment/sAML1.csv"
+wes_file = "/hpcnfs/scratch/DIMA/zhan/dragen/231006_aml_caprioli/annotations/variantalker_output/231008/annotation/somatic/S29942_sAML1_D/S29942_sAML1_D.small_mutations.cancervar.escat.maf"
+sample_id = "sAML1"
+```
+
+```{r, results=FALSE}
+# Read and filter genotyped cells
+genotype = read.csv(genotype_file, row.names = 1)
+genotype = genotype[genotype$genotype!="", ]
+genotype['total_umis'] = (genotype[,'WT'] + genotype[,'MUT'] + genotype[,'MIS'])
+genotype$alt <- ifelse(grepl('-', genotype$alt), '-', genotype$alt)
+genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], genotype[,'alt'])
+
+variants = data.frame(read.maf(wes_file)@data)
+
+variants['id'] = paste0(variants[,'Hugo_Symbol'] , variants[,'Start_Position'] , variants[,'Tumor_Seq_Allele2'])
+genotype = as_tibble(genotype[genotype$id %in% (variants$id), ])
+
+# Calculate ccf and filter lowly genotyped mutations
+ccf = genotype %>%
+  group_by(gene, genotype) %>%            # Group by 'gene' and 'genotype'
+  summarise(count = n(), .groups = 'drop') %>%  # Count occurrences of each 'genotype'
+  pivot_wider(names_from = genotype,
+              values_from = count,
+              values_fill = 0)  # Pivot to wide format, filling missing values with 0
+
+ccf = ccf[(ccf$MUT + ccf$WT) > 50,]
+ccf['ccf'] = ccf[,'MUT'] /(ccf[,'MUT'] + ccf[,'WT']) 
+
+# Add wes
+subset <- variants %>%
+  filter(id %in% genotype$id) %>%
+  select(Hugo_Symbol, tumor_f)
+
+ccf <- ccf %>%
+  left_join(subset, by = c("gene" = "Hugo_Symbol"))  %>%
+  mutate(wes_ccf = pmin(tumor_f * 2, 1))  # Ensure values > 1 are set to 1
+
+# Calculate correlation
+correlation <- cor(ccf$ccf, ccf$wes_ccf, use = "complete.obs")
+correlation_title <- sprintf("Correlation: %.2f", correlation)
+
+
+
+# Create the scatter plot
+p <- ggplot(ccf, aes(x = ccf, y = wes_ccf, text = gene)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
+  ggtitle(correlation_title) +
+  labs(x = "single cell CF", y = "WES_CF") +
+  theme(plot.title = element_text(hjust = 0.5, size = 20))
+
+# Convert to interactive plotly plot
+fig <- ggplotly(p, tooltip = c("text"))
+```
+
+Below, we present the correlation between the cellular fraction, defined as VAF * 2, in WES  and the cellular fraction in the target enrichment. As demonstrated, the target enrichment effectively recapitulates the cellular fraction observed in WES.
+
+```{r}
+fig
+```
+
+
+```{r}
+DT::datatable(
+  ccf,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+## Mutation co-occurence  
+
+Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: RUNX1, SRSF2, IDH1, FLT3, CSF3R
+
+```{r}
+# Define the genes of interest
+gene_interest <- c('FLT3', 'IDH1', 'RUNX1')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+gene_interest <- c('FLT3', 'SRSF2', 'RUNX1')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+gene_interest <- c('CSF3R', 'SRSF2', 'RUNX1')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+gene_interest <- c('CSF3R', 'IDH1', 'RUNX1')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+gene_interest <- c('FLT3', 'SRSF2','IDH1', 'RUNX1')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+# Genotype phenotype analysis: full genotype
+
+We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:
+
+1- RUNX1 - IDH1 - FLT3
+
+2- RUNX1 - SRSF2 - FLT3
+
+The reason is that, for these combination, we have the highest number of genotyped cells for all genes.
+
+For each case, we will examine the impact of adding mutations to the analysis.
+
+```{r}
+# Read RNAseq
+srat = readRDS("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/01_tme_annotation.rds")
+srat$cellid = unlist(lapply(str_split(names(srat$orig.ident), "-"), "[[", 1))
+```
+
+## RUNX1 - IDH1 - FLT3
+
+Describing the mutations in the order RUNX1, IDH1, and FLT3, we observe the following cell counts: 26 cells with mutations in all three genes (MMM), 68 cells with mutations in RUNX1 and IDH1 but not FLT3 (MMW), and 17 cells with mutations only in RUNX1 (MWW).
+
+```{r}
+gene_interest <- c('FLT3', 'IDH1', 'RUNX1')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+```
+
+
+
+### Effect of FLT3 mutation (MMM vs WMM)
+
+We selected cells where FLT3 is either wild-type or mutated, while both IDH1 and RUNX1 are mutated. This resulted in the following number of cells, representing the intersection of genotyped cells and those passing scRNA-seq filters.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.  Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+mutation_status1 = c("MUT", "MUT", "MUT")
+mutation_status2 = c("WT", "MUT", "MUT")
+
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+No genes were identified as significantly differentially expressed between the two conditions in the differential expression analysis, likely due to the low number of cells. As a result, we opted to forgo further comparisons, given the limited cell count.
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+```
+
+
+
+## RUNX1 - SRSF2 - FLT3
+
+Describing the mutations in the order RUNX1, SRSF2, and FLT3, we observe the following cell counts: 50 cells with mutations in all three genes (MMM), 77 cells with mutations in RUNX1 and IDH1 but not FLT3 (MMW), and 5 cells with mutations only in RUNX1 (MWW).
+
+```{r}
+gene_interest <- c('FLT3', 'SRSF2', 'RUNX1')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+```
+
+
+### Effect of FLT3 mutation (MMM vs WMM)
+
+We selected cells where FLT3 is either wild-type or mutated, while both SRSF2 and RUNX1 are mutated. This resulted in the following number of cells, representing the intersection of genotyped cells and those passing scRNA-seq filters.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+mutation_status1 = c("MUT", "MUT", "MUT")
+mutation_status2 = c("WT", "MUT", "MUT")
+
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+A single gene 'MGST1' has been identified as significantly differentially expressed between the two conditions in the differential expression analysis, likely due to the low number of cells. As a result, we opted to forgo further comparisons, given the limited cell count.
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+```
+
+
+# Genotype phenotype analysis: partial genotype
+
+Given the low number of cells, requiring the genotype for all genes was not feasible. Therefore, we relaxed the genotype criteria and assumed that the cells acquire mutations in the following order:
+
+- RUNX1 -> SRSF2 -> FLT3
+
+- RUNX1 -> IDH1 -> FLT3
+
+Therefore, to study the effect of acquiring FLT3 mutations, we can compare FLT3 MUT cells with the combined group of FLT3 WT + IDH1/SRSF2 MUT
+
+## FLT3 MUT vs  FLT3 WT + SRSF2 MUT
+
+We identified 269 cells with FLT3 mutations and 126 cells with FLT3 WT and SRSF2 mutations. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.  Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('FLT3')
+mutation_status1 = c('MUT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[subset$FLT3 == "MUT"]
+
+gene_interest <- c('FLT3', 'SRSF2')
+mutation_status2 = c("WT", "MUT")
+
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+
+up = reactome_enrichment(markers, down=FALSE)
+down = reactome_enrichment(markers, down=TRUE)
+```
+
+__Enriched in FLT3 Mutated__
+
+```{r}
+dotplot(up, title=paste0("Enriched in ", paste(mutation_status1, collapse = "_")), showCategory=15)
+
+DT::datatable(
+  up@result[,c("p.adjust", "Description", "geneID")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+
+```
+
+__Enriched in FLT3 WT + SRSF2 Mutated__
+
+```{r}
+dotplot(down, title=paste0("Enriched in ", paste(mutation_status2, collapse = "_")), showCategory=15)
+
+DT::datatable(
+  down@result[,c("p.adjust", "Description", "geneID")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+
+## FLT3 MUT vs  FLT3 WT + IDH1 MUT
+
+We identified 269 cells with FLT3 mutations and 143 cells with FLT3 WT and IDH1 mutations.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('FLT3')
+mutation_status1 = c('MUT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[subset$FLT3 == "MUT"]
+
+gene_interest <- c('FLT3', 'IDH1')
+mutation_status2 = c("WT", "MUT")
+
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+
+up = reactome_enrichment(markers, down=FALSE)
+down = reactome_enrichment(markers, down=TRUE)
+```
+
+__Enriched in FLT3 Mutated__
+
+```{r}
+dotplot(up, title=paste0("Enriched in ", paste(mutation_status1, collapse = "_")), showCategory=15)
+
+DT::datatable(
+  up@result[,c("p.adjust", "Description", "geneID")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+
+```
+
+__Enriched in FLT3 WT + IDH1 Mutated__
+
+```{r}
+dotplot(down, title=paste0("Enriched in ", paste(mutation_status2, collapse = "_")), showCategory=15)
+
+DT::datatable(
+  down@result[,c("p.adjust", "Description", "geneID")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+
+## FLT3 MUT vs  FLT3 WT 
+
+We identified 269 cells with FLT3 mutations and 610 cells with FLT3 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('FLT3')
+mutation_status1 = c('MUT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[subset$FLT3 == "MUT"]
+
+mutation_status2 = c("WT")
+cells2 = subset$cell[subset$FLT3 == "WT"]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+
+up = reactome_enrichment(markers, down=FALSE)
+down = reactome_enrichment(markers, down=TRUE)
+```
+
+__Enriched in FLT3 Mutated__
+
+```{r}
+dotplot(up, title=paste0("Enriched in ", paste(mutation_status1, collapse = "_")), showCategory=15)
+
+DT::datatable(
+  up@result[,c("p.adjust", "Description", "geneID")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+
+```
+
+__Enriched in FLT3 WT__
+
+```{r}
+dotplot(down, title=paste0("Enriched in ", paste(mutation_status2, collapse = "_")), showCategory=15)
+
+DT::datatable(
+  down@result[,c("p.adjust", "Description", "geneID")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+
+
+## IDH1 MUT vs  IDH1 WT 
+
+We identified 438 cells with IDH1 mutations and 148 cells with IDH1 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('IDH1')
+mutation_status1 = c('MUT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[subset$IDH1 == "MUT"]
+
+mutation_status2 = c("WT")
+cells2 = subset$cell[subset$IDH1 == "WT"]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+No differenetially expressed genes have been detected
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+
+```
+
+
+## IDH1 MUT vs  IDH1 WT in FLT3 WT
+
+We identified 143 cells with IDH1 mutations and 33 cells with IDH1 WT in FLT3 WT condition.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('IDH1', 'FLT3')
+mutation_status1 = c('MUT', "WT")
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+
+mutation_status2 = c("WT", "WT")
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+No differentially expressed genes have been detected
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+
+```
+
+
+
+
+## SRSF2 MUT vs  SRSF2 WT 
+
+We identified 459 cells with SRSF2 mutations and 60 cells with IDH1 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated SRSF2 cells
+gene_interest <- c('SRSF2')
+mutation_status1 = c('MUT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[subset$SRSF2 == "MUT"]
+
+mutation_status2 = c("WT")
+cells2 = subset$cell[subset$SRSF2 == "WT"]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+No differenetially expressed genes have been detected
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+```
+
+
+## SRSF2 MUT vs  SRSF2 WT in FLT3 WT condition
+
+We identified 126 cells with SRSF2 mutations and 12 cells with IDH1 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('SRSF2', 'FLT3')
+mutation_status1 = c('MUT', "WT")
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+
+mutation_status2 = c("WT", "WT")
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+No differentially expressed genes have been detected
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+```
+
