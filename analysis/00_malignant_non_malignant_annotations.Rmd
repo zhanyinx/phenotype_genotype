@@ -61,7 +61,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
   library(mclust)
-  source("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/src/functions.R")
+  source("src/functions.R")
 })
 
 ```
@@ -148,7 +148,7 @@ aggregation_list = list(
 # Exploratory data analysis
 
 ```{r load_data}
-srat = readRDS("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/final_seurat.rds")
+srat = readRDS("data/final_seurat.rds")
 metadata = srat@meta.data
 cancer_cells <- c("Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK")
 ```
@@ -452,7 +452,7 @@ DT::datatable(
 ```
 
 ```{r}
-if(!file.exists("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/00_malignant_non_malignant_annotation.rds")){
-  saveRDS(srat, "/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/00_malignant_non_malignant_annotation.rds")
+if(!file.exists("data/00_malignant_non_malignant_annotation.rds")){
+  saveRDS(srat, "data/00_malignant_non_malignant_annotation.rds")
 }
 ```

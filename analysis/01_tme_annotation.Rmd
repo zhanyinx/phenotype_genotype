@@ -31,7 +31,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
   library(mclust)
-  source("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/src/functions.R")
+  source("src/functions.R")
 })
 
 ```
@@ -48,7 +48,7 @@ As an initial approach to defining the TME, we will include cells from B_Mature,
 Below, we present the UMAP visualization, color-coded by cell type annotation and compartment classification.
 
 ```{r}
-srat = readRDS("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/00_malignant_non_malignant_annotation.rds")
+srat = readRDS("data/00_malignant_non_malignant_annotation.rds")
 srat$compartment = "undefined"
 srat$compartment[srat$tierI] = "tumor"
 srat$compartment[srat$aggregated_ct %in% c("B_mature", "T_CD4", "T_CD8", "NK_cells")] = "tme"
@@ -95,7 +95,7 @@ ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = compartm
 ```
 
 ```{r}
-if(!file.exists("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/01_tme_annotation.rds")){
-  saveRDS(srat, "/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/01_tme_annotation.rds")
+if(!file.exists("data/01_tme_annotation.rds")){
+  saveRDS(srat, "data/01_tme_annotation.rds")
 }
 ```
