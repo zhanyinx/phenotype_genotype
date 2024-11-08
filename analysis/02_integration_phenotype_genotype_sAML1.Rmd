@@ -18,7 +18,8 @@ knitr::opts_chunk$set(echo       = FALSE,
                       autodep    = TRUE,
                       fig.align  = 'center',
                       fig.width  = 6,
-                      fig.height = 6)
+                      fig.height = 6,
+                      dev        = "pdf")
 ```
 
 ```{r}
@@ -33,11 +34,11 @@ suppressPackageStartupMessages({
   library(maftools)
   library(ggplot2)
   library(plotly)
-  library("AnnotationDbi")
-  library("org.Hs.eg.db")
-  library("clusterProfiler")
+  library(AnnotationDbi)
+  library(org.Hs.eg.db)
+  library(clusterProfiler)
   library(ReactomePA)
-  source("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/src/functions.R")
+  source("src/functions.R")
 })
 
 ```
@@ -58,8 +59,8 @@ One key feature of NanoGen is its ability to call consensus at the base level, r
 First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
 
 ```{r}
-genotype_file = "/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/enrichment/sAML1.csv"
-wes_file = "/hpcnfs/scratch/DIMA/zhan/dragen/231006_aml_caprioli/annotations/variantalker_output/231008/annotation/somatic/S29942_sAML1_D/S29942_sAML1_D.small_mutations.cancervar.escat.maf"
+genotype_file = "data/enrichment/sAML1.csv"
+wes_file = "data/S29942_sAML1_D.small_mutations.cancervar.escat.maf"
 sample_id = "sAML1"
 ```
 
@@ -230,8 +231,37 @@ For each case, we will examine the impact of adding mutations to the analysis.
 
 ```{r}
 # Read RNAseq
-srat = readRDS("/hpcnfs/scratch/P_DIMA_SCMSEQ/analysis/scrnaseq/phenotype_genotype/data/01_tme_annotation.rds")
+srat = readRDS("data/01_tme_annotation.rds")
 srat$cellid = unlist(lapply(str_split(names(srat$orig.ident), "-"), "[[", 1))
+```
+
+The table below provides a comprehensive list of all mutations, along with the associated single-cell metadata
+
+```{r}
+tmp_genotype = read.csv(genotype_file, row.names = 1)
+tmp_genotype$alt <- ifelse(grepl('-', tmp_genotype$alt), '-', tmp_genotype$alt)
+tmp_genotype['id'] = paste0(tmp_genotype[,'gene'], tmp_genotype[,'start'], tmp_genotype[,'alt'])
+tmp_genotype = tmp_genotype[tmp_genotype$id %in% unique(variants$id),]
+tmp_genotype = as_tibble(tmp_genotype[tmp_genotype$gene %in% c("RUNX1", "IDH1", "SRSF2", "FLT3", "CSF3R"),])
+tmp_genotype = tmp_genotype[, c("gene", "cell", "genotype")] %>% 
+  pivot_wider(names_from = gene, values_from = genotype) %>%
+  mutate_all( ~ replace(., . == "", "na"))
+
+metadata = srat@meta.data
+metadata = metadata[metadata$sample_id == sample_id, ] 
+table2show = merge(tmp_genotype, metadata[,c("cellid", "compartment", "aggregated_ct")], by.x="cell", by.y="cellid")
+
+DT::datatable(
+  data.frame(table2show),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
 ```
 
 ## RUNX1 - IDH1 - FLT3
@@ -401,6 +431,25 @@ up = reactome_enrichment(markers, down=FALSE)
 down = reactome_enrichment(markers, down=TRUE)
 ```
 
+__Differential expressed genes__
+
+The table below displays the differentially expressed genes identified in the comparison between `r paste(mutation_status1, collapse = "_")` vs `r paste(mutation_status2, collapse = "_")`
+
+
+```{r}
+DT::datatable(
+  markers[,c("avg_log2FC", "p_val_adj")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = TRUE
+)
+```
+
 __Enriched in FLT3 Mutated__
 
 ```{r}
@@ -417,7 +466,6 @@ DT::datatable(
   ),
   rownames = FALSE
 )
-
 
 
 ```
@@ -493,7 +541,36 @@ up = reactome_enrichment(markers, down=FALSE)
 down = reactome_enrichment(markers, down=TRUE)
 ```
 
+__Differential expressed genes__
+
+The table below displays the differentially expressed genes identified in the comparison between `r paste(mutation_status1, collapse = "_")` vs `r paste(mutation_status2, collapse = "_")`
+
+
+```{r}
+DT::datatable(
+  markers[,c("avg_log2FC", "p_val_adj")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = TRUE
+)
+```
+
 __Enriched in FLT3 Mutated__
+
+Overall, these enriched pathways suggest that FLT3-mutated AML cells may exhibit:
+
+- Increased protein synthesis and ribosomal activity to support rapid growth. (e.g., "Peptide chain elongation," "Eukaryotic Translation Initiation")
+
+- Adaptations that mimic viral mechanisms and stress responses, likely aiding in immune evasion and survival. (e.g., "Viral mRNA Translation," "Host Interactions of HIV factors")
+
+0 Metabolic and amino acid adjustments to endure nutrient scarcity and manage oxidative stress. (e.g., "Response of EIF2AK4 (GCN2) to amino acid deficiency," "Metallothioneins bind metals")
+
+- Potential migration and invasion mechanisms that could facilitate interactions with and retention in the bone marrow microenvironment. (e.g., "Regulation of expression of SLITs and ROBOs")
 
 ```{r}
 dotplot(up, title=paste0("Enriched in ", paste(mutation_status1, collapse = "_")), showCategory=15)
@@ -580,6 +657,25 @@ markers = markers[markers$p_val_adj < 0.05, ]
 
 up = reactome_enrichment(markers, down=FALSE)
 down = reactome_enrichment(markers, down=TRUE)
+```
+
+__Differential expressed genes__
+
+The table below displays the differentially expressed genes identified in the comparison between `r paste(mutation_status1, collapse = "_")` vs `r paste(mutation_status2, collapse = "_")`
+
+
+```{r}
+DT::datatable(
+  markers[,c("avg_log2FC", "p_val_adj")],
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = TRUE
+)
 ```
 
 __Enriched in FLT3 Mutated__

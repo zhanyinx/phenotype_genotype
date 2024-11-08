@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Marcello Del Corvo" />
+
+
+<title>Genotype phenotype AML4</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.3/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="site_libs/jszip-1.13.6/jszip.min.js"></script>
+<script src="site_libs/pdfmake-1.13.6/pdfmake.js"></script>
+<script src="site_libs/pdfmake-1.13.6/vfs_fonts.js"></script>
+<link href="site_libs/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">scmseq</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://www.research.ieo.it/research-and-technology/technological-units/data-science-unit/">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Genotype phenotype AML4</h1>
+<h4 class="author">Marcello Del Corvo</h4>
+<h4 class="date">04 November, 2024</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2024-11-04
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>phenotype_genotype/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.1). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20240315code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20240315)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20240315code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20240315)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree1bdbd4b89c191dea1bc893f798c16d2eac7adba4targetblank1bdbd4ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/ieoresearch/phenotype_genotype/tree/1bdbd4b89c191dea1bc893f798c16d2eac7adba4" target="_blank">1bdbd4b</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree1bdbd4b89c191dea1bc893f798c16d2eac7adba4targetblank1bdbd4ba" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/ieoresearch/phenotype_genotype/tree/1bdbd4b89c191dea1bc893f798c16d2eac7adba4" target="_blank">1bdbd4b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    data/
+    Ignored:    src/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/03_integration_phenotype_genotype_AML4.Rmd</code>) and HTML (<code>docs/03_integration_phenotype_genotype_AML4.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/1bdbd4b89c191dea1bc893f798c16d2eac7adba4/analysis/03_integration_phenotype_genotype_AML4.Rmd" target="_blank">1bdbd4b</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-04
+</td>
+<td>
+AML4 enriched analysis report
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/3ba2da8b047a7c5310d71d48c9af095d6dc1a195/analysis/03_integration_phenotype_genotype_AML4.Rmd" target="_blank">3ba2da8</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-23
+</td>
+<td>
+:pencil: Add template AML4 AML5
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="objective" class="section level1">
+<h1>Objective</h1>
+<p>Genotype data integration of ONT enrichment experiment with 10X expression data for AML4 sample</p>
+</div>
+<div id="genotype-data" class="section level1">
+<h1>Genotype data</h1>
+<p>The genotype data has been analyzed using <a href="https://github.com/dimadatascience/NanoGen">NanoGen</a>, a custom pipeline designed to call mutations from targeted enrichment data. NanoGen follows a multi-step process to ensure accurate mutation detection. It starts by using Blaze to identify cell barcodes, ensuring that each cell’s data is correctly assigned. It then collapses Unique Molecular Identifiers (UMIs) to eliminate PCR duplicates and other biases, allowing for a more accurate representation of the original sample.</p>
+<p>One key feature of NanoGen is its ability to call consensus at the base level, rather than at the sequence level, providing a more precise identification of mutations. NanoGen applies a negative binomial model to distinguish between true mutated reads and background noise, improving the reliability of mutation calls. To address the issue of mutated allele dropout, NanoGen imposes a strict threshold: it requires at least five distinct wild-type (WT) UMIs for a cell to be confidently classified as wild-type (WT).</p>
+<div id="data-exploration" class="section level2">
+<h2>Data exploration</h2>
+<p>First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.</p>
+<p>Below, we present the correlation between the cellular fraction, defined as VAF * 2, in WES and the cellular fraction in the target enrichment. As demonstrated, the target enrichment effectively recapitulates the cellular fraction observed in WES.</p>
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-782715c6e6448907f7d2" style="width:576px;height:576px;"></div>
+<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"data":[{"x":[0.4925373134328358,0.76595744680851063,0.69361702127659575,0.8875739644970414],"y":[0.73684210526315785,0.65306122448979587,0.80000000000000004,1],"text":["FRYL","IDH1","SRSF2","STAG2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.6692913385826778,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.47278548087962552,0.90732579705025174],"y":[0.47278548087962552,0.90732579705025174],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(190,190,190,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":49.872976338729771,"r":7.3059360730593621,"b":37.260273972602747,"l":43.105022831050235},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Correlation: 0.56","font":{"color":"rgba(0,0,0,1)","family":"","size":26.567040265670411},"x":0.5,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.47278548087962552,0.90732579705025174],"tickmode":"array","ticktext":["0.5","0.6","0.7","0.8","0.9"],"tickvals":[0.5,0.59999999999999998,0.69999999999999996,0.80000000000000004,0.90000000000000002],"categoryorder":"array","categoryarray":["0.5","0.6","0.7","0.8","0.9"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"single cell CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.63571428571428568,1.0173469387755103],"tickmode":"array","ticktext":["0.7","0.8","0.9","1.0"],"tickvals":[0.70000000000000007,0.80000000000000004,0.90000000000000013,1],"categoryorder":"array","categoryarray":["0.7","0.8","0.9","1.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"WES_CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"4095651a4632":{"x":{},"y":{},"text":{},"type":"scatter"},"40956f635bcc":{"intercept":{},"slope":{}}},"cur_data":"4095651a4632","visdat":{"4095651a4632":["function (y) ","x"],"40956f635bcc":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-7f2e8bbd475421ad5ec3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-7f2e8bbd475421ad5ec3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["FRYL","IDH1","SRSF2","STAG2"],[34,33,72,38],[33,108,163,300],[0.4925373134328358,0.7659574468085106,0.6936170212765957,0.8875739644970414],[0.3684210526315789,0.3265306122448979,0.4,0.6764705882352942],[0.7368421052631579,0.6530612244897959,0.8,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>gene<\/th>\n      <th>WT<\/th>\n      <th>MUT<\/th>\n      <th>ccf<\/th>\n      <th>tumor_f<\/th>\n      <th>wes_ccf<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5]},{"name":"gene","targets":0},{"name":"WT","targets":1},{"name":"MUT","targets":2},{"name":"ccf","targets":3},{"name":"tumor_f","targets":4},{"name":"wes_ccf","targets":5}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="mutation-co-occurence" class="section level2">
+<h2>Mutation co-occurence</h2>
+<p>Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: STAG2, SRSF2, IDH1, FRYL</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-bdb697fcf84443e89835" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bdb697fcf84443e89835">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["MUT_MUT_MUT","MUT_WT_MUT","WT_WT_MUT"],[2,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>IDH1_FRYL_STAG2<\/th>\n      <th>ncells<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":1},{"name":"IDH1_FRYL_STAG2","targets":0},{"name":"ncells","targets":1}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-e6af24d9f946a256fb7a" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-e6af24d9f946a256fb7a">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["MUT_MUT_MUT","MUT_WT_MUT","WT_WT_MUT"],[2,7,3]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>SRSF2_FRYL_STAG2<\/th>\n      <th>ncells<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":1},{"name":"SRSF2_FRYL_STAG2","targets":0},{"name":"ncells","targets":1}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-025156185a60de26b921" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-025156185a60de26b921">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["MUT_MUT_MUT_MUT","MUT_MUT_WT_MUT","WT_WT_WT_MUT"],[1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>SRSF2_IDH1_FRYL_STAG2<\/th>\n      <th>ncells<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":1},{"name":"SRSF2_IDH1_FRYL_STAG2","targets":0},{"name":"ncells","targets":1}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="genotype-phenotype-analysis-full-genotype" class="section level1">
+<h1>Genotype phenotype analysis: full genotype</h1>
+<p>We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:</p>
+<p>1- STAG2 - IDH1 - FRYL</p>
+<p>2- STAG2 - SRSF2 - FRYL</p>
+<p>The reason is that, for these combination, we have the highest number of genotyped cells for all genes.</p>
+<p>For each case, we will examine the impact of adding mutations to the analysis.</p>
+<p>The table below provides a comprehensive list of all mutations, along with the associated single-cell metadata</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-e83d4e6053a8ee756eee" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-e83d4e6053a8ee756eee">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["AAACCCATCAGAGCGA","AACAAAGTCGGATAAA","AACAAGAGTTCCAAAC","AACAGGGCACGCGGTT","AACCACAAGCGTCTCG","AACGAAAAGCGATGGT","AACGTCACACTGTTCC","AACGTCATCATGCTAG","AACTTCTTCCATCCGT","AACTTCTTCCGATAGT","AAGAACATCGAAATCC","AAGCATCCATCTGCGG","AAGTACCGTTCGAAGG","AAGTGAACACGATAGG","AATCACGTCACGGGCT","AATCGTGAGGTTCATC","AATGGAACACCTTCGT","AATGGCTCAGAGGCTA","AATTTCCTCAGTCTTT","ACACAGTTCGTAGCTA","ACACCAAGTCCATCTC","ACACCAAGTTGTTGAC","ACACTGATCAGTCTTT","ACAGAAAAGATACGAT","ACAGAAAGTGTCCGGT","ACAGCCGGTGCAGATG","ACATCCCAGCCTATCA","ACATCCCAGTGGTTGG","ACATGCAAGCTTACGT","ACATTTCGTCTTCATT","ACCAACACATACAGGG","ACCAACAGTATCAAGA","ACCCTTGCACAGTCGC","ACCCTTGGTAGCGCTC","ACCGTTCAGATGGGCT","ACCGTTCAGGAAAGGT","ACCTACCAGAGTGTTA","ACGATCAAGAAGCCTG","ACGCACGGTCATGACT","ACTATCTCATACATCG","ACTATGGCAGAACTTC","ACTGCAAAGGTAATCA","ACTTCGCGTCGCACGT","AGAAATGTCCACAGGC","AGAACCTTCATCCCGT","AGAAGCGCAGTCAACT","AGACACTGTCTCGGGT","AGACTCACAAGATCCT","AGAGCCCCACTGTGTA","AGAGCCCTCCTCGATC","AGATGAATCAGACCTA","AGATGCTTCACTTGTT","AGCATCAGTCAGGAGT","AGCATCATCTCTATGT","AGCCAATTCACAGAGG","AGCCACGAGGGCAGTT","AGCCACGGTAGCTGTT","AGCCAGCGTATACGGG","AGCGATTGTCCTGAAT","AGCGTATGTTGCACGC","AGGAAATGTTAGGACG","AGGATAAAGTATGGAT","AGGCATTCACAGTCCG","AGGGCCTAGACCAACG","AGGTAGGAGATGCAGC","AGGTCTAAGGAAGAAC","AGGTCTACACCTCTGT","AGGTTGTCACTGTTCC","AGTACTGAGTCACAGG","AGTGATCGTCTAGGCC","AGTGTTGGTCACCCTT","AGTTAGCGTAGGTACG","AGTTCCCCAAGTGGGT","ATACCGAAGAAGCGGG","ATATCCTGTGCCTTTC","ATCACTTAGCACAAAT","ATCAGGTTCCTCTAAT","ATCATTCAGCTGCCTG","ATCCACCGTTGGAGGT","ATCCATTTCGCTAATG","ATCGCCTCACTCACTC","ATCGCCTCATGGGATG","ATCGCCTGTCATCAGT","ATCGTAGGTCCTCCAT","ATGAGTCCAGTCAGCC","ATGATCGCAATCTCTT","ATGCCTCCAACACGAG","ATGGAGGGTTGAGTCT","ATGGATCAGCCTAGGA","ATTATCCGTAGATTAG","ATTCATCCATTCAGCA","ATTCGTTAGCGTGCTC","ATTCTTGAGCACCTGC","ATTGGGTAGCGCCCAT","ATTGGGTAGGTATAGT","ATTGGGTCAGCTACTA","ATTGTTCGTGGACTGA","ATTTACCGTTCCACGG","CAAGACTAGCCTGTCG","CAAGACTTCGGCTGGT","CAAGACTTCTGGTGGC","CAAGCTAAGATGCAGC","CAAGCTAAGTTATGGA","CAAGCTACACCAGCCA","CAAGGGATCCCTCAAC","CACACAAAGGTTAGTA","CACCAAACAAGTGGAC","CACGTTCAGTTGAAGT","CACGTTCGTATCAGCT","CACGTTCTCCTTATGT","CACTGAAGTCTTAGTG","CACTGGGTCTACAGGT","CAGATACCAGGTGACA","CAGCAGCAGCGTCGAA","CAGCAGCGTACGACAG","CAGCCAGTCCACGTAA","CAGTTCCAGTATTGCC","CATAAGCCATGGCTGC","CATACAGAGAACTTCC","CATACAGAGTTGAAAC","CATACAGTCGCTGTCT","CATACTTAGATGCAGC","CATACTTAGTCTACCA","CATCCCAGTTACCGTA","CATCCGTAGTCCCGAC","CATGCAACAATACCCA","CATGCCTAGGGCTAAC","CATTCATCAAGGACAC","CATTGCCAGGCACTCC","CATTGTTGTGGCTTAT","CATTGTTGTTACGCCG","CATTGTTTCTCTATGT","CATTTCAGTCTGCAAT","CATTTCAGTGAACCGA","CCAAGCGGTCTGTAGT","CCACGTTGTTTACCAG","CCCATTGCACTAACGT","CCCTCTCAGATACCAA","CCCTCTCAGTATGGCG","CCCTCTCGTTCCCAAA","CCCTGATCAAGTGTCT","CCCTGATCACTGTCCT","CCGAACGAGCTTAAGA","CCGATGGAGGCTCTCG","CCGCAAGCATGAGTAA","CCGGGTACATCCCACT","CCGGGTATCCCTCGAT","CCGGGTATCGAGTGGA","CCGGTGACAAGAGGCT","CCGTAGGCAACTGCTA","CCGTAGGGTGTTATCG","CCGTTCAGTTTCTATC","CCGTTCATCTAATTCC","CCTAAGACAGTAGAAT","CCTAAGAGTCCGGACT","CCTATCGTCGTGGAAG","CCTCAGTAGAACCGCA","CCTGCATAGATGCAGC","CCTTCAGGTCTACAAC","CCTTGTGTCCCGAATA","CGAGAAGAGCTCAGAG","CGGGACTTCCTTCTGG","CGGGTCATCGCTGTTC","CGTAATGGTGTGTGTT","CGTAATGTCACCTGTC","CGTGAATCACAGTCGC","CGTGCTTCAAGGACAC","CGTTAGAAGCCTATTG","CGTTAGAGTACAGCGA","CTACAGAAGATCCGAG","CTACATTCAGAGGTAC","CTACCCAGTATCACGT","CTACCCATCTTAGCCC","CTACCTGAGTTACTCG","CTATAGGCATCGGCCA","CTATAGGGTAGTATAG","CTATCCGCAAAGCTCT","CTATCTACAGAGGGTT","CTCAACCAGTGCGACA","CTCAAGACAACCGATT","CTCAATTCAAGCACAG","CTCAGGGGTCATATGC","CTCATCGCAGGCATGA","CTCATTATCATCTACT","CTCCCTCAGTGCCAGA","CTCTCAGGTTATTCTC","CTCTGGTAGAATCGTA","CTCTGGTAGCGTCAAG","CTGAATGTCTAGTTCT","CTGAGCGCACGGTGAA","CTGAGGCCACAATTCG","CTGCCATTCCTCGATC","CTGCCTATCGAGAGCA","CTGGACGTCTTCGTAT","CTGTAGACATCACGGC","CTGTCGTTCATGTCTT","CTGTGGGCAACGATTC","CTGTGGGGTTTCTATC","CTGTGGGTCGGCTGAC","CTTAGGAGTCCCACGA","CTTAGGAGTTTCGTAG","CTTCAATAGGGTGAAA","CTTCCGAAGAGCAACC","CTTCCTTCAATACCCA","CTTCTAACAGTCTGGC","GAACACTGTATCGCAT","GAACGTTAGACCATGG","GAACGTTAGGATTTGA","GAACTGTGTGTGTGTT","GAACTGTTCGATACTG","GAAGGGTGTTCAAGTC","GAAGTAAAGCCTGTCG","GAAGTAACACGCTATA","GAATAGACAACCCTCT","GAATCACCACTATCGA","GACACGCTCCTCATAT","GACAGCCTCGGTCTAA","GACATCATCGCAAGAG","GACGTTATCACCATCC","GACTATGGTACGACAG","GACTCTCCATGTACGT","GACTCTCTCAGCCTTC","GAGCTGCAGGCTGGAT","GAGGCCTGTCCACATA","GAGGGTAGTTACACAC","GAGTCTACATCAGCAT","GAGTGTTGTTCCGCAG","GAGTTACAGCAGATAT","GAGTTTGGTTTAGTCG","GATAGAAAGATCCGAG","GATAGAACACATGACT","GATAGAACACCTGCGA","GATCACACAAGTCCAT","GATCGTAAGTACGTCT","GATGACTAGTGAACAT","GATGACTCATTGGATC","GATGCTATCAAACCCA","GATGCTATCCCTCTCC","GATTCGAAGAACTGAT","GATTCTTTCACATACG","GATTGGTCACTGCACG","GCAGCCACACTACTTT","GCAGCTGGTAGGTAGC","GCAGTTAAGACGATAT","GCATGATCATGTACGT","GCCAACGTCGAATGCT","GCCATTCCATCCTATT","GCCCAGACATGAGTAA","GCCTGTTAGGATCACG","GCCTGTTTCGCCACTT","GCGATCGTCTCCACTG","GCTACAATCACCTCAC","GCTCAAAGTGGCCCAT","GGAACCCCAAGCGCAA","GGAAGTGCAAGACAAT","GGAAGTGCACCCTATC","GGAATCTGTGTCATCA","GGACGTCTCTCGACGG","GGAGAACTCCCGTGAG","GGAGATGCACCGTGAC","GGAGATGTCAGCGCAC","GGAGGATTCATTACCT","GGAGGTAAGACTACCT","GGATGTTAGCATCCCG","GGCAGTCCAGTGTATC","GGCTTTCCAAGTGGCA","GGGAAGTAGGCGAAGG","GGGACCTCATCAACCA","GGGACCTGTAAGATTG","GGGACCTTCCGTGGCA","GGGACTCGTTGCATAC","GGGACTCTCAGTAGGG","GGGAGTACAAAGCAAT","GGGATCCTCTTCTAAC","GGGCCATTCTTTGGAG","GGGTAGAAGTCTAGAA","GGGTTATAGACCACGA","GGTAACTAGAGTACCG","GGTAACTGTGGAAATT","GGTCTGGGTATGAAGT","GGTGAAGTCCAAGCAT","GGTGTCGAGATGTTCC","GGTTCTCAGATGTAGT","GGTTCTCTCCCTCGTA","GGTTGTACAATTCACG","GTAGCTAGTGGCTGCT","GTATTTCCAATCTGCA","GTATTTCGTACAGTCT","GTATTTCGTTGGCCTG","GTCATGAGTAGCTGTT","GTCATTTCAGGTTCGC","GTCCACTAGTTACGAA","GTCCACTTCTATGCCC","GTCGCGAAGGGCCTCT","GTCGTAACAATTTCGG","GTCTACCAGGGATCGT","GTCTACCAGGTCTACT","GTCTACCGTATAGCTC","GTCTAGAAGCCGATTT","GTCTGTCGTCGTGATT","GTCTGTCTCTGCTTAT","GTCTTTACATCGTTCC","GTGACGCAGGACTAAT","GTGAGTTAGTTCATCG","GTGCACGCAGCATCTA","GTGGGAACATCTCCCA","GTGTGGCGTGCTGCAC","GTGTTAGGTATTTCCT","GTTAGTGAGTAGTCAA","GTTATGGTCGTTAGAC","GTTCCGTAGAGAAGGT","TAACACGTCCTTGACC","TAACGACCAACTCGTA","TAAGCACCAACAACAA","TAAGCACGTTCCGGTG","TAAGCACTCGCTAGCG","TAATTCCCAAAGACTA","TACACCCAGCTGAAAT","TACAGGTTCGAGAAAT","TACATTCAGCGTATAA","TACATTCAGGCATGCA","TACATTCGTACTGCGC","TACATTCTCCAGTACA","TACCCGTAGTACTCGT","TACCGAACAGTTTGGT","TACCGAACATCAGCTA","TACCGGGCACCTCAGG","TACCTCGCACTTTAGG","TACCTCGTCTTCTCAA","TACGGGCGTAGGCAAC","TACGTCCAGCTCCATA","TACGTCCAGGCAATGC","TACGTCCGTTCAATCG","TACTTGTGTGAGATAT","TAGAGTCTCCCTCTCC","TAGATCGTCGACCTAA","TAGATCGTCGCAGATT","TAGATCGTCGGTGAAG","TAGGAGGCACTTCATT","TAGGTACAGCTTCGTA","TAGTGCATCCGCAAAT","TATCTTGCAAGACGAC","TATGTTCTCGCTTTAT","TATTGCTTCGTTGTTT","TATTGGGCACCAAAGG","TCAAGCATCACTACTT","TCAATCTGTTGGGCCT","TCAATTCCAGCCTACG","TCACACCTCCATACTT","TCACTCGAGGGCAATC","TCAGCAAAGAGAGGGC","TCAGCAAAGCACTCAT","TCAGCAACAGCTATTG","TCAGTGACACTCCACT","TCAGTTTGTGATTAGA","TCATATCCACCCAACG","TCATCATAGATCCCAT","TCATGCCAGACGTCGA","TCATGCCAGAGATTCA","TCATGCCGTCTTGCTC","TCATTACCATCCGGTG","TCATTCATCATCGGGC","TCATTTGCAGGTCCCA","TCATTTGTCTCTGACC","TCCATCGCAGCAGTTT","TCCGAAATCTCTCCGA","TCCGGGACAGAGGTTG","TCCGTGTGTCCGGTCA","TCCTCCCTCGGTAACT","TCCTCCCTCTCGCTTG","TCCTCTTAGATGAACT","TCCTTCTAGTCAGCCC","TCCTTTCAGTAGTCCT","TCCTTTCCACCTCTGT","TCGAACATCGCCTTTG","TCGATTTCAAGTGACG","TCGCACTGTTTCTATC","TCGCTTGGTAGAGTTA","TCGGATACAAAGGATT","TCGGTCTTCGCTAAAC","TCGTCCATCATCACCC","TCGTGCTGTTAGTTCG","TCTAACTTCCTTCTTC","TCTACATCAACTGGTT","TCTACATGTCACCCTT","TCTACATGTCCATCTC","TCTATACCAATTCACG","TCTCTGGAGTTTGAGA","TCTTAGTTCAAAGACA","TCTTTGAAGATAACAC","TGAGACTCATCATTGG","TGAGCGCCAAGCGAAC","TGATGCATCCTTTGAT","TGATGCATCTAACGCA","TGATTTCTCATAAGGA","TGCAGATGTGTTCGAT","TGCAGGCTCAGCAATC","TGCAGTAGTCGCCACA","TGCAGTATCAGGGATG","TGCATGAAGCTGCCAC","TGCATGAAGGTTCTTG","TGCCGAGTCAACTCTT","TGCCGAGTCCATCTCG","TGCCGAGTCTCAACGA","TGCGGCAAGTCATGAA","TGCGGCATCTTCGCTG","TGCTCCATCACTGATG","TGCTGAAAGAAACTCA","TGGAGAGCATAGAATG","TGGAGAGTCCGAGTGC","TGGGATTTCACGGACC","TGGGTTACAATAACCC","TGTCCCACATCGAAGG","TGTGAGTGTGAGGATC","TGTTCATTCTGTGCAA","TGTTCCGAGGTTACAA","TGTTCCGTCTAGGAAA","TGTTGAGAGCGTGCTC","TTACAGGCAGAGTCTT","TTACAGGTCCATACTT","TTACCGCGTCTCTCCA","TTACTGTTCGCTATTT","TTCAATCCAACCGACC","TTCAATCGTTTATGCG","TTCATGTAGCAATAGT","TTCCACGAGGCTCAAG","TTCCGTGAGACATATG","TTCCGTGGTATCGCGC","TTCCTAAGTATGACAA","TTCCTAAGTATGATCC","TTCCTCTGTGTCTTCC","TTCCTCTTCACCATCC","TTCCTTCTCGAGATGG","TTCGCTGTCACATTGG","TTCGGTCTCCGATAAC","TTCTAACAGTAGGATT","TTCTCTCTCCTTGGAA","TTGACCCCATCCGATA","TTGACCCGTCTCGCGA","TTGATGGAGCATGGGT","TTGCATTGTGCACATT","TTGCCTGTCTGCTCTG","TTGCTGCCAGCAGGAT","TTGGGCGTCTTTCCGG","TTGGGTAAGACATATG","TTGGGTAAGGGTTTCT","TTGGGTATCCAGCTCT","TTGGTTTAGGTACAGC","TTGTGTTCACGAGGTA","TTGTGTTGTAATACCC","TTGTTGTCACGACCTG","TTGTTTGAGCAACAAT","TTGTTTGGTCTACATG","TTTCATGAGTCAGGGT","TTTCCTCGTACAGTCT","TTTGACTTCTGTCGTC","TTTGGTTTCGTACCTC","TTTGTTGGTTAGCGGA"],["na","WT","na","na","na","na","na","na","na","na","na","na","MUT","MUT","WT","na","na","WT","WT","na","na","na","na","MUT","na","na","na","MUT","na","na","na","MUT","na","MUT","MUT","na","na","na","na","na","WT","na","MUT","na","na","na","WT","WT","na","na","na","na","na","na","na","MUT","na","na","na","na","MUT","na","na","na","na","MUT","na","na","na","na","WT","na","na","na","na","MUT","MUT","na","na","na","MUT","MUT","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","WT","na","na","MUT","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","WT","WT","na","na","na","na","na","na","na","na","na","MUT","na","MUT","na","na","na","MUT","na","na","na","na","MUT","na","na","na","WT","na","na","na","na","WT","MUT","na","na","na","na","MUT","na","na","na","na","na","na","WT","na","na","na","MUT","na","na","MUT","na","na","na","na","na","MUT","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","WT","na","na","WT","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","WT","na","WT","WT","na","MUT","na","na","na","na","na","na","WT","WT","MUT","na","na","MUT","MUT","MUT","na","na","na","MUT","na","na","WT","MUT","na","na","WT","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","WT","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","MUT","na","na","WT","na","na","WT","MUT","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","WT","na","MUT","na","na","MUT","na","na","na","MUT","na","na","na","na","na","na","na","MUT","na","na","na","WT","na","na","na","na","WT","na","na","na","na","na","na","na","na","WT","na","WT","na","na","na","na","na","na","MUT","na","na","WT","na","na","MUT","na","MUT","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na"],["na","na","MUT","na","na","na","na","na","na","MUT","na","na","na","na","MUT","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","MUT","na","na","MUT","na","na","na","na","na","na","MUT","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","MUT","na","na","na","MUT","na","na","na","na","na","na","na","MUT","WT","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","WT","na","na","na","na","MUT","MUT","MUT","na","na","MUT","MUT","na","na","MUT","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","WT","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","MUT","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","WT","MUT","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","MUT","na","na","MUT","na","na","na","na","na","na","na","MUT","MUT","na","na","na","na","na","MUT","MUT","na","MUT","MUT","na","MUT","na","WT","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","WT"],["na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","WT","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","WT","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","WT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na","na","MUT","MUT","na","na","na","na","na","MUT","na","na","na","na","na","na","na","na","na","na","na","na","na","na"],["WT","na","na","na","na","MUT","na","na","MUT","MUT","na","na","MUT","na","na","MUT","na","WT","MUT","na","na","MUT","MUT","MUT","na","na","na","MUT","na","WT","na","na","na","na","MUT","na","na","na","na","MUT","na","MUT","na","na","MUT","MUT","na","na","MUT","na","MUT","MUT","na","MUT","MUT","na","MUT","na","MUT","na","na","na","na","na","na","na","MUT","na","na","na","MUT","na","na","MUT","na","MUT","MUT","na","MUT","na","MUT","na","na","na","na","na","na","na","na","na","MUT","na","MUT","na","MUT","na","MUT","na","MUT","na","MUT","na","na","na","MUT","na","na","MUT","na","na","na","na","MUT","na","MUT","na","na","na","na","WT","MUT","na","na","na","na","na","MUT","na","na","na","na","na","MUT","na","na","na","na","na","MUT","na","MUT","na","na","na","na","WT","na","na","na","na","na","MUT","na","na","na","MUT","MUT","na","na","na","na","na","na","MUT","na","WT","na","na","na","na","na","na","MUT","na","na","na","WT","na","na","na","na","na","na","na","na","na","WT","na","na","MUT","WT","MUT","MUT","MUT","na","na","na","na","MUT","WT","na","MUT","na","MUT","na","na","na","na","na","na","na","MUT","na","na","na","na","na","MUT","na","MUT","MUT","na","na","MUT","na","na","na","na","na","na","na","na","na","MUT","WT","na","na","MUT","MUT","na","na","MUT","na","na","na","na","MUT","na","na","na","na","MUT","na","MUT","MUT","MUT","na","MUT","MUT","na","na","na","MUT","na","MUT","na","na","MUT","na","na","MUT","na","na","na","MUT","na","WT","MUT","na","MUT","MUT","na","na","MUT","na","na","MUT","na","na","WT","MUT","MUT","na","MUT","na","na","na","MUT","MUT","WT","na","na","na","na","na","na","na","na","na","MUT","na","na","MUT","na","MUT","na","na","WT","na","WT","na","MUT","na","na","na","na","na","na","MUT","na","na","na","na","na","na","MUT","MUT","na","na","na","na","na","na","na","na","na","MUT","na","MUT","MUT","MUT","na","MUT","MUT","MUT","WT","na","MUT","na","MUT","na","na","na","MUT","WT","na","na","na","MUT","na","MUT","MUT","na","MUT","na","na","na","na","na","MUT","WT","na","na","na","MUT","MUT","na","MUT","na","MUT","na","na","WT","na","MUT","na","WT","MUT","na","na","na","MUT","na","na","na","MUT","MUT","MUT","na","na","na","WT","MUT","MUT","MUT","na","na","WT","MUT","MUT","na","na","MUT","na","MUT","MUT","MUT","na","MUT","MUT","na","MUT","na","na","na","MUT","MUT","MUT","na","na","MUT","na","na","MUT","na","MUT","na","MUT","na","na","MUT","na","na","na","na","na","MUT","na"],["tme","undefined","undefined","tumor","tme","undefined","undefined","undefined","undefined","undefined","undefined","undefined","undefined","tme","undefined","undefined","tumor","tme","tme","tme","undefined","undefined","undefined","undefined","undefined","undefined","tme","undefined","tumor","tme","tumor","undefined","tme","undefined","undefined","tumor","tumor","tumor","undefined","undefined","undefined","undefined","tme","undefined","tumor","undefined","tme","undefined","tme","undefined","tme","tme","undefined","undefined","tumor","tumor","undefined","tme","undefined","tme","undefined","undefined","tme","undefined","tme","tme","undefined","undefined","undefined","tme","tme","undefined","undefined","undefined","undefined","tme","tumor","tme","undefined","tumor","tumor","undefined","undefined","tumor","tme","tme","tme","undefined","tme","tme","undefined","tme","undefined","tumor","undefined","tme","undefined","undefined","undefined","undefined","tme","tme","undefined","undefined","undefined","undefined","tme","undefined","tme","undefined","tme","undefined","tumor","undefined","undefined","tme","undefined","tme","undefined","tme","undefined","undefined","undefined","undefined","tumor","undefined","undefined","undefined","undefined","tme","tumor","tme","undefined","undefined","tme","undefined","tumor","tme","undefined","undefined","undefined","undefined","tumor","undefined","undefined","tme","tumor","undefined","tme","tme","tme","undefined","undefined","tme","tme","tumor","undefined","undefined","undefined","tme","undefined","undefined","tme","undefined","undefined","tme","tme","undefined","undefined","undefined","undefined","tumor","undefined","undefined","undefined","tumor","tme","undefined","tumor","tme","undefined","undefined","undefined","tumor","undefined","tme","tme","undefined","undefined","undefined","tme","undefined","undefined","undefined","undefined","undefined","undefined","tumor","undefined","tme","tme","undefined","undefined","undefined","tumor","undefined","tumor","undefined","tumor","undefined","undefined","undefined","undefined","tme","tme","tumor","tumor","undefined","tme","tumor","undefined","tme","undefined","undefined","undefined","tumor","undefined","undefined","undefined","tme","tumor","undefined","undefined","undefined","tme","tumor","undefined","undefined","undefined","tme","undefined","undefined","tme","tme","undefined","tme","undefined","undefined","undefined","undefined","tme","undefined","undefined","undefined","undefined","undefined","tme","undefined","undefined","undefined","undefined","tme","undefined","undefined","undefined","undefined","tumor","undefined","tme","tme","undefined","tme","tumor","undefined","tme","undefined","tme","undefined","undefined","undefined","undefined","undefined","undefined","undefined","tumor","undefined","undefined","undefined","tme","tme","undefined","undefined","tumor","undefined","undefined","tumor","tumor","tme","undefined","tme","tumor","undefined","tumor","undefined","tme","undefined","tme","tme","tme","tme","undefined","undefined","tumor","undefined","tumor","undefined","tme","tme","tumor","tme","tme","tme","tme","undefined","undefined","tme","undefined","undefined","undefined","undefined","undefined","undefined","tumor","undefined","tme","undefined","undefined","tme","undefined","tumor","undefined","tumor","tme","tme","undefined","tme","undefined","tme","tumor","undefined","undefined","tme","tumor","undefined","undefined","tme","undefined","undefined","undefined","tme","undefined","tumor","undefined","undefined","tme","tumor","undefined","tme","undefined","undefined","undefined","undefined","undefined","undefined","undefined","undefined","tme","undefined","undefined","undefined","tme","undefined","tumor","undefined","undefined","tme","undefined","undefined","tme","undefined","tme","tme","tme","undefined","undefined","undefined","tme","tme","undefined","tme","undefined","tme","tumor","undefined","undefined","undefined","undefined","tumor","undefined","undefined","tumor","tme","undefined","undefined","tme","undefined","undefined","undefined","tme","tme","undefined","undefined","undefined","tumor","tumor","undefined","tumor","undefined","undefined","undefined","undefined","tumor","tme","undefined","tumor","undefined","undefined","undefined","undefined","undefined","undefined","tme","undefined","undefined","tme","tme","tme","undefined","tumor","tme","undefined","undefined","undefined","undefined","tumor","tme","undefined","tme"],["B_mature","Erythroid","Early_myeloid","HSC_MPP","T_CD4","Erythroid","Erythroid","Erythroid","Erythroid","Early_myeloid","Erythroid","Erythroid","Erythroid","B_mature","HSC_MPP","Early_myeloid","HSC_MPP","NK_cells","B_mature","B_mature","Erythroid","Erythroid","Erythroid","Erythroid","HSC_MPP","Erythroid","B_mature","Erythroid","HSC_MPP","B_mature","HSC_MPP","Erythroid","B_mature","Erythroid","Erythroid","HSC_MPP","HSC_MPP","HSC_MPP","Erythroid","Erythroid","Erythroid","Erythroid","T_CD8","Erythroid","HSC_MPP","Erythroid","B_mature","Erythroid","B_mature","Erythroid","T_CD8","B_mature","Erythroid","Erythroid","HSC_MPP","HSC_MPP","Erythroid","T_CD8","Erythroid","B_mature","Erythroid","Early_myeloid","T_CD8","Erythroid","T_CD8","T_CD4","Erythroid","Erythroid","HSC_MPP","B_mature","T_CD8","Early_myeloid","Erythroid","MK","HSC_MPP","B_mature","HSC_MPP","NK_cells","Erythroid","HSC_MPP","HSC_MPP","Erythroid","Erythroid","HSC_MPP","B_mature","B_mature","T_CD8","Erythroid","NK_cells","T_CD4","Erythroid","B_mature","Erythroid","HSC_MPP","HSC_MPP","T_CD8","Erythroid","Erythroid","Erythroid","Early_myeloid","B_mature","T_CD4","Early_myeloid","T_gd","Early_myeloid","Erythroid","B_mature","Early_myeloid","B_mature","Erythroid","B_mature","Early_myeloid","HSC_MPP","HSC_MPP","Erythroid","T_CD8","HSC_MPP","B_mature","Early_myeloid","B_mature","Erythroid","Erythroid","MK","Erythroid","HSC_MPP","Erythroid","Erythroid","Erythroid","Erythroid","B_mature","HSC_MPP","B_mature","Erythroid","Early_myeloid","B_mature","Erythroid","HSC_MPP","B_mature","Erythroid","MK","Erythroid","Early_myeloid","HSC_MPP","MK","Early_myeloid","B_mature","HSC_MPP","Erythroid","T_CD8","T_CD8","B_mature","Erythroid","Erythroid","B_mature","T_CD4","HSC_MPP","Erythroid","Early_myeloid","B_early","T_CD4","MK","Early_myeloid","T_CD8","Early_myeloid","Early_myeloid","NK_cells","B_mature","Erythroid","Erythroid","Early_myeloid","Erythroid","HSC_MPP","Erythroid","Erythroid","Early_myeloid","HSC_MPP","B_mature","T_gd","HSC_MPP","B_mature","Early_myeloid","Erythroid","Erythroid","HSC_MPP","HSC_MPP","T_CD4","B_mature","Erythroid","HSC_MPP","Erythroid","T_CD8","Erythroid","HSC_MPP","Erythroid","Early_myeloid","Early_myeloid","Early_myeloid","HSC_MPP","Erythroid","B_mature","B_mature","Early_myeloid","HSC_MPP","Erythroid","HSC_MPP","Early_myeloid","HSC_MPP","Erythroid","HSC_MPP","Erythroid","Erythroid","Erythroid","HSC_MPP","T_CD4","T_CD8","HSC_MPP","HSC_MPP","Erythroid","B_mature","HSC_MPP","Erythroid","B_mature","Early_myeloid","Erythroid","Erythroid","HSC_MPP","Erythroid","Early_myeloid","Erythroid","B_mature","HSC_MPP","HSC_MPP","Erythroid","Erythroid","T_CD8","HSC_MPP","Erythroid","Erythroid","Erythroid","B_mature","HSC_MPP","Erythroid","B_mature","T_CD8","Early_myeloid","NK_cells","Erythroid","HSC_MPP","HSC_MPP","Early_myeloid","B_mature","HSC_MPP","Erythroid","Erythroid","HSC_MPP","Early_myeloid","B_mature","Erythroid","Erythroid","Early_myeloid","Erythroid","B_mature","Erythroid","HSC_MPP","Erythroid","Erythroid","HSC_MPP","Erythroid","B_mature","B_mature","Erythroid","NK_cells","HSC_MPP","Erythroid","B_mature","HSC_MPP","T_CD4","Erythroid","B_early","Early_myeloid","Erythroid","Early_myeloid","Early_myeloid","Erythroid","HSC_MPP","Erythroid","Early_myeloid","HSC_MPP","T_CD8","T_CD4","HSC_MPP","Erythroid","HSC_MPP","Erythroid","T_gd","HSC_MPP","HSC_MPP","B_mature","Erythroid","B_mature","HSC_MPP","Erythroid","HSC_MPP","HSC_MPP","T_CD8","Early_myeloid","B_mature","B_mature","T_CD8","B_mature","Early_myeloid","Early_myeloid","HSC_MPP","Erythroid","HSC_MPP","HSC_MPP","T_CD4","T_CD8","HSC_MPP","B_mature","T_CD8","T_CD8","T_CD8","Erythroid","Erythroid","B_mature","T_gd","Erythroid","Erythroid","Early_myeloid","Early_myeloid","HSC_MPP","HSC_MPP","Early_myeloid","B_mature","Erythroid","Erythroid","B_mature","Early_myeloid","HSC_MPP","Erythroid","HSC_MPP","B_mature","T_CD4","Erythroid","B_mature","Erythroid","T_CD8","HSC_MPP","Erythroid","Erythroid","B_mature","HSC_MPP","Late_myeloid","Erythroid","T_CD4","Early_myeloid","Erythroid","HSC_MPP","B_mature","Early_myeloid","HSC_MPP","Early_myeloid","Erythroid","T_CD8","HSC_MPP","Erythroid","B_mature","Erythroid","HSC_MPP","Erythroid","Erythroid","Erythroid","HSC_MPP","Erythroid","Early_myeloid","T_CD4","Erythroid","Early_myeloid","Erythroid","B_mature","Erythroid","HSC_MPP","HSC_MPP","Erythroid","T_CD8","Erythroid","Erythroid","NK_cells","Erythroid","T_CD4","T_CD8","B_mature","Erythroid","Erythroid","Mono","T_CD8","T_CD4","Early_myeloid","T_CD8","HSC_MPP","B_mature","HSC_MPP","Early_myeloid","Erythroid","Erythroid","Early_myeloid","HSC_MPP","Erythroid","Early_myeloid","HSC_MPP","B_mature","Erythroid","Erythroid","B_mature","HSC_MPP","Erythroid","Erythroid","B_mature","T_CD4","Erythroid","Early_myeloid","Erythroid","HSC_MPP","HSC_MPP","Early_myeloid","HSC_MPP","HSC_MPP","Erythroid","Erythroid","Erythroid","HSC_MPP","B_mature","Early_myeloid","HSC_MPP","Erythroid","Erythroid","Erythroid","Erythroid","Early_myeloid","Erythroid","B_mature","Erythroid","Erythroid","B_mature","B_mature","T_CD8","Erythroid","HSC_MPP","NK_cells","Erythroid","HSC_MPP","Erythroid","Early_myeloid","HSC_MPP","B_mature","Erythroid","T_CD4"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>cell<\/th>\n      <th>SRSF2<\/th>\n      <th>IDH1<\/th>\n      <th>FRYL<\/th>\n      <th>STAG2<\/th>\n      <th>compartment<\/th>\n      <th>aggregated_ct<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"name":"cell","targets":0},{"name":"SRSF2","targets":1},{"name":"IDH1","targets":2},{"name":"FRYL","targets":3},{"name":"STAG2","targets":4},{"name":"compartment","targets":5},{"name":"aggregated_ct","targets":6}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<div id="stag2---idh1---fryl" class="section level2">
+<h2>STAG2 - IDH1 - FRYL</h2>
+<p>Describing the mutations in the order STAG2, IDH1, and FRYL, we observe the following cell counts: 2 cells with mutations in all three genes (MMM), 1 cells with mutations in STAG2 and IDH1 but not FRYL (MMW), and 1 cells with mutations only in STAG2 (MWW).</p>
+<div id="effect-of-fryl-mutation-mmm-vs-wmm" class="section level3">
+<h3>Effect of FRYL mutation (MMM vs WMM)</h3>
+<p>We selected cells where FRYL is either wild-type or mutated, while both IDH1 and STAG2 are mutated. After matching genotyped cells with those passing scRNA-seq filters, we got only one cell belonging to ‘undefined class’ with all three genotypes mutated.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-9495ccb0d834bf177411" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-9495ccb0d834bf177411">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["undefined"],["MUT_MUT_MUT"],[1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<p>We opted to forgo further comparisons, given the limited cell count.</p>
+</div>
+</div>
+<div id="stag2---srsf2---fryl" class="section level2">
+<h2>STAG2 - SRSF2 - FRYL</h2>
+<p>Describing the mutations in the order STAG2, SRSF2, and FRYL, we observe the following cell counts: 2 cells with mutations in all three genes (MMM), 7 cells with mutations in STAG2 and SRSF2 but not FRYL (MMW), and 3 cells with mutations only in STAG2 (MWW).</p>
+<div id="effect-of-fryl-mutation-mmm-vs-wmm-1" class="section level3">
+<h3>Effect of FRYL mutation (MMM vs WMM)</h3>
+<p>We selected cells where FRYL is either wild-type or mutated, while both SRSF2 and STAG2 are mutated. After matching genotyped cells with those passing scRNA-seq filters, no cells were found.</p>
+</div>
+</div>
+</div>
+<div id="genotype-phenotype-analysis-partial-genotype" class="section level1">
+<h1>Genotype phenotype analysis: partial genotype</h1>
+<p>Given the low number of cells, requiring the genotype for all genes was not feasible. Therefore, we relaxed the genotype criteria and assumed that the cells acquire mutations in the following order:</p>
+<ul>
+<li><p>STAG2 -&gt; SRSF2 -&gt; FRYL</p></li>
+<li><p>STAG2 -&gt; IDH1 -&gt; FRYL</p></li>
+</ul>
+<p>Therefore, to study the effect of acquiring FRYL mutations, we can compare FRYL MUT cells with the combined group of FRYL WT + IDH1/SRSF2 MUT</p>
+<div id="fryl-mut-vs-fryl-wt-srsf2-mut" class="section level2">
+<h2>FRYL MUT vs FRYL WT + SRSF2 MUT</h2>
+<p>We identified 33 cells with FRYL mutations and 10 cells with FRYL WT and SRSF2 mutations. The table below presents the number of cells after filtering for cells with available RNA expression data. All cells belong to undefined class.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-9e5c7cbfb9976ef3d6f7" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-9e5c7cbfb9976ef3d6f7">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["undefined","undefined"],["MUT","WT_MUT"],[17,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="fryl-mut-vs-fryl-wt-idh1-mut" class="section level2">
+<h2>FRYL MUT vs FRYL WT + IDH1 MUT</h2>
+<p>We identified 33 cells with FRYL mutations and 2 cells with FRYL WT and IDH1 mutations. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We got 17 undefined cells where FRYL is mutated and one tumor cell where FRYL is wild-type and IDH1 mutated.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-2395cee2e1a634da54b8" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-2395cee2e1a634da54b8">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["tumor","undefined","tumor","undefined"],["MUT","MUT","WT_MUT","WT_MUT"],[0,17,1,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="fryl-mut-vs-fryl-wt" class="section level2">
+<h2>FRYL MUT vs FRYL WT</h2>
+<p>We identified 33 cells with FRYL mutations and 34 cells with FRYL WT. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Againg the majority of cells belong to the undefined compartment and only a small number are from tumor and TME.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-d1e2ced4dfaae21ba9e9" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d1e2ced4dfaae21ba9e9">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["tme","tumor","undefined","tme","tumor","undefined"],["MUT","MUT","MUT","WT","WT","WT"],[0,0,17,5,2,14]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="idh1-mut-vs-idh1-wt" class="section level2">
+<h2>IDH1 MUT vs IDH1 WT</h2>
+<p>We identified 108 cells with IDH1 mutations and 33 cells with IDH1 WT. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We focused our analysis solely on the tumor compartment.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-594d15185baacc5d98b1" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-594d15185baacc5d98b1">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["tme","tumor","undefined","tme","tumor","undefined"],["MUT","MUT","MUT","WT","WT","WT"],[6,24,29,3,5,8]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<p>No differenetially expressed genes have been detected</p>
+</div>
+<div id="idh1-mut-vs-idh1-wt-in-fryl-wt" class="section level2">
+<h2>IDH1 MUT vs IDH1 WT in FRYL WT</h2>
+<p>We identified 2 cells with IDH1 mutations and 2 cells with IDH1 WT in FRYL WT condition. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We got only one tumor cell where IDH1 is mutated and FRYL is wild-type.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-979208747365879458f5" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-979208747365879458f5">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["tumor"],["MUT_WT"],[1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="srsf2-mut-vs-srsf2-wt" class="section level2">
+<h2>SRSF2 MUT vs SRSF2 WT</h2>
+<p>We identified 163 cells with SRSF2 mutations and 72 cells with IDH1 WT. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-d7bf592c970bd4b32817" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d7bf592c970bd4b32817">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["tme","tumor","undefined","tme","tumor","undefined"],["MUT","MUT","MUT","WT","WT","WT"],[7,7,36,22,0,20]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="srsf2-mut-vs-srsf2-wt-in-fryl-wt-condition" class="section level2">
+<h2>SRSF2 MUT vs SRSF2 WT in FRYL WT condition</h2>
+<p>We identified 10 cells with SRSF2 mutations and 3 cells with FRYL WT. We got only one relevant tme cell where both SRSF2 and FRYL are wild-type.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-28034cbf781656ae8e53" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-28034cbf781656ae8e53">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["tme","undefined","tme","undefined"],["MUT_WT","MUT_WT","WT_WT","WT_WT"],[0,1,1,2]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>compartment<\/th>\n      <th>mutation_status<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":2},{"name":"compartment","targets":0},{"name":"mutation_status","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.3.2 (2023-10-31)
+Platform: x86_64-conda-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /hpcnfs/home/ieo5398/anaconda3/envs/snake/lib/libopenblasp-r0.3.24.so;  LAPACK version 3.11.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Europe/Rome
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] ReactomePA_1.46.0      clusterProfiler_4.10.0 org.Hs.eg.db_3.18.0   
+ [4] AnnotationDbi_1.64.1   IRanges_2.36.0         S4Vectors_0.40.2      
+ [7] Biobase_2.62.0         BiocGenerics_0.48.1    plotly_4.10.3         
+[10] maftools_2.18.0        mclust_6.0.1           Seurat_5.0.1          
+[13] SeuratObject_5.0.1     sp_2.1-2               lubridate_1.9.3       
+[16] forcats_1.0.0          stringr_1.5.0          dplyr_1.1.3           
+[19] purrr_1.0.2            readr_2.1.4            tidyr_1.3.0           
+[22] tibble_3.2.1           ggplot2_3.4.4          tidyverse_2.0.0       
+
+loaded via a namespace (and not attached):
+  [1] RcppAnnoy_0.0.21        splines_4.3.2           later_1.3.2            
+  [4] ggplotify_0.1.2         bitops_1.0-7            polyclip_1.10-7        
+  [7] graph_1.80.0            fastDummies_1.7.3       lifecycle_1.0.3        
+ [10] rprojroot_2.0.4         globals_0.16.2          lattice_0.22-5         
+ [13] MASS_7.3-60             crosstalk_1.2.1         magrittr_2.0.3         
+ [16] sass_0.4.7              rmarkdown_2.25          jquerylib_0.1.4        
+ [19] yaml_2.3.7              httpuv_1.6.13           sctransform_0.4.1      
+ [22] spam_2.10-0             spatstat.sparse_3.0-3   reticulate_1.34.0      
+ [25] cowplot_1.1.3           pbapply_1.7-2           DBI_1.1.3              
+ [28] RColorBrewer_1.1-3      abind_1.4-5             zlibbioc_1.48.0        
+ [31] Rtsne_0.16              ggraph_2.1.0            RCurl_1.98-1.12        
+ [34] yulab.utils_0.1.7       rappdirs_0.3.3          tweenr_2.0.3           
+ [37] git2r_0.33.0            GenomeInfoDbData_1.2.10 enrichplot_1.22.0      
+ [40] ggrepel_0.9.6           irlba_2.3.5.1           listenv_0.9.0          
+ [43] spatstat.utils_3.0-4    tidytree_0.4.6          reactome.db_1.86.2     
+ [46] goftest_1.2-3           RSpectra_0.16-1         spatstat.random_3.2-2  
+ [49] fitdistrplus_1.1-11     parallelly_1.36.0       leiden_0.4.3.1         
+ [52] codetools_0.2-19        DT_0.33                 ggforce_0.4.2          
+ [55] DOSE_3.28.1             DNAcopy_1.76.0          tidyselect_1.2.0       
+ [58] aplot_0.2.3             farver_2.1.1            viridis_0.6.4          
+ [61] matrixStats_1.0.0       spatstat.explore_3.2-5  jsonlite_1.8.7         
+ [64] tidygraph_1.3.0         ellipsis_0.3.2          progressr_0.14.0       
+ [67] ggridges_0.5.5          survival_3.7-0          tools_4.3.2            
+ [70] treeio_1.26.0           ica_1.0-3               Rcpp_1.0.11            
+ [73] glue_1.6.2              gridExtra_2.3           xfun_0.40              
+ [76] qvalue_2.34.0           GenomeInfoDb_1.38.1     withr_2.5.1            
+ [79] fastmap_1.1.1           fansi_1.0.5             digest_0.6.33          
+ [82] gridGraphics_0.5-1      timechange_0.2.0        R6_2.5.1               
+ [85] mime_0.12               colorspace_2.1-0        scattermore_1.2        
+ [88] GO.db_3.18.0            tensor_1.5              spatstat.data_3.0-3    
+ [91] RSQLite_2.3.1           utf8_1.2.4              generics_0.1.3         
+ [94] data.table_1.14.8       graphlayouts_1.2.0      httr_1.4.7             
+ [97] htmlwidgets_1.6.2       scatterpie_0.2.4        graphite_1.48.0        
+[100] whisker_0.4.1           uwot_0.1.16             pkgconfig_2.0.3        
+[103] gtable_0.3.4            blob_1.2.4              workflowr_1.7.1        
+[106] lmtest_0.9-40           XVector_0.42.0          shadowtext_0.1.4       
+[109] htmltools_0.5.6.1       fgsea_1.28.0            dotCall64_1.1-1        
+[112] scales_1.2.1            png_0.1-8               ggfun_0.1.7            
+[115] knitr_1.44              rstudioapi_0.15.0       tzdb_0.4.0             
+[118] reshape2_1.4.4          nlme_3.1-163            cachem_1.0.8           
+[121] zoo_1.8-12              KernSmooth_2.23-22      HDO.db_0.99.1          
+[124] parallel_4.3.2          miniUI_0.1.1.1          pillar_1.9.0           
+[127] grid_4.3.2              vctrs_0.6.4             RANN_2.6.1             
+[130] promises_1.2.1          xtable_1.8-4            cluster_2.1.4          
+[133] evaluate_0.22           cli_3.6.1               compiler_4.3.2         
+[136] rlang_1.1.1             crayon_1.5.2            future.apply_1.11.1    
+[139] labeling_0.4.3          plyr_1.8.9              fs_1.6.3               
+[142] stringi_1.7.12          viridisLite_0.4.2       deldir_1.0-9           
+[145] BiocParallel_1.36.0     munsell_0.5.0           Biostrings_2.70.1      
+[148] lazyeval_0.2.2          spatstat.geom_3.2-7     GOSemSim_2.28.0        
+[151] Matrix_1.6-4            RcppHNSW_0.5.0          hms_1.1.3              
+[154] patchwork_1.1.3         bit64_4.0.5             future_1.33.0          
+[157] KEGGREST_1.42.0         shiny_1.8.0             ROCR_1.0-11            
+[160] igraph_1.5.1            memoise_2.0.1           bslib_0.5.1            
+[163] ggtree_3.10.0           fastmatch_1.1-4         bit_4.0.5              
+[166] gson_0.1.0              ape_5.7-1              </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3,h4",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
