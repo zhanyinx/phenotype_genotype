@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Marcello Del Corvo" />
+
+
+<title>Malignant cell identification</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="site_libs/jszip-1.13.6/jszip.min.js"></script>
+<script src="site_libs/pdfmake-1.13.6/pdfmake.js"></script>
+<script src="site_libs/pdfmake-1.13.6/vfs_fonts.js"></script>
+<link href="site_libs/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">scmseq</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://www.research.ieo.it/research-and-technology/technological-units/data-science-unit/">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Malignant cell identification</h1>
+<h4 class="author">Marcello Del Corvo</h4>
+<h4 class="date">14 November, 2024</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2024-11-14
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>phenotype_genotype/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.1). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20240315code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20240315)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20240315code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20240315)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree301709d1d7b6a349e8abe1f2ea6ffac82bbae3c2targetblank301709da"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/ieoresearch/phenotype_genotype/tree/301709d1d7b6a349e8abe1f2ea6ffac82bbae3c2" target="_blank">301709d</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree301709d1d7b6a349e8abe1f2ea6ffac82bbae3c2targetblank301709da" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/ieoresearch/phenotype_genotype/tree/301709d1d7b6a349e8abe1f2ea6ffac82bbae3c2" target="_blank">301709d</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    analysis/figure/
+    Ignored:    data/
+    Ignored:    src/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  test.tiff
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/00_palm_malignant_non_malignant_annotations.Rmd</code>) and HTML (<code>docs/00_palm_malignant_non_malignant_annotations.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/301709d1d7b6a349e8abe1f2ea6ffac82bbae3c2/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">301709d</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-14
+</td>
+<td>
+Add PALM malignant_non_malignant_annotations report
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="objective" class="section level1">
+<h1>Objective</h1>
+<p>The objective of this analysis is to conduct an exploratory data analysis on the Seurat object containing single-cell RNA sequencing (scRNA-seq) data from PALM patients, including samples from 1 to 19, plus three healthy donors serving as controls</p>
+<p><strong>Information Contained in the Seurat Object</strong>: The Seurat object stores several layers of information, including gene expression data, metadata for each cell, and detailed cell type annotations based on the strategy from the Triana paper. Specifically, cell type annotations have been generated using various tools and methods for assigning and validating cell identities.</p>
+<p><strong>Cell Type Annotation Strategy</strong> (based on the strategy from the <a href="https://www.nature.com/articles/s41590-021-01059-0">Triana Study</a>): The following variables are present within the Seurat object:</p>
+<ul>
+<li><p>lineage: This variable indicates the predicted cell lineage for each cell, as determined using scmap, a tool designed to project single-cell data onto a reference atlas of known cell types or states. This provides a reference-based classification of cell types.</p></li>
+<li><p>lineage_similarity_score: This score is also derived from scmap and represents the degree of similarity between a cell and its predicted lineage in the reference atlas. It quantifies how confidently the cell can be matched to the reference cell types.</p></li>
+<li><p>aggregated_ct: This represents manually curated, broader categories of cell types (check out the code first chunck).</p></li>
+<li><p>singleR_label: The cell type labels are predicted using SingleR, an automated tool for cell type annotation. SingleR compares the expression profile of each cell to reference datasets and assigns the most likely cell type based on gene expression similarities.</p></li>
+<li><p>singleR_score: This variable reflects the confidence score assigned by SingleR, indicating how closely the cell’s expression profile matches its predicted reference cell type.</p></li>
+</ul>
+<p><strong>Tools Used</strong>:</p>
+<ul>
+<li><p>scmap: A reference-based method that projects single-cell RNA-seq data onto a predefined reference atlas. It helps assign cell types based on similarity to known cell populations.</p></li>
+<li><p>SingleR: An automated tool that annotates cell types by comparing single-cell gene expression data to reference datasets. It uses the correlation between a cell’s gene expression profile and reference profiles to predict cell types.</p></li>
+</ul>
+<p>These annotations, combined with the other data stored in the Seurat object, provide a comprehensive view of the scRNA-seq data, allowing for in-depth analysis and interpretation of cell types across the samples.</p>
+</div>
+<div id="exploratory-data-analysis" class="section level1">
+<h1>Exploratory data analysis</h1>
+<p>We have confirmed that doublets were successfully filtered out. The number of cells per sample ranges from approximately 800 to more than 20,000, as shown in the table below.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-782715c6e6448907f7d2" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_1","PALM_09_2","PALM_10_E","PALM_11_E","PALM_12_E","PALM_13_E","PALM_13_R","PALM_14_E","PALM_14_R","PALM_15_E","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E","PALM_DON_1","PALM_DON_2","PALM_DON_3","PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_1","PALM_09_2","PALM_10_E","PALM_11_E","PALM_12_E","PALM_13_E","PALM_13_R","PALM_14_E","PALM_14_R","PALM_15_E","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E","PALM_DON_1","PALM_DON_2","PALM_DON_3"],["singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet"],[10395,3859,4797,4239,10323,20442,6300,6282,6670,6510,9021,9380,879,4595,7587,5153,6012,5360,10823,5839,12219,10109,4829,7090,4438,6848,5102,5713,6837,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>sample_id<\/th>\n      <th>scDblFinder.class<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[0,1]},{"name":"sample_id","targets":0},{"name":"scDblFinder.class","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<div id="umap-visualisation" class="section level2">
+<h2>Umap visualisation</h2>
+<p>We evaluated data integration by analyzing the UMAP reduction and quantifying the proportion of each cell type across patients. As shown by both the UMAP visualization and the barplot quantification, T cells were enriched in the healthy bone marrow (hBM) samples, as expected. In contrast, AML patients exhibited variability in cell type distributions, with notable enrichment in early myeloid and HSC_MPP populations. Additionally, patient-specific differences were observed: sAML16 was enriched in monocytes, while AML4 had a higher proportion of Eo_baso_mast cells.</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/quantification-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Next, we present the UMAP visualization color-coded by manually grouped lineages. The cell types most likely to contain cancer cells, specifically “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, and “Eo_baso_mast”, Erythroid and MK, are primarily clustered in the lower region of the UMAP.</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_grouped-1.png" width="576" style="display: block; margin: auto;" /></p>
+<!-- ```{r umap_celltype_grouped1, fig.height=6, fig.width=6} -->
+<!-- cancer_cells <- c("Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK") -->
+<!--   tmp = srat -->
+<!--   tmp$aggregated_ct[tmp$aggregated_ct %in% cancer_cells] = "cancer-like" -->
+<!--   tmp$aggregated_ct[tmp$aggregated_ct!="cancer"] = "other" -->
+<!--   print(mydimplot( -->
+<!--     tmp, -->
+<!--     var = "aggregated_ct", -->
+<!--     reduction = "umap", -->
+<!--     label = TRUE -->
+<!--   )) -->
+<!-- ``` -->
+</div>
+</div>
+<div id="malignant-cell-annotation" class="section level1">
+<h1>Malignant cell annotation</h1>
+<p>To identify highly confident malignant cells, we focus on cell types known to be more likely to harbor malignancy, including “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, and “MK”. We require that malignant cells be part of these predefined cell types based on aggregated annotations.</p>
+<p>Next, we impose an additional criterion: malignant cells should cluster distinctly from healthy bone marrow cells. Specifically, we require that these cells belong to clusters predominantly composed of malignant cells, with an adjustable threshold for determining the degree of malignancy within a cluster. This ensures that the cells are not just grouped with normal cells but form distinct populations.</p>
+<p>Finally, to strengthen the confidence in identifying malignant cells, we assess the relative expansion of each cell type within each patient compared to normal samples. Malignant cells should be expanded in AML patients compared to healthy controls, reinforcing the idea that their presence is abnormal.</p>
+<div id="assess-the-cluster-composition" class="section level2">
+<h2>Assess the cluster composition</h2>
+<p>Below, we present a bar plot showing the proportion of normal and malignant cells in each cluster, quantifying the fraction of each cell type per cluster.</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>To determine which clusters to evaluate for malignant cell presence, we plotted the distribution of the fraction of healthy cells across all clusters. We set the threshold at 0.9, selecting clusters with a lower proportion of healthy cells for further assessment of malignancy.</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>The UMAP visualisation below show the clusters to be considered for malignant cell presence</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /></p>
+</div>
+<div id="assess-expansion-pattern-in-aggregated-cell-type" class="section level2">
+<h2>Assess expansion pattern in aggregated cell type</h2>
+<p>To identify the malignant cell type, we analyzed the distribution of cell type expansions for the sample. The distribution showed a bimodal pattern. Based on this, we set a cutoff of a 4-fold expansion to define malignant cells.</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;" /></p>
+</div>
+<div id="combining-filters" class="section level2">
+<h2>Combining filters</h2>
+<p>Next, we require that all filters are met. Specifically, the cell must belong to one of the following categories: “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, “MK”. Additionally, the cell must be part of a cluster enriched in malignant cells, and its cell type must show expansion.</p>
+<p>Notably, removing the criterion for inclusion in a specific cell type and specific cluster results in an increase of only 0.8% in the total malignant cell population. The criteria that is the most stringent is the expansion criteria.</p>
+<div id="malignant-cell" class="section level3">
+<h3>Malignant cell</h3>
+<p>The UMAP visualization displays malignant cells, accompanied by a bar plot that quantifies the malignant cell fraction within each sample.</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-10-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>We then compared our definition of malignant cells with Tier I from Chiara Caprioli. As demonstrated in the heatmap below, the two definitions show a strong similarity.</p>
+<p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-12-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Below, we present a table highlighting the origins of the cells that show inconsistencies, whether from patient samples or cell lines.</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-7f2e8bbd475421ad5ec3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-7f2e8bbd475421ad5ec3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_1","PALM_09_2","PALM_10_E","PALM_11_E","PALM_12_E","PALM_13_E","PALM_13_R","PALM_14_E","PALM_14_R","PALM_15_E","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E","PALM_DON_1","PALM_DON_2","PALM_DON_3"],[541,1176,1034,880,9085,1097,1002,964,433,431,1576,1483,233,427,371,51,3283,233,427,1108,746,704,119,1438,595,403,1196,1289,2527]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>ID<\/th>\n      <th>Number of cells<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":1},{"name":"ID","targets":0},{"name":"Number of cells","targets":1}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-bdb697fcf84443e89835" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bdb697fcf84443e89835">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["HSC_MPP","Early_myeloid","Late_myeloid","Erythroid","MK","Eo_baso_mast","DC","Mono","T_CD4","T_CD8","T_gd","NK_cells","B_early","B_mature","Stromal"],[1900,576,7548,5211,217,118,0,19282,0,0,0,0,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>ID<\/th>\n      <th>Number of cells<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":1},{"name":"ID","targets":0},{"name":"Number of cells","targets":1}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.3.2 (2023-10-31)
+Platform: x86_64-conda-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /hpcnfs/home/ieo5398/anaconda3/envs/snake/lib/libopenblasp-r0.3.24.so;  LAPACK version 3.11.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Europe/Rome
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] mclust_6.0.1       Seurat_5.0.1       SeuratObject_5.0.1 sp_2.1-2          
+ [5] lubridate_1.9.3    forcats_1.0.0      stringr_1.5.0      dplyr_1.1.3       
+ [9] purrr_1.0.2        readr_2.1.4        tidyr_1.3.0        tibble_3.2.1      
+[13] ggplot2_3.4.4      tidyverse_2.0.0   
+
+loaded via a namespace (and not attached):
+  [1] RColorBrewer_1.1-3     rstudioapi_0.15.0      jsonlite_1.8.7        
+  [4] magrittr_2.0.3         spatstat.utils_3.0-4   farver_2.1.1          
+  [7] rmarkdown_2.25         fs_1.6.3               vctrs_0.6.4           
+ [10] ROCR_1.0-11            spatstat.explore_3.2-5 htmltools_0.5.6.1     
+ [13] sass_0.4.7             sctransform_0.4.1      parallelly_1.36.0     
+ [16] KernSmooth_2.23-22     bslib_0.5.1            htmlwidgets_1.6.2     
+ [19] ica_1.0-3              plyr_1.8.9             plotly_4.10.3         
+ [22] zoo_1.8-12             cachem_1.0.8           whisker_0.4.1         
+ [25] igraph_1.5.1           mime_0.12              lifecycle_1.0.3       
+ [28] pkgconfig_2.0.3        Matrix_1.6-4           R6_2.5.1              
+ [31] fastmap_1.1.1          fitdistrplus_1.1-11    future_1.33.0         
+ [34] shiny_1.8.0            digest_0.6.33          colorspace_2.1-0      
+ [37] patchwork_1.1.3        rprojroot_2.0.4        tensor_1.5            
+ [40] RSpectra_0.16-1        irlba_2.3.5.1          crosstalk_1.2.1       
+ [43] labeling_0.4.3         progressr_0.14.0       fansi_1.0.5           
+ [46] spatstat.sparse_3.0-3  timechange_0.2.0       httr_1.4.7            
+ [49] polyclip_1.10-7        abind_1.4-5            compiler_4.3.2        
+ [52] withr_2.5.1            fastDummies_1.7.3      MASS_7.3-60           
+ [55] tools_4.3.2            lmtest_0.9-40          httpuv_1.6.13         
+ [58] future.apply_1.11.1    goftest_1.2-3          glue_1.6.2            
+ [61] nlme_3.1-163           promises_1.2.1         grid_4.3.2            
+ [64] Rtsne_0.16             cluster_2.1.4          reshape2_1.4.4        
+ [67] generics_0.1.3         gtable_0.3.4           spatstat.data_3.0-3   
+ [70] tzdb_0.4.0             data.table_1.14.8      hms_1.1.3             
+ [73] utf8_1.2.4             spatstat.geom_3.2-7    RcppAnnoy_0.0.21      
+ [76] ggrepel_0.9.6          RANN_2.6.1             pillar_1.9.0          
+ [79] spam_2.10-0            RcppHNSW_0.5.0         later_1.3.2           
+ [82] splines_4.3.2          lattice_0.22-5         survival_3.7-0        
+ [85] deldir_1.0-9           tidyselect_1.2.0       miniUI_0.1.1.1        
+ [88] pbapply_1.7-2          knitr_1.44             git2r_0.33.0          
+ [91] gridExtra_2.3          scattermore_1.2        xfun_0.40             
+ [94] matrixStats_1.0.0      DT_0.33                stringi_1.7.12        
+ [97] workflowr_1.7.1        lazyeval_0.2.2         yaml_2.3.7            
+[100] evaluate_0.22          codetools_0.2-19       cli_3.6.1             
+[103] uwot_0.1.16            xtable_1.8-4           reticulate_1.34.0     
+[106] munsell_0.5.0          jquerylib_0.1.4        Rcpp_1.0.11           
+[109] globals_0.16.2         spatstat.random_3.2-2  png_0.1-8             
+[112] parallel_4.3.2         ellipsis_0.3.2         dotCall64_1.1-1       
+[115] listenv_0.9.0          viridisLite_0.4.2      scales_1.2.1          
+[118] ggridges_0.5.5         leiden_0.4.3.1         rlang_1.1.1           
+[121] cowplot_1.1.3         </code></pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3,h4",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

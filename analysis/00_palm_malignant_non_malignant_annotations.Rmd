@@ -1,0 +1,466 @@
+---
+title: "Malignant cell identification"
+author: 
+- Marcello Del Corvo
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      cache.lazy = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+
+```
+
+# Objective
+
+The objective of this analysis is to conduct an exploratory data analysis on the Seurat object containing single-cell RNA sequencing (scRNA-seq) data from PALM patients, including samples from 1 to 19, plus three healthy donors serving as controls
+
+__Information Contained in the Seurat Object__:
+The Seurat object stores several layers of information, including gene expression data, metadata for each cell, and detailed cell type annotations based on the strategy from the Triana paper. Specifically, cell type annotations have been generated using various tools and methods for assigning and validating cell identities.
+
+__Cell Type Annotation Strategy__ (based on the strategy from the [Triana Study](https://www.nature.com/articles/s41590-021-01059-0)):
+The following variables are present within the Seurat object:
+
+- lineage: This variable indicates the predicted cell lineage for each cell, as determined using scmap, a tool designed to project single-cell data onto a reference atlas of known cell types or states. This provides a reference-based classification of cell types.
+
+- lineage_similarity_score: This score is also derived from scmap and represents the degree of similarity between a cell and its predicted lineage in the reference atlas. It quantifies how confidently the cell can be matched to the reference cell types.
+
+- aggregated_ct: This represents manually curated, broader categories of cell types (check out the code first chunck).
+
+- singleR_label: The cell type labels are predicted using SingleR, an automated tool for cell type annotation. SingleR compares the expression profile of each cell to reference datasets and assigns the most likely cell type based on gene expression similarities.
+
+- singleR_score: This variable reflects the confidence score assigned by SingleR, indicating how closely the cell's expression profile matches its predicted reference cell type.
+
+
+__Tools Used__:
+
+- scmap: A reference-based method that projects single-cell RNA-seq data onto a predefined reference atlas. It helps assign cell types based on similarity to known cell populations.
+
+- SingleR: An automated tool that annotates cell types by comparing single-cell gene expression data to reference datasets. It uses the correlation between a cell's gene expression profile and reference profiles to predict cell types.
+
+These annotations, combined with the other data stored in the Seurat object, provide a comprehensive view of the scRNA-seq data, allowing for in-depth analysis and interpretation of cell types across the samples.
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(SeuratObject)
+  library(ggplot2)
+  library(dplyr)
+  library(mclust)
+  source("src/functions.R")
+})
+
+```
+
+
+```{r aggregation}
+aggregation_list = list(
+  HSC_MPP = "HSCs & MPPs",
+  
+  Early_myeloid = c(
+    "Lymphomyeloid prog",
+    "Erythro-myeloid progenitors",
+    "Early promyelocytes"
+  ),
+  
+  Late_myeloid = c("Late promyelocytes", "Myelocytes"),
+  
+  Erythroid = c(
+    "Early erythroid progenitor",
+    "Late erythroid progenitor",
+    "Aberrant erythroid"
+  ),
+  
+  MK = "Megakaryocyte progenitors",
+  
+  Eo_baso_mast = "Eosinophil-basophil-mast cell progenitors",
+  
+  DC = c(
+    "Plasmacytoid dendritic cell progenitors",
+    "Plasmacytoid dendritic cells",
+    "Conventional dendritic cell 1",
+    "Conventional dendritic cell 2"
+  ),
+  
+  Mono = c(
+    "Classical Monocytes",
+    "Non-classical monocytes",
+    "Monocyte-like blasts"
+  ),
+  
+  T_CD4 = c(
+    "CD4+ naive T cells",
+    "CD4+ memory T cells",
+    "CD69+PD-1+ memory CD4+ T cells",
+    "CD4+ cytotoxic T cells"
+  ),
+  
+  T_CD8 = c(
+    "CD8+ naive T cells",
+    "CD8+ effector memory T cells",
+    "CD8+ central memory T cells",
+    "CD8+CD103+ tissue resident memory T cells"
+  ),
+  
+  T_gd = "GammaDelta T cells",
+  
+  NK_cells = c(
+    "NK cell progenitors",
+    "NK T cells",
+    "CD56brightCD16- NK cells",
+    "CD56dimCD16+ NK cells"
+  ),
+  
+  B_early = c(
+    "Pre-pro-B cells",
+    "Pro-B cells",
+    "Small pre-B cell",
+    "Pre-B cells"
+  ),
+  
+  B_mature = c(
+    "Immature B cells",
+    "Mature naive B cells",
+    "Nonswitched memory B cells",
+    "CD11c+ memory B cells",
+    "Class switched memory B cells",
+    "Plasma cells"
+  ),
+  
+  Stromal = c("Mesenchymal cells_1", "Mesenchymal cells_2")
+)
+```
+
+# Exploratory data analysis
+
+```{r load_data}
+srat = readRDS("data/PALM_final_seurat.rds")
+# Find the shared nearest neighbor graph (k = 30)
+#srat <- FindNeighbors(srat, dims = 1:10, k.param = 30)
+# Identify clusters with a resolution of 0.6
+#srat <- FindClusters(srat, resolution = 0.6)
+
+#srat <- RunUMAP(srat, dims = 1:10)
+metadata = srat@meta.data
+cancer_cells <- c("Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK")
+
+```
+
+We have confirmed that doublets were successfully filtered out. The number of cells per sample ranges from approximately 800 to more than 20,000, as shown in the table below.
+
+```{r}
+DT::datatable(
+  table(metadata[,c("sample_id", "scDblFinder.class")]),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+## Umap visualisation
+
+We evaluated data integration by analyzing the UMAP reduction and quantifying the proportion of each cell type across patients. As shown by both the UMAP visualization and the barplot quantification, T cells were enriched in the healthy bone marrow (hBM) samples, as expected. In contrast, AML patients exhibited variability in cell type distributions, with notable enrichment in early myeloid and HSC_MPP populations. Additionally, patient-specific differences were observed: sAML16 was enriched in monocytes, while AML4 had a higher proportion of Eo_baso_mast cells.
+
+```{r umap_celltype_sampleid, fig.height=6, fig.width=6}
+mydimplot(srat, var = "sample_id", reduction = "umap", label=TRUE)
+```
+
+
+```{r quantification}
+# Calculate normalized frequencies
+normalized_frequencies <- metadata %>%
+  group_by(sample_id, aggregated_ct) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(sample_id) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = aggregated_ct)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "",
+       x = "Patients",
+       y = "Fraction of cells",
+       fill = "Subtypes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+Next, we present the UMAP visualization color-coded by manually grouped lineages. The cell types most likely to contain cancer cells, specifically "Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", and "Eo_baso_mast", Erythroid and MK,  are primarily clustered in the lower region of the UMAP.
+
+```{r umap_celltype_grouped, fig.height=6, fig.width=6}
+mydimplot(srat, var = "aggregated_ct", reduction = "umap", label=FALSE)
+```
+
+<!-- ```{r umap_celltype_grouped1, fig.height=6, fig.width=6} -->
+<!-- cancer_cells <- c("Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK") -->
+
+<!--   tmp = srat -->
+<!--   tmp$aggregated_ct[tmp$aggregated_ct %in% cancer_cells] = "cancer-like" -->
+<!--   tmp$aggregated_ct[tmp$aggregated_ct!="cancer"] = "other" -->
+
+<!--   print(mydimplot( -->
+<!--     tmp, -->
+<!--     var = "aggregated_ct", -->
+<!--     reduction = "umap", -->
+<!--     label = TRUE -->
+<!--   )) -->
+
+<!-- ``` -->
+
+
+# Malignant cell annotation
+
+To identify highly confident malignant cells, we focus on cell types known to be more likely to harbor malignancy, including "Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", and "MK". We require that malignant cells be part of these predefined cell types based on aggregated annotations.
+
+Next, we impose an additional criterion: malignant cells should cluster distinctly from healthy bone marrow cells. Specifically, we require that these cells belong to clusters predominantly composed of malignant cells, with an adjustable threshold for determining the degree of malignancy within a cluster. This ensures that the cells are not just grouped with normal cells but form distinct populations.
+
+Finally, to strengthen the confidence in identifying malignant cells, we assess the relative expansion of each cell type within each patient compared to normal samples. Malignant cells should be expanded in AML patients compared to healthy controls, reinforcing the idea that their presence is abnormal.
+
+
+## Assess the cluster composition
+
+Below, we present a bar plot showing the proportion of normal and malignant cells in each cluster, quantifying the fraction of each cell type per cluster.
+
+```{r}
+healthy_controls = c("PALM_DON_1", "PALM_DON_2", "PALM_DON_3")
+tmp = srat
+tmp@meta.data$RNA_snn_k_30_res_0.6 = as.factor(tmp@meta.data$RNA_snn_res.0.6)
+tmp$healthy = FALSE
+tmp$healthy[tmp$sample_id %in% healthy_controls] = TRUE
+tmp_metadata = tmp@meta.data
+#tmp_metadata$RNA_snn_k_30_res_0.6 = as.factor(tmp_metadata$RNA_snn_res.0.6)
+
+# Calculate normalized frequencies
+normalized_frequencies <- tmp_metadata %>%
+  group_by(healthy, RNA_snn_k_30_res_0.6) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(RNA_snn_k_30_res_0.6) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+ggplot(normalized_frequencies, aes(x = RNA_snn_k_30_res_0.6, y = frequency, fill = healthy)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "",
+       x = "Cluster id",
+       y = "Fraction of cells",
+       fill = "Healthy") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+To determine which clusters to evaluate for malignant cell presence, we plotted the distribution of the fraction of healthy cells across all clusters. We set the threshold at 0.9, selecting clusters with a lower proportion of healthy cells for further assessment of malignancy.
+
+```{r}
+hist(normalized_frequencies$frequency[normalized_frequencies$healthy == FALSE], xlab="Fraction of malignant", main="", breaks=10)
+abline(v = 0.9, col = "red", lty = 2)
+```
+
+The UMAP visualisation below show the clusters to be considered for malignant cell presence
+
+```{r}
+select = as.vector(normalized_frequencies$RNA_snn_k_30_res_0.6[normalized_frequencies$healthy == FALSE & normalized_frequencies$frequency > 0.9])
+tmp$clustermethod_pass = FALSE
+tmp$clustermethod_pass[tmp$RNA_snn_k_30_res_0.6 %in% select] = TRUE
+srat$clustermethod_pass = tmp$clustermethod_pass
+  
+print(mydimplot(
+  tmp,
+  var = "clustermethod_pass",
+  reduction = "umap",
+  label = FALSE
+))
+```
+
+
+## Assess expansion pattern in aggregated cell type
+
+```{r}
+metadata = srat@meta.data
+metadata$healthy = tmp$healthy
+metadata$sample_id_aggregated_hbm = metadata$sample_id
+metadata$sample_id_aggregated_hbm[tmp$healthy == TRUE] = "hBM"
+
+# Calculate normalized frequencies
+fraction <- metadata %>%
+  group_by(sample_id_aggregated_hbm, aggregated_ct) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(sample_id_aggregated_hbm) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+# Filter the `hBM` sample to get the reference frequencies
+hBM_frequencies <- fraction %>%
+  filter(sample_id_aggregated_hbm == "hBM") %>%
+  select(aggregated_ct, hBM_frequency = frequency)
+
+# Join the hBM frequencies back to the original tibble
+data_with_ratios <- fraction %>%
+  left_join(hBM_frequencies, by = "aggregated_ct") %>%
+  mutate(expansion = frequency / hBM_frequency) %>%
+  mutate(expansion = replace_na(expansion, max(expansion, na.rm = TRUE))) %>%
+  filter(sample_id_aggregated_hbm != "hBM")
+
+```
+
+
+To identify the malignant cell type, we analyzed the distribution of cell type expansions for the sample. The distribution showed a bimodal pattern. Based on this, we set a cutoff of a 4-fold expansion to define malignant cells.
+
+```{r}
+plot(density(log2((data_with_ratios$expansion))), xlab="Expansion (log2)", main="")
+# Plot the cutoff
+abline(v = 2, col = "red", lty = 2)
+```
+
+```{r}
+tmp = srat
+tmp$id= paste0(tmp$sample_id, tmp$aggregated_ct)
+data_with_ratios$id = paste0(data_with_ratios$sample_id_aggregated_hbm, data_with_ratios$aggregated_ct)
+data_with_ratios$expansion_pass = FALSE
+data_with_ratios$expansion_pass[log2((data_with_ratios$expansion))>2] = TRUE
+
+tmp$expansion_pass = FALSE
+tmp$expansion_pass[tmp$id %in% data_with_ratios$id[data_with_ratios$expansion_pass]] = TRUE
+
+srat$expansion_pass = tmp$expansion_pass
+  
+print(mydimplot(
+  tmp,
+  var = "expansion_pass",
+  reduction = "umap",
+  label = FALSE
+))
+```
+
+## Combining filters
+
+Next, we require that all filters are met. Specifically, the cell must belong to one of the following categories: "Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK". Additionally, the cell must be part of a cluster enriched in malignant cells, and its cell type must show expansion.
+
+Notably, removing the criterion for inclusion in a specific cell type and specific cluster results in an increase of only 0.8\% in the total malignant cell population.
+The criteria that is the most stringent is the expansion criteria.
+
+```{r}
+srat$tierI = srat$clustermethod_pass & srat$expansion_pass & srat$aggregated_ct %in% cancer_cells
+#occupancy_score = srat$occupancy_score
+#occupancy_score[is.na(occupancy_score)] = 0
+srat$tierI_chiara =  srat$aggregated_ct %in% cancer_cells
+```
+
+
+### Malignant cell
+
+The UMAP visualization displays malignant cells, accompanied by a bar plot that quantifies the malignant cell fraction within each sample.
+
+```{r}
+print(mydimplot(
+  srat,
+  var = "tierI",
+  reduction = "umap",
+  label = FALSE
+))
+```
+
+
+```{r}
+
+# Calculate normalized frequencies
+normalized_frequencies <- srat@meta.data %>%
+  group_by(sample_id, tierI) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(sample_id) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = tierI)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "",
+       x = "Patient",
+       y = "Fraction of cells",
+       fill = "Tier I") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+We then compared our definition of malignant cells with Tier I from Chiara Caprioli. As demonstrated in the heatmap below, the two definitions show a strong similarity.
+
+```{r}
+confusion_matrix <- prop.table(table(srat$tierI, srat$tierI_chiara ))
+confusion_matrix_df <- as.data.frame(confusion_matrix)
+colnames(confusion_matrix_df) <- c("Actual", "Predicted", "Freq")
+
+# Plot the heatmap using ggplot2
+ggplot(data = confusion_matrix_df, aes(x = Predicted, y = Actual, fill = Freq)) + 
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  geom_text(aes(label = Freq), color = "black") + # Add cell labels
+  labs(title = "Cancer cell identification", x = "Zhan", y = "Chiara") +
+  theme_minimal()
+```
+
+Below, we present a table highlighting the origins of the cells that show inconsistencies, whether from patient samples or cell lines.
+
+```{r}
+tmp = subset(srat, subset = tierI_chiara!=tierI)
+
+df = data.frame(table(tmp$sample_id)) 
+colnames(df) = c("ID", "Number of cells")
+
+DT::datatable(
+  df,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+```
+
+```{r}
+df = data.frame(table(tmp$aggregated_ct)) 
+colnames(df) = c("ID", "Number of cells")
+
+DT::datatable(
+  df,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+```{r}
+if(!file.exists("data/00_palm_malignant_non_malignant_annotation.rds")){
+  saveRDS(srat, "data/00_palm_malignant_non_malignant_annotation.rds")
+}
+```
