@@ -1,0 +1,101 @@
+---
+title: "Malignant cell identification"
+author: 
+- Marcello Del Corvo
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      cache.lazy = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(SeuratObject)
+  library(ggplot2)
+  library(dplyr)
+  library(mclust)
+  source("src/functions.R")
+})
+
+```
+
+# Objective
+
+The objective of the analysis is to annotate the tumor microenvironment (TME).
+
+# TME annotation
+
+As an initial approach to defining the TME, we will include cells from B_Mature, T_CD4, T_CD8, and NK cells as part of the TME. In a subsequent phase, we will refine this definition by leveraging TCR rearrangement data from single-cell analysis, using tools like [TRUST4](https://www.nature.com/articles/s41592-021-01142-2) to identify cells with TCR rearrangements.
+
+
+Below, we present the UMAP visualization, color-coded by cell type annotation and compartment classification.
+
+```{r}
+srat = readRDS("data/00_palm_malignant_non_malignant_annotation.rds")
+srat$compartment = "undefined"
+srat$compartment[srat$tierI] = "tumor"
+srat$compartment[srat$aggregated_ct %in% c("B_mature", "T_CD4", "T_CD8", "NK_cells")] = "tme"
+```
+
+```{r}
+mydimplot(
+  srat,
+  var = "aggregated_ct",
+  reduction = "umap",
+  label = TRUE
+)
+```
+
+```{r}
+mydimplot(
+  srat,
+  var = "compartment",
+  reduction = "umap",
+  label = FALSE
+)
+```
+
+Finally, we quantify the fraction of each compartment for each sample, as illustrated in the bar plot below.
+
+
+```{r}
+# Calculate normalized frequencies
+normalized_frequencies <- srat@meta.data %>%
+  group_by(sample_id, compartment) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(sample_id) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = compartment)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "",
+       x = "Patient",
+       y = "Fraction of cells",
+       fill = "Compartment") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+if(!file.exists("data/01_palm_tme_annotation.rds")){
+  saveRDS(srat, "data/01_palm_tme_annotation.rds")
+}
+```
