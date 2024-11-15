@@ -399,65 +399,9 @@ ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = tierI)) 
        x = "Patient",
        y = "Fraction of cells",
        fill = "Tier I") +
-  theme(axis.text.x = element_text(size = 9, angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
 ```
 
-
-We then compared our definition of malignant cells with Tier I from Chiara Caprioli. As demonstrated in the heatmap below, the two definitions show a strong similarity.
-
-```{r}
-confusion_matrix <- prop.table(table(srat$tierI, srat$tierI_chiara ))
-confusion_matrix_df <- as.data.frame(confusion_matrix)
-colnames(confusion_matrix_df) <- c("Actual", "Predicted", "Freq")
-
-# Plot the heatmap using ggplot2
-ggplot(data = confusion_matrix_df, aes(x = Predicted, y = Actual, fill = Freq)) + 
-  geom_tile() +
-  scale_fill_gradient(low = "white", high = "red") +
-  geom_text(aes(label = Freq), color = "black") + # Add cell labels
-  labs(title = "Cancer cell identification", x = "Zhan", y = "Chiara") +
-  theme_minimal()
-```
-
-Below, we present a table highlighting the origins of the cells that show inconsistencies, whether from patient samples or cell lines.
-
-```{r}
-tmp = subset(srat, subset = tierI_chiara!=tierI)
-
-df = data.frame(table(tmp$sample_id)) 
-colnames(df) = c("ID", "Number of cells")
-
-DT::datatable(
-  df,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-
-
-```
-
-```{r}
-df = data.frame(table(tmp$aggregated_ct)) 
-colnames(df) = c("ID", "Number of cells")
-
-DT::datatable(
-  df,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
 
 ```{r}
 if(!file.exists("data/00_palm_malignant_non_malignant_annotation.rds")){

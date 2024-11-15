@@ -388,7 +388,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Genotype phenotype AML5</h1>
 <h4 class="author">Marcello Del Corvo</h4>
-<h4 class="date">05 November, 2024</h4>
+<h4 class="date">14 November, 2024</h4>
 
 </div>
 
@@ -413,7 +413,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-11-05
+<strong>Last updated:</strong> 2024-11-14
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -504,16 +504,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetreef0b65db3de77652fb2e2461fe2911ae4df3252b6targetblankf0b65dba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/ieoresearch/phenotype_genotype/tree/f0b65db3de77652fb2e2461fe2911ae4df3252b6" target="_blank">f0b65db</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree83225c67485a8be08251f1d8ae3d70c6020550b2targetblank83225c6a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/ieoresearch/phenotype_genotype/tree/83225c67485a8be08251f1d8ae3d70c6020550b2" target="_blank">83225c6</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetreef0b65db3de77652fb2e2461fe2911ae4df3252b6targetblankf0b65dba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree83225c67485a8be08251f1d8ae3d70c6020550b2targetblank83225c6a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/ieoresearch/phenotype_genotype/tree/f0b65db3de77652fb2e2461fe2911ae4df3252b6" target="_blank">f0b65db</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/ieoresearch/phenotype_genotype/tree/83225c67485a8be08251f1d8ae3d70c6020550b2" target="_blank">83225c6</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -522,6 +522,9 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    data/
     Ignored:    src/
+
+Unstaged changes:
+    Modified:   analysis/03_integration_phenotype_genotype_AML4.Rmd
 
 </code></pre>
 <p>
@@ -560,6 +563,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/83225c67485a8be08251f1d8ae3d70c6020550b2/analysis/04_integration_phenotype_genotype_AML5.Rmd" target="_blank">83225c6</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-14
+</td>
+<td>
+dev pdf removed AML5
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/157edc5fa70b2e0f85776cca490af27113f8a378/docs/04_integration_phenotype_genotype_AML5.html" target="_blank">157edc5</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-05
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -648,7 +685,7 @@ Yinxiu Zhan
 <p>First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.</p>
 <p>Below, we present the correlation between the cellular fraction, defined as VAF * 2, in WES and the cellular fraction in the target enrichment. As demonstrated, the target enrichment effectively recapitulates the cellular fraction observed in WES.</p>
 <div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-782715c6e6448907f7d2" style="width:576px;height:576px;"></div>
-<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"data":[{"x":[0.83168316831683164,0.98249227600411948,0.92544570502431123],"y":[0.94117647058823528,1,0.88888888888888884],"text":["EZH2","RUNX1","SRSF2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.6692913385826778,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.82414271293246721,0.99003273138848391],"y":[0.82414271293246721,0.99003273138848391],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(190,190,190,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":49.872976338729771,"r":7.3059360730593621,"b":37.260273972602747,"l":48.949771689497723},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Correlation: 0.41","font":{"color":"rgba(0,0,0,1)","family":"","size":26.567040265670411},"x":0.5,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.82414271293246721,0.99003273138848391],"tickmode":"array","ticktext":["0.85","0.90","0.95"],"tickvals":[0.85000000000000009,0.90000000000000002,0.95000000000000007],"categoryorder":"array","categoryarray":["0.85","0.90","0.95"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"single cell CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.8833333333333333,1.0055555555555555],"tickmode":"array","ticktext":["0.92","0.96","1.00"],"tickvals":[0.92000000000000004,0.95999999999999996,1],"categoryorder":"array","categoryarray":["0.92","0.96","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"WES_CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"66ac8322ea2":{"x":{},"y":{},"text":{},"type":"scatter"},"66ac39fd9646":{"intercept":{},"slope":{}}},"cur_data":"66ac8322ea2","visdat":{"66ac8322ea2":["function (y) ","x"],"66ac39fd9646":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"data":[{"x":[0.83168316831683164,0.98249227600411948,0.92544570502431123],"y":[0.94117647058823528,1,0.88888888888888884],"text":["EZH2","RUNX1","SRSF2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.6692913385826778,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.82414271293246721,0.99003273138848391],"y":[0.82414271293246721,0.99003273138848391],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(190,190,190,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":49.872976338729771,"r":7.3059360730593621,"b":37.260273972602747,"l":48.949771689497723},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Correlation: 0.41","font":{"color":"rgba(0,0,0,1)","family":"","size":26.567040265670411},"x":0.5,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.82414271293246721,0.99003273138848391],"tickmode":"array","ticktext":["0.85","0.90","0.95"],"tickvals":[0.85000000000000009,0.90000000000000002,0.95000000000000007],"categoryorder":"array","categoryarray":["0.85","0.90","0.95"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"single cell CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.8833333333333333,1.0055555555555555],"tickmode":"array","ticktext":["0.92","0.96","1.00"],"tickvals":[0.92000000000000004,0.95999999999999996,1],"categoryorder":"array","categoryarray":["0.92","0.96","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"WES_CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"674234662bcc":{"x":{},"y":{},"text":{},"type":"scatter"},"67427b5566a7":{"intercept":{},"slope":{}}},"cur_data":"674234662bcc","visdat":{"674234662bcc":["function (y) ","x"],"67427b5566a7":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-7f2e8bbd475421ad5ec3" style="width:100%;height:auto;"></div>
 <script type="application/json" data-for="htmlwidget-7f2e8bbd475421ad5ec3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["EZH2","RUNX1","SRSF2"],[84,954,571],[17,17,46],[0.8316831683168316,0.9824922760041195,0.9254457050243112],[0.4705882352941176,0.7916666666666666,0.4444444444444444],[0.9411764705882353,1,0.8888888888888888]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>gene<\/th>\n      <th>MUT<\/th>\n      <th>WT<\/th>\n      <th>ccf<\/th>\n      <th>tumor_f<\/th>\n      <th>wes_ccf<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5]},{"name":"gene","targets":0},{"name":"MUT","targets":1},{"name":"WT","targets":2},{"name":"ccf","targets":3},{"name":"tumor_f","targets":4},{"name":"wes_ccf","targets":5}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 </div>

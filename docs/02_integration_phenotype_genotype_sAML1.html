@@ -388,7 +388,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Genotype phenotype sAML1</h1>
 <h4 class="author">Zhan Yinxiu</h4>
-<h4 class="date">04 November, 2024</h4>
+<h4 class="date">14 November, 2024</h4>
 
 </div>
 
@@ -413,7 +413,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-11-04
+<strong>Last updated:</strong> 2024-11-14
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -504,16 +504,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetreeba7cbbb29491847460ef16ad381117fc779d1226targetblankba7cbbba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/ieoresearch/phenotype_genotype/tree/ba7cbbb29491847460ef16ad381117fc779d1226" target="_blank">ba7cbbb</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree095d6315f9dfd7502eb535b7489d40bde735093ctargetblank095d631a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/ieoresearch/phenotype_genotype/tree/095d6315f9dfd7502eb535b7489d40bde735093c" target="_blank">095d631</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetreeba7cbbb29491847460ef16ad381117fc779d1226targetblankba7cbbba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree095d6315f9dfd7502eb535b7489d40bde735093ctargetblank095d631a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/ieoresearch/phenotype_genotype/tree/ba7cbbb29491847460ef16ad381117fc779d1226" target="_blank">ba7cbbb</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/ieoresearch/phenotype_genotype/tree/095d6315f9dfd7502eb535b7489d40bde735093c" target="_blank">095d631</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -522,6 +522,10 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    data/
     Ignored:    src/
+
+Unstaged changes:
+    Modified:   analysis/03_integration_phenotype_genotype_AML4.Rmd
+    Modified:   analysis/04_integration_phenotype_genotype_AML5.Rmd
 
 </code></pre>
 <p>
@@ -560,6 +564,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/095d6315f9dfd7502eb535b7489d40bde735093c/analysis/02_integration_phenotype_genotype_sAML1.Rmd" target="_blank">095d631</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-14
+</td>
+<td>
+dev pdf removed
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/b7b2516313e48721d92597844a101bfdb1c72849/docs/02_integration_phenotype_genotype_sAML1.html" target="_blank">b7b2516</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-04
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -733,7 +771,7 @@ Add sAML1 phenotype genotype analysis
 <p>First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.</p>
 <p>Below, we present the correlation between the cellular fraction, defined as VAF * 2, in WES and the cellular fraction in the target enrichment. As demonstrated, the target enrichment effectively recapitulates the cellular fraction observed in WES.</p>
 <div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-782715c6e6448907f7d2" style="width:576px;height:576px;"></div>
-<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"data":[{"x":[0.44300518134715028,0.30602957906712175,0.6539923954372624,0.74744027303754268,0.98316831683168315,0.54867256637168138,0.88439306358381498],"y":[0.34188034188034189,0.35658914728682173,0.66321243523316065,0.64623955431754876,1,0.56000000000000005,0.73232323232323238],"text":["CSF3R","FLT3","HDAC7","IDH1","RUNX1","SETD2","SRSF2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.6692913385826778,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.2721726421788937,1.0170252537199111],"y":[0.2721726421788937,1.0170252537199111],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(190,190,190,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":49.872976338729771,"r":7.3059360730593621,"b":37.260273972602747,"l":43.105022831050235},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Correlation: 0.95","font":{"color":"rgba(0,0,0,1)","family":"","size":26.567040265670411},"x":0.5,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.2721726421788937,1.0170252537199111],"tickmode":"array","ticktext":["0.4","0.6","0.8","1.0"],"tickvals":[0.40000000000000002,0.60000000000000009,0.80000000000000004,1],"categoryorder":"array","categoryarray":["0.4","0.6","0.8","1.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"single cell CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.30897435897435899,1.032905982905983],"tickmode":"array","ticktext":["0.4","0.6","0.8","1.0"],"tickvals":[0.40000000000000002,0.60000000000000009,0.80000000000000004,1],"categoryorder":"array","categoryarray":["0.4","0.6","0.8","1.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"WES_CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"6c7c646c50ad":{"x":{},"y":{},"text":{},"type":"scatter"},"6c7c63b53d10":{"intercept":{},"slope":{}}},"cur_data":"6c7c646c50ad","visdat":{"6c7c646c50ad":["function (y) ","x"],"6c7c63b53d10":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"data":[{"x":[0.44300518134715028,0.30602957906712175,0.6539923954372624,0.74744027303754268,0.98316831683168315,0.54867256637168138,0.88439306358381498],"y":[0.34188034188034189,0.35658914728682173,0.66321243523316065,0.64623955431754876,1,0.56000000000000005,0.73232323232323238],"text":["CSF3R","FLT3","HDAC7","IDH1","RUNX1","SETD2","SRSF2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.6692913385826778,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.2721726421788937,1.0170252537199111],"y":[0.2721726421788937,1.0170252537199111],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(190,190,190,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":49.872976338729771,"r":7.3059360730593621,"b":37.260273972602747,"l":43.105022831050235},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Correlation: 0.95","font":{"color":"rgba(0,0,0,1)","family":"","size":26.567040265670411},"x":0.5,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.2721726421788937,1.0170252537199111],"tickmode":"array","ticktext":["0.4","0.6","0.8","1.0"],"tickvals":[0.40000000000000002,0.60000000000000009,0.80000000000000004,1],"categoryorder":"array","categoryarray":["0.4","0.6","0.8","1.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"single cell CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.30897435897435899,1.032905982905983],"tickmode":"array","ticktext":["0.4","0.6","0.8","1.0"],"tickvals":[0.40000000000000002,0.60000000000000009,0.80000000000000004,1],"categoryorder":"array","categoryarray":["0.4","0.6","0.8","1.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"WES_CF","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5d0070f8ea1d":{"x":{},"y":{},"text":{},"type":"scatter"},"5d007f75c03c":{"intercept":{},"slope":{}}},"cur_data":"5d0070f8ea1d","visdat":{"5d0070f8ea1d":["function (y) ","x"],"5d007f75c03c":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-7f2e8bbd475421ad5ec3" style="width:100%;height:auto;"></div>
 <script type="application/json" data-for="htmlwidget-7f2e8bbd475421ad5ec3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["CSF3R","FLT3","HDAC7","IDH1","RUNX1","SETD2","SRSF2"],[171,269,172,438,993,62,459],[215,610,91,148,17,51,60],[0.4430051813471503,0.3060295790671217,0.6539923954372624,0.7474402730375427,0.9831683168316832,0.5486725663716814,0.884393063583815],[0.1709401709401709,0.1782945736434109,0.3316062176165803,0.3231197771587744,0.6905829596412556,0.28,0.3661616161616162],[0.3418803418803419,0.3565891472868217,0.6632124352331606,0.6462395543175488,1,0.5600000000000001,0.7323232323232324]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>gene<\/th>\n      <th>MUT<\/th>\n      <th>WT<\/th>\n      <th>ccf<\/th>\n      <th>tumor_f<\/th>\n      <th>wes_ccf<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5]},{"name":"gene","targets":0},{"name":"MUT","targets":1},{"name":"WT","targets":2},{"name":"ccf","targets":3},{"name":"tumor_f","targets":4},{"name":"wes_ccf","targets":5}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 </div>
@@ -804,10 +842,10 @@ Add sAML1 phenotype genotype analysis
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-979208747365879458f5" style="width:100%;height:auto;"></div>
 <script type="application/json" data-for="htmlwidget-979208747365879458f5">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["MGST1","TSPOAP1","LNCAROD","SUCNR1","ANXA1","HEMGN","IGFBP7","IGHM","AK4","HGF","IMPA2","CEBPA","PRSS57","NRXN2","CITED4","LDHB","C11orf74","IL1RAP","MCL1","PLD1","DNTT","BRI3BP","CYTOR","CEBPD","FAM30A","GLIPR1","CD48","HTRA3","EGR1","DNAJC1","PRRG4","DONSON","SOCS2","MIR4435-2HG","ANKRD28"],[-2.235644694700704,-4.02466131323599,-3.564503786575394,-2.3941731474186,-1.548717004199928,1.676365509161002,-1.22893684475563,1.499889569653641,-3.126039825712501,-1.348429803818032,-1.257240264512943,-1.428122654117192,-1.954207746670561,-1.834235395797866,-1.6548355729472,0.6076190401415489,-3.207271555526622,-1.98081954704844,-1.29195319149745,-1.573775535597608,0.7801581811324052,-2.713026856388322,-2.967374289791799,-2.564063310173793,0.7988045095705152,-0.774077486958885,0.9158193344256105,-2.029401143365726,-3.739472758607298,0.5899643236930086,-2.125419678883093,-2.247952879050841,0.7795089690321546,-1.548696036716413,-0.7877520877607291],[4.015349296912785e-14,1.362448342319165e-11,5.966009368588139e-08,5.987113290069251e-08,1.524319263716192e-07,1.191560082909849e-06,5.415020648300532e-06,1.660336001083962e-05,1.871848631516125e-05,5.858082147146637e-05,6.097596562234142e-05,6.66274408247472e-05,8.854563706393597e-05,0.0003392688349738776,0.0006284415341073133,0.0007327475072394756,0.0009026367768041923,0.001307849709602434,0.001481855917764018,0.002042094512097655,0.002330142968575401,0.003214317994769304,0.003388923084782439,0.004075682484333062,0.006686374538348985,0.00694009884450122,0.01366029374259542,0.02034558473919055,0.020928609208482,0.02649274049761821,0.03004058806287686,0.03238990339718623,0.03448045768673871,0.0400165669518216,0.04714870812940253]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>avg_log2FC<\/th>\n      <th>p_val_adj<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[1,2]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"avg_log2FC","targets":1},{"name":"p_val_adj","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>Enriched in FLT3 Mutated</strong></p>
-<embed src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-21-1.pdf" width="576" style="display: block; margin: auto;" type="application/pdf" />
+<p><img src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-21-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-21-1">
-Past versions of unnamed-chunk-21-1.pdf
+Past versions of unnamed-chunk-21-1.png
 </button>
 </p>
 <div id="fig-unnamed-chunk-21-1" class="collapse">
@@ -829,7 +867,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-21-1.pdf" target="_blank">57aef38</a>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-21-1.png" target="_blank">57aef38</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/b32e0657fa26581b06a697945a0f57d2120c7234/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-21-1.png" target="_blank">b32e065</a>
 </td>
 <td>
 Yinxiu Zhan
@@ -845,10 +894,10 @@ Yinxiu Zhan
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-d7bf592c970bd4b32817" style="width:100%;height:auto;"></div>
 <script type="application/json" data-for="htmlwidget-d7bf592c970bd4b32817">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[[0.02064079241931394,0.02064079241931394,0.02064079241931394,0.02064079241931394,0.02064079241931394,0.02485722103123681],["Negative regulation of FLT3","Growth hormone receptor signaling","Pyruvate metabolism","Interleukin-7 signaling","FLT3 Signaling","Pyruvate metabolism and Citric Acid (TCA) cycle"],["SOCS2","SOCS2","LDHB","SOCS2","SOCS2","LDHB"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>p.adjust<\/th>\n      <th>Description<\/th>\n      <th>geneID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":0},{"name":"p.adjust","targets":0},{"name":"Description","targets":1},{"name":"geneID","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>Enriched in FLT3 WT + SRSF2 Mutated</strong></p>
-<embed src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-22-1.pdf" width="576" style="display: block; margin: auto;" type="application/pdf" />
+<p><img src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-22-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-22-1">
-Past versions of unnamed-chunk-22-1.pdf
+Past versions of unnamed-chunk-22-1.png
 </button>
 </p>
 <div id="fig-unnamed-chunk-22-1" class="collapse">
@@ -870,7 +919,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-22-1.pdf" target="_blank">57aef38</a>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-22-1.png" target="_blank">57aef38</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/b32e0657fa26581b06a697945a0f57d2120c7234/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-22-1.png" target="_blank">b32e065</a>
 </td>
 <td>
 Yinxiu Zhan
@@ -906,10 +966,10 @@ Yinxiu Zhan
 <ul>
 <li>Potential migration and invasion mechanisms that could facilitate interactions with and retention in the bone marrow microenvironment. (e.g., “Regulation of expression of SLITs and ROBOs”)</li>
 </ul>
-<embed src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-27-1.pdf" width="576" style="display: block; margin: auto;" type="application/pdf" />
+<p><img src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-27-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-27-1">
-Past versions of unnamed-chunk-27-1.pdf
+Past versions of unnamed-chunk-27-1.png
 </button>
 </p>
 <div id="fig-unnamed-chunk-27-1" class="collapse">
@@ -931,7 +991,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-27-1.pdf" target="_blank">57aef38</a>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-27-1.png" target="_blank">57aef38</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/b32e0657fa26581b06a697945a0f57d2120c7234/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-27-1.png" target="_blank">b32e065</a>
 </td>
 <td>
 Yinxiu Zhan
@@ -947,10 +1018,10 @@ Yinxiu Zhan
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-54b94b9422a61b8eafa4" style="width:100%;height:auto;"></div>
 <script type="application/json" data-for="htmlwidget-54b94b9422a61b8eafa4">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[[1.783430919699304e-07,1.783430919699304e-07,1.783430919699304e-07,1.783430919699304e-07,1.783430919699304e-07,1.783430919699304e-07,2.050598923400877e-07,2.050598923400877e-07,2.80414100398884e-07,2.80414100398884e-07,2.80414100398884e-07,2.80414100398884e-07,2.886590906873331e-07,2.886590906873331e-07,3.01153872936421e-07,3.01153872936421e-07,3.01153872936421e-07,6.783910046999644e-07,8.88086642238345e-07,1.563926587130363e-06,1.563926587130363e-06,4.575757302609504e-06,6.253272406961449e-06,8.400573865707188e-06,2.521213161893846e-05,2.684018096916583e-05,3.798374180009263e-05,4.258011474768737e-05,5.280423330127572e-05,7.068121616009627e-05,0.0002592367095564473,0.002564151723492589,0.002634017353408023,0.003608263206453925,0.003608263206453925,0.003686142036355265,0.02915100220605258,0.03226536850082744],["Peptide chain elongation","Viral mRNA Translation","Eukaryotic Translation Elongation","Selenocysteine synthesis","Eukaryotic Translation Termination","Nonsense Mediated Decay (NMD) independent of the Exon Junction Complex (EJC)","Formation of a pool of free 40S subunits","Response of EIF2AK4 (GCN2) to amino acid deficiency","Regulation of expression of SLITs and ROBOs","L13a-mediated translational silencing of Ceruloplasmin expression","SRP-dependent cotranslational protein targeting to membrane","GTP hydrolysis and joining of the 60S ribosomal subunit","Nonsense-Mediated Decay (NMD)","Nonsense Mediated Decay (NMD) enhanced by the Exon Junction Complex (EJC)","Selenoamino acid metabolism","Eukaryotic Translation Initiation","Cap-dependent Translation Initiation","Influenza Viral RNA Transcription and Replication","Signaling by ROBO receptors","Influenza Infection","Cellular response to starvation","Major pathway of rRNA processing in the nucleolus and cytosol","rRNA processing in the nucleus and cytosol","rRNA processing","SARS-CoV-1 modulates host translation machinery","Metallothioneins bind metals","Metabolism of amino acids and derivatives","SARS-CoV-1-host interactions","Response to metal ions","Translation","SARS-CoV-1 Infection","SARS-CoV-2 modulates host translation machinery","Formation of the ternary complex, and subsequently, the 43S complex","Translation initiation complex formation","Ribosomal scanning and start codon recognition","Activation of the mRNA upon binding of the cap-binding complex and eIFs, and subsequent binding to 43S","SARS-CoV Infections","Host Interactions of HIV factors"],["RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","PSMB9/RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","PSMB9/RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","HNRNPA1/RPSA/RPS16/RPS11","MT1E/MT1X/MT2A","PSMB9/RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","HNRNPA1/NPM1/RPSA/RPS16/RPS11","MT1E/MT1X/MT2A","RPL4/RPSA/RPS16/RPLP1/RPS11/RPL19/RPL37A","HNRNPA1/NPM1/RPSA/RPS16/RPS11","RPSA/RPS16/RPS11","RPSA/RPS16/RPS11","RPSA/RPS16/RPS11","RPSA/RPS16/RPS11","RPSA/RPS16/RPS11","HNRNPA1/NPM1/RPSA/RPS16/RPS11","HMGA1/PSMB9/NPM1"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>p.adjust<\/th>\n      <th>Description<\/th>\n      <th>geneID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":0},{"name":"p.adjust","targets":0},{"name":"Description","targets":1},{"name":"geneID","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>Enriched in FLT3 WT + IDH1 Mutated</strong></p>
-<embed src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-28-1.pdf" width="576" style="display: block; margin: auto;" type="application/pdf" />
+<p><img src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-28-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-28-1">
-Past versions of unnamed-chunk-28-1.pdf
+Past versions of unnamed-chunk-28-1.png
 </button>
 </p>
 <div id="fig-unnamed-chunk-28-1" class="collapse">
@@ -972,7 +1043,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-28-1.pdf" target="_blank">57aef38</a>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-28-1.png" target="_blank">57aef38</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/b32e0657fa26581b06a697945a0f57d2120c7234/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-28-1.png" target="_blank">b32e065</a>
 </td>
 <td>
 Yinxiu Zhan
@@ -999,10 +1081,10 @@ Yinxiu Zhan
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-0db7182e882e2ed72d4a" style="width:100%;height:auto;"></div>
 <script type="application/json" data-for="htmlwidget-0db7182e882e2ed72d4a">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["LDHB","MGST1","PRDX1","STMN1","CD44","ST18","GLIPR1","HEMGN","H3F3B","IER2","ANXA1","SUCNR1","MT1E","HGF","KLF2","JUND","MT2A","NRXN2","FLT3","HNRNPA1","GYPC","AIF1","H1F0","CAVIN1","FOS","S100A11","MT1F","HIST2H2AA4","JUNB","MCL1","DUSP1","ANKRD28","HPGDS","TSPOAP1","FGFR1","THSD7A","LNCAROD","LTB","ZFAS1","FTL","PLD1","CD48","CXCR4","MT1X","S100A10","DST","CEBPA","IL2RA","MCUB","RPS16","HELLS","PSMB9","CD99","AL590226.1","MALAT1","TSC22D3","SLITRK4","DNTT","RNF130","BTG2","AK5","TNFRSF14","RPSA","TRBC2","BIN2","RHOB","CD69","PCLAF","IGFBP7","AL034397.3","TSC22D1","HMGA1","CDCA7","SPATS2L","NPM1","CD52","TYMS","RPS11","PRSS57","EML4","PSMB8","LST1","FSCN1","HOPX","SRP14","SUB1","HIST1H2BN","UHRF1","COX7C","RPL4","PTPRD","MIF","CCDC28B","COX6B1","NRGN","CENPK","PNRC1","HHIP-AS1","DBN1","CSF3R","MTSS1","PABPC1","MARCKSL1","AC068587.4","LRRC28","CITED4","SPINK2","EDEM1","MTURN","IRF2BP2","CCDC167","GINS2","SLC25A5","AKR1A1","BASP1","C1QTNF4","FKBP1A","POMP","SH3BP5","COX7B","SLITRK5","TET1","HSD17B11","SUCLG2","TSPAN5","GNAI1","BZW2","CCDC18-AS1","COL5A1","CENPU","PIK3R3","RPLP1","CDT1","HLA-A","PARP1","CYTIP","DYNLL1","DUT","PPP1R15A","PRAM1","LSM4","CPNE7","RAB11A","SOD2","GEMIN6","CCNL1","SOCS2","TMBIM4","C12orf75","ACTG1","RNASET2","NFKBIZ","CARHSP1","MZB1","IL12RB2","MTHFD1","CD38","MCM7","SUMO1","PTTG1","PDE3B","ERH","CCNB2","FTX","FAM30A","HHIP","NRIP1","PCNA","PODXL2","HIST1H1C","MIDN","SSB","SNRPB","LAPTM5","RAN","SNRPD1","AK4","EPHB6","CHEK1","SAT1","ZEB2","XBP1","IMPA2","TNIK","KLF6","PSMA6","GATAD1","PLAAT4","EGR1","PPIA","DICER1","ATP5MPL","TALDO1","A1BG","MFGE8","H2AFZ","IDH2","DIPK1B","MCM5","E2F1","FTH1","PFN1","SKA2","MRPL14","PPIF","RAB37","SSRP1","TCTEX1D1","CLEC12A","DNAJC9","CEP85L","CENPW","MRPL16","ANP32B","LPAR6","CAVIN2","EIF5A","CEBPD","PPDPF","STAT3","UBC","UQCRQ","ZFP36L2","MRTFB","TRG-AS1","CHRDL1","NASP","MYLK","LMO2","CKLF","HLA-DQB1","DTD1","KIT","IL1RAP","AL161772.1","AC138649.1","USP28","ALDH2","GABARAPL1","YPEL5","HMGA2-AS1","LINC-PINT","PYGL","HIRIP3","ADGRG1","ATP2B1-AS1","CFL1","SRSF3"],[0.8621592226967971,-2.13848984566282,1.206618147563232,0.9087443068670038,-0.8688791231512205,2.307159506928322,-1.132587056329827,1.523505939838296,-0.7043012276505447,-1.296872061266556,-1.858662515371095,-2.936328216388508,3.106981200916145,-1.677682463057916,-2.578450684094994,-0.94550315618342,1.917672638587193,-2.753836214408154,-0.8733153922577925,0.5294524789738988,0.6165152819332644,0.6383110025316405,-0.937186822492482,1.403431157911392,-1.52309254502149,1.2575093147973,2.822530889135265,-1.18976705809365,-1.456410213682404,-1.62135646004585,-1.278699060056758,-0.9711345995907759,1.857573058696155,-3.882281734491297,1.165126251874419,-1.25915832781256,-3.625438822409695,2.597203718261861,-0.4404178582645,-0.3722715059103949,-1.85950737599517,0.8309355830603802,-1.825065593692443,2.976920479816744,0.6563726541358239,2.263798093198545,-1.765772726243433,1.654185734597771,1.145873735447573,0.3333077572432526,1.87007405114394,0.7604366478862135,-0.4600398381217845,0.9724438882016837,-0.4760995954878045,-1.902714595407693,-2.711225576670045,0.7057618691985796,-0.8759990661346999,-1.601167581240357,3.568120477464629,1.019098174612484,0.3695140633257292,1.424936673695318,-0.7794331655727158,-3.038205668437677,-1.01174695369945,1.485901721011259,-0.9704987446168956,-1.49642616717938,-0.930383898496661,0.8165219596803762,1.010410769755911,1.93315283143758,0.4019564867268843,1.383625319379018,1.037590047199078,0.2681330944808575,-1.805938273671964,1.562876993664065,0.6538390228519873,1.067360205670412,1.381786110518069,-0.5370313914554607,0.3096936860529711,0.4224436238841009,-1.732593213398554,1.271723870893045,0.4036494463353621,0.3526414764654553,2.002198098150689,0.5271113611012663,0.963065175788571,0.4228344210821415,1.111985084928982,1.49984762768452,-0.5079786842797669,1.933547425768812,1.059455046936021,-0.6680431268617615,1.132461190483738,-0.3597362101518722,0.7876568736987786,0.7615294679313818,-1.25014808870366,-1.693037321283155,-0.7418517795331681,0.9854541757384757,-1.226619425252388,-0.7990808970966602,1.404125701174257,1.267565029496379,0.5333823071834094,0.6362822468121367,1.028012962421519,-4.030176132166874,0.5041745345093502,0.5963606032451529,1.252100604839554,0.532610955149544,1.40144918166476,1.608563705184033,-0.5907723616851828,1.514485436885288,1.273431295358977,0.5947754666470919,0.7111865641769786,-0.8022612190884287,1.936507708335759,1.329167777036666,2.631192011883227,0.2831744863639605,1.31669389681021,-0.3512009560094622,0.6091346206561157,-1.199492993432315,0.5823660315027753,0.7730850424259608,-0.7290735090838849,-1.880138969688901,0.74794064153586,1.960055661962527,0.5539555467873469,0.8707525112849001,1.947333306504294,-0.6515032770197706,0.5495112814467387,-0.6446114918164754,1.139532078202715,0.3455983424965776,-0.4307364493106614,-0.7869243506286774,0.6286746954718848,1.464684245464766,1.466242554964617,1.105934739744993,0.8340749409048025,1.054486366473812,0.5210131256233904,1.034811016513902,-0.94830010292838,0.4863556732338112,1.895845077759514,-0.7177553984955776,0.5488085590095984,2.296853979139897,0.5642855051870453,1.360346898832398,2.145281031570084,-0.6221297008807238,-1.13354350244142,0.4909912356067758,0.4860921899195434,-0.3414535581322593,0.5941604349466234,0.6319350856043979,-2.585230200980043,0.9399548220439518,1.308258021554281,-0.730946692224747,-0.5886569603750438,0.5084946513503177,-0.9052198983105213,1.489591174148461,-0.6015959151033696,0.4271565360542839,-0.9600802128428755,0.7060928438287705,-3.840275113421462,0.3379813339112219,-0.9750799240327481,0.4455562041948931,-0.3761122754710784,0.7926384664092212,1.381742615891033,0.6468628683592264,0.524264294924465,0.5076570263149887,0.9285952910455492,1.299888976071765,-0.3120602298542154,0.3648733359849157,0.8215237161546584,0.8144586306913972,1.292275439810747,-0.6402908940376705,0.8412837779177736,-0.7355261103802067,-0.6456028119896493,0.625446083114688,1.536977572246561,0.8893578552649617,0.5064428519360571,0.2894746550481697,1.341335465448255,1.009810559011077,0.4757288361478429,-2.526885420262925,0.3300371195232743,-0.7849188713598805,-0.2736523523963568,0.6048677826573747,-0.3799959478490726,1.311733458493176,-0.8237520063113402,1.483919663733578,0.4909398966302232,1.04578209521326,-0.4117699646813699,0.513626055204977,1.03250178479505,1.251794124325682,-1.87836443689479,-1.756152508377672,1.728443670401436,1.981878781723207,1.825244730771392,-1.594371431616999,-1.682442772314466,-0.6417039836676275,2.349766037422829,-1.143621661534406,-0.7503455683403724,1.412113393732576,0.8243350401937897,-0.5792424719825029,0.2860571701476324,0.368415085478941],[2.323564085832381e-23,1.205955357088883e-22,2.317702286178754e-22,7.284403419425805e-20,9.251204044932144e-20,3.135735784328958e-19,3.469255480462004e-17,5.518444927180779e-17,1.939452449134035e-16,2.72086761796585e-16,3.448738729186037e-15,1.26535460318832e-14,1.681843232114171e-14,2.735352719807028e-14,3.045966984650604e-14,4.279142805218632e-14,4.252682705076501e-13,9.007060238527632e-13,9.425293505529608e-13,2.084161733398122e-12,2.949838061019743e-12,4.271641837547888e-12,4.295179411512933e-12,5.50637590438662e-12,6.563603169540615e-12,8.971402022988314e-12,9.162107950429849e-12,1.012194091103079e-11,1.284955308453448e-11,2.067571239539263e-11,3.712419979335648e-11,4.13336898535059e-11,7.398828383429524e-11,1.027250279124291e-10,1.454021530070806e-10,3.469591201874961e-10,3.706251252590055e-10,6.124109268408245e-10,9.735188293726066e-10,9.797031666461336e-10,1.399099779278112e-09,3.102617915861181e-09,3.451149098372706e-09,4.532252792839761e-09,7.389782656111838e-09,7.848904905306535e-09,8.258995140573881e-09,8.804331481564204e-09,9.156814323834208e-09,1.039722004595924e-08,1.108252454815406e-08,1.216263369683822e-08,1.309567350430153e-08,1.315254021139021e-08,1.399164134957932e-08,1.516680796967601e-08,1.660969323585248e-08,2.40057957607295e-08,2.819894693038249e-08,2.826690267411343e-08,3.127910851051562e-08,5.109149727690981e-08,6.035989071917895e-08,7.877253795635191e-08,2.003810051212247e-07,2.374358105943361e-07,3.678044824772963e-07,4.524108025548524e-07,4.956795676481747e-07,5.664020393547835e-07,5.957085457629216e-07,6.204953801619388e-07,7.514923265053127e-07,8.352704009699276e-07,8.434245506154166e-07,9.674801169562713e-07,1.011996449069747e-06,1.052385428080857e-06,1.077708413058099e-06,1.495862582484576e-06,1.525914208793321e-06,1.709968887660435e-06,2.271931665105557e-06,3.872246759569204e-06,3.980165208981136e-06,4.091277534089116e-06,4.112822257982222e-06,4.148728577067428e-06,5.02494417473511e-06,5.275644497365965e-06,5.957965250037216e-06,9.220235285871681e-06,1.080198756121753e-05,1.16358204830494e-05,1.49568320254154e-05,2.364563852065706e-05,2.450784531810145e-05,2.544583414628463e-05,2.861592657818581e-05,4.005932596899864e-05,4.798462506292351e-05,5.156064337294411e-05,5.244237659338495e-05,5.484513031438675e-05,6.123270704168124e-05,6.737446775915436e-05,6.918660244505936e-05,7.341902694930802e-05,8.58831381120557e-05,8.91156304356825e-05,9.499674734560639e-05,9.507566489577529e-05,0.0001308975383884268,0.0001337422706115758,0.0001842215684181313,0.0001901318459648044,0.0001965999022973191,0.0002012404334563625,0.0002225963796983381,0.0002492889926959195,0.0002533178239052977,0.0002780107770290024,0.0003057648615995383,0.0003257228889943214,0.0003459709640961065,0.0003534494303291162,0.0004114442672066431,0.0004437985794160426,0.0004494415349638593,0.0005081630372722153,0.0005396217665415612,0.0005879242661792337,0.0006612165478628398,0.0006704999806170706,0.0006923779704956746,0.0007299602097010989,0.000893011056307523,0.0009253017476654851,0.001018023327583692,0.00111017694238292,0.001180213697177548,0.001219338203631558,0.001222680304961008,0.001363454659788321,0.001423008373623543,0.001513874152842227,0.001534983954637455,0.001599337595592706,0.001620200450091536,0.001841399586542647,0.002072287597761219,0.00215893929413679,0.002176301005341596,0.00218121541359487,0.002417111377131856,0.002846996679890581,0.003195212211639595,0.003291819971055977,0.003294187135433706,0.003314384783051174,0.003369338128212032,0.003418095291601083,0.003494606843777625,0.003799992683734083,0.003887958386178547,0.004396828858945231,0.004542467171430339,0.004765074247056886,0.004894304459300952,0.004949850809929482,0.005130266925734215,0.005433584158960702,0.005894840576967478,0.006345036283624551,0.006419934066647035,0.006461141610465403,0.006489551467496568,0.006494843213669227,0.00652257916261408,0.00657524120826233,0.006933039923362257,0.007021472005521169,0.007313602727790545,0.007354575841038833,0.007581250056631136,0.007625209560217572,0.008178343081681473,0.008575061150660517,0.008670627040717575,0.008844708009762867,0.008899651979596149,0.009317263924621367,0.009886761560005937,0.01012583825850026,0.01031797976763642,0.01062532918517156,0.01097390633574267,0.01105264441144197,0.01157677721001065,0.01190171333511457,0.01193561597386146,0.01205550150384408,0.01209078741674016,0.01271827957209576,0.01353706030291207,0.01457465406991872,0.01512048535689709,0.01537867816558624,0.01542585277381262,0.01663607974802484,0.01751179597644706,0.01777736476790207,0.01924425855899884,0.01938375774668937,0.01939542343247894,0.01963539802836576,0.01994997050519007,0.02004562061550157,0.02063706408676555,0.02109282200118055,0.0215005933937986,0.02228197453153631,0.02317556071419874,0.02347277527484021,0.02457241032987295,0.02463182608097426,0.0275091197142144,0.02778320299769538,0.02827296169763093,0.02883945585119087,0.02932376056967298,0.02971125124660452,0.03013183871459897,0.03155921638256833,0.03259676785965387,0.03475444650987999,0.03697388983923489,0.03788171687004142,0.03918330758689773,0.04109478492998454,0.04250636129214688,0.04313687748682159,0.0431776973314688,0.0436644034422631,0.04811261287396851,0.04850204448895054,0.0485997746152228,0.04995371240810259]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>avg_log2FC<\/th>\n      <th>p_val_adj<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[1,2]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"avg_log2FC","targets":1},{"name":"p_val_adj","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>Enriched in FLT3 Mutated</strong></p>
-<embed src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-33-1.pdf" width="576" style="display: block; margin: auto;" type="application/pdf" />
+<p><img src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-33-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-33-1">
-Past versions of unnamed-chunk-33-1.pdf
+Past versions of unnamed-chunk-33-1.png
 </button>
 </p>
 <div id="fig-unnamed-chunk-33-1" class="collapse">
@@ -1024,7 +1106,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-33-1.pdf" target="_blank">57aef38</a>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-33-1.png" target="_blank">57aef38</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/b32e0657fa26581b06a697945a0f57d2120c7234/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-33-1.png" target="_blank">b32e065</a>
 </td>
 <td>
 Yinxiu Zhan
@@ -1040,10 +1133,10 @@ Yinxiu Zhan
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-65f9dfa7855fc4e94c22" style="width:100%;height:auto;"></div>
 <script type="application/json" data-for="htmlwidget-65f9dfa7855fc4e94c22">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[[7.096902113623332e-06,1.068870687134983e-05],["Metallothioneins bind metals","Response to metal ions"],["MT1E/MT1X/MT1F/MT2A","MT1E/MT1X/MT1F/MT2A"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>p.adjust<\/th>\n      <th>Description<\/th>\n      <th>geneID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":0},{"name":"p.adjust","targets":0},{"name":"Description","targets":1},{"name":"geneID","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>Enriched in FLT3 WT</strong></p>
-<embed src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-34-1.pdf" width="576" style="display: block; margin: auto;" type="application/pdf" />
+<p><img src="figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-34-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-34-1">
-Past versions of unnamed-chunk-34-1.pdf
+Past versions of unnamed-chunk-34-1.png
 </button>
 </p>
 <div id="fig-unnamed-chunk-34-1" class="collapse">
@@ -1065,7 +1158,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-34-1.pdf" target="_blank">57aef38</a>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/57aef3895292eb669b7943bb0c034fe67a814e4d/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-34-1.png" target="_blank">57aef38</a>
+</td>
+<td>
+Yinxiu Zhan
+</td>
+<td>
+2024-10-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ieoresearch/phenotype_genotype/blob/b32e0657fa26581b06a697945a0f57d2120c7234/docs/figure/02_integration_phenotype_genotype_sAML1.Rmd/unnamed-chunk-34-1.png" target="_blank">b32e065</a>
 </td>
 <td>
 Yinxiu Zhan

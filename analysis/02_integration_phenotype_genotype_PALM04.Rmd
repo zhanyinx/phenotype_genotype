@@ -1,0 +1,362 @@
+---
+title: "Genotype phenotype PALM04"
+author: 
+- Marcello Del Corvo
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(SeuratObject)
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(mclust)
+  library(maftools)
+  library(ggplot2)
+  library(plotly)
+  library(AnnotationDbi)
+  library(org.Hs.eg.db)
+  library(clusterProfiler)
+  library(ReactomePA)
+  source("src/functions.R")
+})
+
+```
+
+# Objective
+
+The objective of the analysis is to integrate the genotype data from PALM enrichemnt experiment with 10X expression data.
+We start with PALM04.
+
+# Genotype data
+
+The genotype data has been analyzed using [NanoGen](https://github.com/dimadatascience/NanoGen), a custom pipeline designed to call mutations from targeted enrichment data. NanoGen follows a multi-step process to ensure accurate mutation detection. It starts by using Blaze to identify cell barcodes, ensuring that each cell’s data is correctly assigned. It then collapses Unique Molecular Identifiers (UMIs) to eliminate PCR duplicates and other biases, allowing for a more accurate representation of the original sample.
+
+One key feature of NanoGen is its ability to call consensus at the base level, rather than at the sequence level, providing a more precise identification of mutations. NanoGen applies a negative binomial model to distinguish between true mutated reads and background noise, improving the reliability of mutation calls. To address the issue of mutated allele dropout, NanoGen imposes a strict threshold: it requires at least five distinct wild-type (WT) UMIs for a cell to be confidently classified as wild-type (WT).
+
+## Data exploration
+
+For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
+
+```{r}
+genotype_file = "data/enrichment/PALM04.csv"
+sample_id = "PALM_04_E"
+```
+
+```{r, results=FALSE}
+# Read and filter genotyped cells
+genotype = read.csv(genotype_file, row.names = 1)
+genotype = genotype[genotype$genotype!="", ]
+genotype['total_umis'] = (genotype[,'WT'] + genotype[,'MUT'] + genotype[,'MIS'])
+genotype$alt <- ifelse(grepl('-', genotype$alt), '-', genotype$alt)
+genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], genotype[,'alt'])
+
+#variants = data.frame(read.maf(wes_file)@data)
+
+#variants['id'] = paste0(variants[,'Hugo_Symbol'] , variants[,'Start_Position'] , variants[,'Tumor_Seq_Allele2'])
+#genotype = as_tibble(genotype[genotype$id %in% (variants$id), ])
+
+# Calculate ccf and filter lowly genotyped mutations
+ccf = genotype %>%
+  group_by(gene, genotype) %>%            # Group by 'gene' and 'genotype'
+  summarise(count = n(), .groups = 'drop') %>%  # Count occurrences of each 'genotype'
+  pivot_wider(names_from = genotype,
+              values_from = count,
+              values_fill = 0)  # Pivot to wide format, filling missing values with 0
+
+ccf = ccf[(ccf$MUT + ccf$WT) > 50,]
+ccf['ccf'] = ccf[,'MUT'] /(ccf[,'MUT'] + ccf[,'WT']) 
+
+# Add wes
+#subset <- variants %>%
+#  filter(id %in% genotype$id) %>%
+ # select(Hugo_Symbol, tumor_f)
+
+#ccf <- ccf %>%
+#  left_join(subset, by = c("gene" = "Hugo_Symbol"))  %>%
+#  mutate(wes_ccf = pmin(tumor_f * 2, 1))  # Ensure values > 1 are set to 1
+
+# Calculate correlation
+#correlation <- cor(ccf$ccf, ccf$wes_ccf, use = "complete.obs")
+#correlation_title <- sprintf("Correlation: %.2f", correlation)
+
+
+```
+
+
+```{r}
+DT::datatable(
+  ccf,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+## Mutation co-occurence  
+
+Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: LSM3, NRAS, BAX, NPM1, STAG2
+
+```{r}
+# Define the genes of interest
+gene_interest <- c('BAX', 'NRAS', 'LSM3')
+co_occurence <- get_coccurence1(genotype_file, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+gene_interest <- c('NPM1', 'NRAS', 'LSM3')
+co_occurence <- get_coccurence1(genotype_file, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+gene_interest <- c('STAG2', 'NRAS', 'LSM3')
+co_occurence <- get_coccurence1(genotype_file, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+gene_interest <- c('NPM1', 'BAX', 'NRAS', 'LSM3')
+co_occurence <- get_coccurence1(genotype_file, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+gene_interest <- c('STAG2', 'BAX', 'NRAS', 'LSM3')
+co_occurence <- get_coccurence1(genotype_file, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+gene_interest <- c('STAG2', 'NPM1', 'NRAS', 'LSM3')
+co_occurence <- get_coccurence1(genotype_file, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+gene_interest <- c('STAG2', 'NPM1', 'BAX', 'NRAS', 'LSM3')
+co_occurence <- get_coccurence1(genotype_file, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+```
+
+
+# Genotype phenotype analysis: full genotype
+
+We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:
+
+1- LSM3 - NRAS - BAX
+
+2- LSM3 - NRAS - NPM1
+
+The reason is that, for these combination, we have the highest number of genotyped cells for all genes.
+
+For each case, we will examine the impact of adding mutations to the analysis.
+
+```{r}
+# Read RNAseq
+srat = readRDS("data/01_palm_tme_annotation.rds")
+srat$cellid = unlist(lapply(str_split(names(srat$orig.ident), "-"), "[[", 1))
+```
+
+The table below provides a comprehensive list of all mutations, along with the associated single-cell metadata
+
+```{r}
+tmp_genotype = read.csv(genotype_file, row.names = 1)
+tmp_genotype$alt <- ifelse(grepl('-', tmp_genotype$alt), '-', tmp_genotype$alt)
+tmp_genotype['id'] = paste0(tmp_genotype[,'gene'], tmp_genotype[,'start'], tmp_genotype[,'alt'])
+#tmp_genotype = tmp_genotype[tmp_genotype$id %in% unique(variants$id),]
+tmp_genotype = as_tibble(tmp_genotype[tmp_genotype$gene %in% c("LSM3", "NRAS", "BAX", "NPM1", "STAG2"),])
+tmp_genotype = tmp_genotype[, c("gene", "cell", "genotype")] %>% 
+  pivot_wider(names_from = gene, values_from = genotype) %>%
+  mutate_all( ~ replace(., . == "", "na"))
+
+metadata = srat@meta.data
+metadata = metadata[metadata$sample_id == sample_id, ] 
+table2show = merge(tmp_genotype, metadata[,c("cellid", "compartment", "aggregated_ct")], by.x="cell", by.y="cellid")
+
+DT::datatable(
+  data.frame(table2show),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+## LSM3 - NRAS - BAX
+
+
+```{r}
+gene_interest <- c('LSM3', 'NRAS', 'BAX')
+subset = get_cellid_full_genotype1(genotype_file, gene_interest)
+```
+
+Describing the mutations in the order LSM3, NRAS, and BAX, we observe the following cell counts: `r sum(subset$LSM3=='MUT' & subset$NRAS=='MUT' & subset$BAX=='MUT')` cells with mutations in all three genes (MMM), `r sum(subset$LSM3=='MUT' & subset$NRAS=='MUT' & subset$BAX=='WT')` cells with mutations in LSM3 and NRAS but not BAX (MMW), and `r sum(subset$LSM3=='MUT' & subset$NRAS=='WT' & subset$BAX=='WT')` cells with mutations only in LSM3 (MWW).
+
+
+### Effect of BAX mutation (MMM vs WMM)
+
+We selected cells where BAX is either wild-type or mutated, while both NRAS and LSM3 are mutated. This resulted in the following number of cells, representing the intersection of genotyped cells and those passing scRNA-seq filters.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.  Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+mutation_status1 = c("MUT", "MUT", "MUT")
+mutation_status2 = c("MUT", "MUT", "WT")
+
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+No genes were identified as significantly differentially expressed between the two conditions in the differential expression analysis, likely due to the low number of cells. As a result, we opted to forgo further comparisons, given the limited cell count.
+
+
+## 'LSM3', 'NRAS', 'NPM1'
+
+
+```{r}
+gene_interest <- c('LSM3', 'NRAS', 'NPM1')
+subset = get_cellid_full_genotype1(genotype_file, gene_interest)
+```
+Describing the mutations in the order LSM3, NRAS, and NPM1, we observe the following cell counts: `r sum(subset$LSM3=='MUT' & subset$NRAS=='MUT' & subset$NPM1=='MUT')` cells with mutations in all three genes (MMM), `r sum(subset$LSM3=='MUT' & subset$NRAS=='MUT' & subset$NPM1=='WT')` cells with mutations in LSM3 and NRAS but not NPM1 (MMW), and `r sum(subset$LSM3=='MUT' & subset$NRAS=='WT' & subset$NPM1=='WT')` cells with mutations only in LSM3 (MWW).
+
+
+### Effect of NPM1 mutation (MMM vs WMM)
+
+We selected cells where NPM1 is either wild-type or mutated, while both NRAS and LSM3 are mutated. This resulted in the following number of cells, representing the intersection of genotyped cells and those passing scRNA-seq filters.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+mutation_status1 = c("MUT", "MUT", "MUT")
+mutation_status2 = c("MUT", "MUT", "WT")
+
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+No genes were identified as significantly differentially expressed between the two conditions in the differential expression analysis, likely due to the low number of cells. As a result, we opted to forgo further comparisons, given the limited cell count.
