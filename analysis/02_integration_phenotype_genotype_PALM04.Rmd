@@ -120,7 +120,7 @@ DT::datatable(
 
 ## Mutation co-occurence  
 
-Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: LSM3, NRAS, BAX, NPM1, STAG2
+Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: LSM3, NRAS, BAX, NPM1
 
 ```{r}
 # Define the genes of interest
@@ -152,77 +152,6 @@ DT::datatable(
   rownames = FALSE
 )
 
-
-gene_interest <- c('STAG2', 'NRAS', 'LSM3')
-co_occurence <- get_coccurence1(genotype_file, gene_interest)
-DT::datatable(
-  co_occurence,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-
-
-gene_interest <- c('NPM1', 'BAX', 'NRAS', 'LSM3')
-co_occurence <- get_coccurence1(genotype_file, gene_interest)
-DT::datatable(
-  co_occurence,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-
-gene_interest <- c('STAG2', 'BAX', 'NRAS', 'LSM3')
-co_occurence <- get_coccurence1(genotype_file, gene_interest)
-DT::datatable(
-  co_occurence,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-
-gene_interest <- c('STAG2', 'NPM1', 'NRAS', 'LSM3')
-co_occurence <- get_coccurence1(genotype_file, gene_interest)
-DT::datatable(
-  co_occurence,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-
-gene_interest <- c('STAG2', 'NPM1', 'BAX', 'NRAS', 'LSM3')
-co_occurence <- get_coccurence1(genotype_file, gene_interest)
-DT::datatable(
-  co_occurence,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
 
 ```
 
