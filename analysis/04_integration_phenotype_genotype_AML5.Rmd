@@ -159,256 +159,23 @@ DT::datatable(
 
 ```
 
-# Genotype phenotype analysis: full genotype
-
-We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:
-
-1- RUNX1 - SRSF2 - EZH2
-
-The reason is that, for these combination, we have the highest number of genotyped cells for all genes.
-
-For each case, we will examine the impact of adding mutations to the analysis.
-
 ```{r}
 # Read RNAseq
 srat = readRDS("data/01_tme_annotation.rds")
 srat$cellid = unlist(lapply(str_split(names(srat$orig.ident), "-"), "[[", 1))
 ```
 
-The table below provides a comprehensive list of all mutations, along with the associated single-cell metadata
 
-```{r}
-tmp_genotype = read.csv(genotype_file, row.names = 1)
-tmp_genotype$alt <- ifelse(grepl('-', tmp_genotype$alt), '-', tmp_genotype$alt)
-tmp_genotype['id'] = paste0(tmp_genotype[,'gene'], tmp_genotype[,'start'], tmp_genotype[,'alt'])
-tmp_genotype = tmp_genotype[tmp_genotype$id %in% unique(variants$id),]
-tmp_genotype = as_tibble(tmp_genotype[tmp_genotype$gene %in% c("RUNX1", "SRSF2", "EZH2"),])
-tmp_genotype = tmp_genotype[, c("gene", "cell", "genotype")] %>% 
-  pivot_wider(names_from = gene, values_from = genotype) %>%
-  mutate_all( ~ replace(., . == "", "na"))
-
-metadata = srat@meta.data
-metadata = metadata[metadata$sample_id == sample_id, ] 
-table2show = merge(tmp_genotype, metadata[,c("cellid", "compartment", "aggregated_ct")], by.x="cell", by.y="cellid")
-
-DT::datatable(
-  data.frame(table2show),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-## RUNX1 - SRSF2 - EZH2
-
-```{r}
-gene_interest <- c('EZH2', 'SRSF2', 'RUNX1')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-```
-
-Describing the mutations in the order RUNX1, SRSF2, and EZH2, we observe the following cell counts: `r sum(subset$EZH2=='MUT' & subset$SRSF2=='MUT' & subset$RUNX1=='MUT')` cells with mutations in all three genes (MMM), `r sum(subset$EZH2=='WT' & subset$SRSF2=='MUT' & subset$RUNX1=='MUT')` cells with mutations in RUNX1 and SRSF2 but not EZH2 (MMW), and `r sum(subset$EZH2=='WT' & subset$SRSF2=='WT' & subset$RUNX1=='MUT')` cells with mutations only in RUNX1 (MWW).
-
-### Effect of EZH2 mutation (MMM vs WMM)
-
-We selected cells where EZH2 is either wild-type or mutated, while both SRSF2 and RUNX1 are mutated. This resulted in the following number of cells, representing the intersection of genotyped cells and those passing scRNA-seq filters.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.  Since the majority of cells belong to the tumor compartment, we focused our analysis solely on the tumor compartment.
-
-```{r}
-mutation_status1 = c("MUT", "MUT", "MUT")
-mutation_status2 = c("WT", "MUT", "MUT")
-
-cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-
-```
-
-```{r}
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-
-No genes were identified as significantly differentially expressed between the two conditions in the differential expression analysis, likely due to the low number of cells. As a result, we opted to forgo further comparisons, given the limited cell count.
-
-```{r}
-rna = subset(rna, subset = compartment =="tumor")
-Idents(rna) = rna$mutation_status
-markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"),
-                       group.by = "mutation_status",
-                       min.pct = 0.1, logfc.threshold = 0.25)
-markers = markers[markers$p_val_adj < 0.05, ]
-```
 # Genotype phenotype analysis: partial genotype
 
-Given the low number of cells, requiring the genotype for all genes was not feasible. Therefore, we relaxed the genotype criteria and assumed that the cells acquire mutations in the following order:
-
-- RUNX1 -> SRSF2 -> EZH2
-
-Therefore, to study the effect of acquiring EZH2 mutations, we can compare EZH2 MUT cells with the combined group of EZH2 WT + SRSF2 MUT
-
-## EZH2 MUT vs  EZH2 WT + SRSF2 MUT
-
-```{r}
-# Extract mutated EZH2 cells
-gene_interest <- c('EZH2')
-mutation_status1 = c('MUT')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[subset$EZH2 == "MUT"]
-
-gene_interest <- c('EZH2', 'SRSF2')
-mutation_status2 = c("WT", "MUT")
-
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-
-```
-
-We identified `r length(cells1)` cells with EZH2 mutations and `r length(cells2)` cells with EZH2 WT and SRSF2 mutations. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.  Since the majority of cells belong to the tumor compartment, we focused our analysis solely on the tumor compartment.
-
-
-```{r}
-
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-
-We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
-We got only down-regulated genes (genes enriched in EZH2 wild-type + SRSF2 mutated cells), but no pathway was found for this gene-set.
-
-```{r}
-
-rna = subset(rna, subset = compartment =="tumor")
-Idents(rna) = rna$mutation_status
-markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"),
-                       group.by = "mutation_status",
-                       min.pct = 0.1, logfc.threshold = 0.25)
-markers = markers[markers$p_val_adj < 0.05, ]
-
-down = reactome_enrichment(markers, down=TRUE)
-
-```
-
-__Differential expressed genes__
-
-The table below displays the differentially expressed genes identified in the comparison between `r paste(mutation_status1, collapse = "_")` vs `r paste(mutation_status2, collapse = "_")`
-
-
-```{r}
-DT::datatable(
-  markers[,c("avg_log2FC", "p_val_adj")],
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = TRUE
-)
-```
-
-
-
-## EZH2 MUT vs  EZH2 WT
-
-```{r}
-# Extract mutated EZH2 cells
-gene_interest <- c('EZH2')
-mutation_status1 = c('MUT')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[subset$EZH2 == "MUT"]
-
-mutation_status2 = c("WT")
-cells2 = subset$cell[subset$EZH2 == "WT"]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-```
-
-We identified `r length(cells1)` cells with EZH2 mutations and `r length(cells2)` cells with EZH2 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Againg the majority of cells belong to the undefined compartment and only a small number are from tumor and TME.
-
-
-```{r}
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
-We got only down-regulated genes (genes enriched in EZH2 wild-type cells), but no pathway was found for this gene-set.
-
-```{r}
-
-rna = subset(rna, subset = compartment =="tumor")
-Idents(rna) = rna$mutation_status
-markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"),
-                       group.by = "mutation_status",
-                       min.pct = 0.1, logfc.threshold = 0.25)
-markers = markers[markers$p_val_adj < 0.05, ]
-
-down = reactome_enrichment(markers, down=TRUE)
-
-```
-
-__Differential expressed genes__
-
-The table below displays the differentially expressed genes identified in the comparison between `r paste(mutation_status1, collapse = "_")` vs `r paste(mutation_status2, collapse = "_")`
-
-
-```{r}
-DT::datatable(
-  markers[,c("avg_log2FC", "p_val_adj")],
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = TRUE
-)
-```
+Given the low number of cells, requiring the genotype for all genes was not feasible. We studied therefore only single gene genotypes, thus the effect of mutation on a single gene.
 
 ## SRSF2 MUT vs  SRSF2 WT 
 
-```{r}
-# Extract mutated EZH2 cells
+We identified 571 cells with SRSF2 mutations and 46 cells with SRSF2 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We focused our analysis solely on the tumor compartment.
+
+```{r test}
+# Extract mutated FRYL cells
 gene_interest <- c('SRSF2')
 mutation_status1 = c('MUT')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
@@ -422,7 +189,6 @@ rna$mutation_status = paste(mutation_status1, collapse = "_")
 rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
 ```
 
-We identified `r length(cells1)` cells with SRSF2 mutations and `r length(cells2)` cells with SRSF2 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
 
 ```{r}
 DT::datatable(
@@ -438,71 +204,31 @@ DT::datatable(
 )
 ```
 
-We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
-We got only down-regulated genes (genes enriched in SRSF2 wild-type cells), but no pathway was found for this gene-set.
+
+No differenetially expressed genes have been detected
+
+
+## RUNX1 MUT vs  RUNX1 WT 
+
+We identified 954 cells with RUNX1 mutations and 17 cells with RUNX1 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We focused our analysis solely on the tumor compartment.
 
 ```{r}
-
-rna = subset(rna, subset = compartment =="tumor")
-Idents(rna) = rna$mutation_status
-markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"),
-                       group.by = "mutation_status",
-                       min.pct = 0.1, logfc.threshold = 0.25)
-markers = markers[markers$p_val_adj < 0.05, ]
-
-down = reactome_enrichment(markers, down=TRUE)
-
-```
-
-__Differential expressed genes__
-
-The table below displays the differentially expressed genes identified in the comparison between `r paste(mutation_status1, collapse = "_")` vs `r paste(mutation_status2, collapse = "_")`
-
-
-```{r}
-DT::datatable(
-  markers[,c("avg_log2FC", "p_val_adj")],
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = TRUE
-)
-```
-
-
-
-## SRSF2 MUT vs  SRSF2 WT in EZH2 WT condition
-
-
-```{r}
-# Extract mutated SRSF2 cells
-gene_interest <- c('SRSF2')
+# Extract mutated FRYL cells
+gene_interest <- c('RUNX1')
 mutation_status1 = c('MUT')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[subset$SRSF2 == "MUT"]
+cells1 = subset$cell[subset$RUNX1 == "MUT"]
 
-gene_interest <- c('EZH2', 'SRSF2')
-mutation_status2 = c("WT", "WT")
-
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+mutation_status2 = c("WT")
+cells2 = subset$cell[subset$RUNX1 == "WT"]
 
 rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
 rna$mutation_status = paste(mutation_status1, collapse = "_")
 rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-
 ```
-
-We identified `r length(cells1)` cells with SRSF2 mutations and `r length(cells2)` cells with EZH2 WT. We got only one relevant tme cell where both SRSF2 and EZH2 are wild-type.
-The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.
 
 
 ```{r}
-
 DT::datatable(
   data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
   extensions = 'Buttons',
@@ -516,4 +242,46 @@ DT::datatable(
 )
 ```
 
+
+No differenetially expressed genes have been detected
+
+
+
+## EZH2 MUT vs  EZH2 WT 
+
+We identified 84 cells with EZH2 mutations and 17 cells with EZH2 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FRYL cells
+gene_interest <- c('EZH2')
+mutation_status1 = c('MUT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[subset$EZH2 == "MUT"]
+
+mutation_status2 = c("WT")
+cells2 = subset$cell[subset$EZH2 == "WT"]
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+
+No differenetially expressed genes have been detected
 

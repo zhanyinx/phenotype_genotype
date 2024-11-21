@@ -234,24 +234,23 @@ DT::datatable(
 )
 ```
 
-## STAG2 - IDH1 - FRYL
+## STAG2 - IDH1
 
-Describing the mutations in the order STAG2, IDH1, and FRYL, we observe the following cell counts: 2 cells with mutations in all three genes (MMM), 1 cells with mutations in STAG2 and IDH1 but not FRYL (MMW), and 1 cells with mutations only in STAG2 (MWW).
+We are able to genotype only 52 cells for STAG2 and IDH1.
 
 ```{r}
-gene_interest <- c('FRYL', 'IDH1', 'STAG2')
+gene_interest <- c('IDH1', 'STAG2')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
 ```
 
 
+### Effect of IDH1 mutation (MM vs WM)
 
-### Effect of FRYL mutation (MMM vs WMM)
-
-We selected cells where FRYL is either wild-type or mutated, while both IDH1 and STAG2 are mutated. After matching genotyped cells with those passing scRNA-seq filters, we got only one cell belonging to 'undefined class' with all three genotypes mutated.
+We selected cells where IDH1 is either wild-type or mutated, while STAG2 is mutated. After matching genotyped cells with those passing scRNA-seq filters, we got basically no cells.
 
 ```{r}
-mutation_status1 = c("MUT", "MUT", "MUT")
-mutation_status2 = c("WT", "MUT", "MUT")
+mutation_status1 = c("MUT", "MUT")
+mutation_status2 = c("WT", "MUT")
 
 cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
 cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
@@ -274,150 +273,12 @@ DT::datatable(
   rownames = FALSE
 )
 ```
+
 We opted to forgo further comparisons, given the limited cell count.
-
-
-## STAG2 - SRSF2 - FRYL
-
-Describing the mutations in the order STAG2, SRSF2, and FRYL, we observe the following cell counts: 2 cells with mutations in all three genes (MMM), 7 cells with mutations in STAG2 and SRSF2 but not FRYL (MMW), and 3 cells with mutations only in STAG2 (MWW).
-
-```{r}
-gene_interest <- c('FRYL', 'SRSF2', 'STAG2')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-```
-
-### Effect of FRYL mutation (MMM vs WMM)
-
-We selected cells where FRYL is either wild-type or mutated, while both SRSF2 and STAG2 are mutated. After matching genotyped cells with those passing scRNA-seq filters, no cells were found.
-
-```{r}
-mutation_status1 = c("MUT", "MUT", "MUT")
-mutation_status2 = c("WT", "MUT", "MUT")
-
-cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
-
-```
-
 
 # Genotype phenotype analysis: partial genotype
 
-Given the low number of cells, requiring the genotype for all genes was not feasible. Therefore, we relaxed the genotype criteria and assumed that the cells acquire mutations in the following order:
-
-- STAG2 -> SRSF2 -> FRYL
-
-- STAG2 -> IDH1 -> FRYL
-
-Therefore, to study the effect of acquiring FRYL mutations, we can compare FRYL MUT cells with the combined group of FRYL WT + IDH1/SRSF2 MUT
-
-## FRYL MUT vs  FRYL WT + SRSF2 MUT
-
-We identified 33 cells with FRYL mutations and 10 cells with FRYL WT and SRSF2 mutations. The table below presents the number of cells after filtering for cells with available RNA expression data. All cells belong to undefined class.
-
-```{r}
-# Extract mutated FRYL cells
-gene_interest <- c('FRYL')
-mutation_status1 = c('MUT')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[subset$FRYL == "MUT"]
-
-gene_interest <- c('FRYL', 'SRSF2')
-mutation_status2 = c("WT", "MUT")
-
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-```
-
-
-```{r}
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-
-## FRYL MUT vs  FRYL WT + IDH1 MUT
-
-We identified 33 cells with FRYL mutations and 2 cells with FRYL WT and IDH1 mutations.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We got 17 undefined cells where FRYL is mutated and one tumor cell where FRYL is wild-type and IDH1 mutated.
-
-```{r}
-# Extract mutated FRYL cells
-gene_interest <- c('FRYL')
-mutation_status1 = c('MUT')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[subset$FRYL == "MUT"]
-
-gene_interest <- c('FRYL', 'IDH1')
-mutation_status2 = c("WT", "MUT")
-
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-```
-
-
-```{r}
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-
-
-## FRYL MUT vs  FRYL WT
-
-We identified 33 cells with FRYL mutations and 34 cells with FRYL WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Againg the majority of cells belong to the undefined compartment and only a small number are from tumor and TME.
-
-```{r}
-# Extract mutated FRYL cells
-gene_interest <- c('FRYL')
-mutation_status1 = c('MUT')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[subset$FRYL == "MUT"]
-
-mutation_status2 = c("WT")
-cells2 = subset$cell[subset$FRYL == "WT"]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-```
-
-
-```{r}
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
+Given the low number of cells, requiring the genotype for all genes was not feasible. We studied therefore only single gene genotypes, thus the effect of mutation on a single gene.
 
 ## IDH1 MUT vs  IDH1 WT 
 
@@ -456,45 +317,9 @@ DT::datatable(
 No differenetially expressed genes have been detected
 
 
-## IDH1 MUT vs  IDH1 WT in FRYL WT
-
-We identified 2 cells with IDH1 mutations and 2 cells with IDH1 WT in FRYL WT condition.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We got only one tumor cell where IDH1 is mutated and FRYL is wild-type.
-
-```{r}
-# Extract mutated FRYL cells
-gene_interest <- c('IDH1', 'FRYL')
-mutation_status1 = c('MUT', "WT")
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
-
-mutation_status2 = c("WT", "WT")
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-```
-
-
-```{r}
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-
-
-
 ## SRSF2 MUT vs  SRSF2 WT 
 
-We identified 163 cells with SRSF2 mutations and 72 cells with IDH1 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+We identified 163 cells with SRSF2 mutations and 72 cells with SRSF2 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
 
 ```{r}
 # Extract mutated SRSF2 cells
@@ -527,24 +352,26 @@ DT::datatable(
 ```
 
 
-## SRSF2 MUT vs  SRSF2 WT in FRYL WT condition
 
-We identified 10 cells with SRSF2 mutations and 3 cells with FRYL WT. We got only one relevant tme cell where both SRSF2 and FRYL are wild-type.
+## STAG2 MUT vs  STAG2 WT 
+
+We identified 300 cells with STAG2 mutations and 38 cells with STAG2 WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
 
 ```{r}
-# Extract mutated FRYL cells
-gene_interest <- c('SRSF2', 'FRYL')
-mutation_status1 = c('MUT', "WT")
+# Extract mutated STAG2 cells
+gene_interest <- c('STAG2')
+mutation_status1 = c('MUT')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+cells1 = subset$cell[subset$STAG2 == "MUT"]
 
-mutation_status2 = c("WT", "WT")
-cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+mutation_status2 = c("WT")
+cells2 = subset$cell[subset$STAG2 == "WT"]
 
 rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
 rna$mutation_status = paste(mutation_status1, collapse = "_")
 rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
 ```
+
 
 ```{r}
 DT::datatable(
