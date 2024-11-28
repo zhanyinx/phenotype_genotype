@@ -9,12 +9,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Marcello Del Corvo" />
+<meta name="author" content="Yinxiu Zhan, Marcello Del Corvo" />
 
 
 <title>Malignant cell identification</title>
 
-<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
@@ -39,20 +39,24 @@
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
 <link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
-<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
-<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
-<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="site_libs/jszip-1.13.6/jszip.min.js"></script>
-<script src="site_libs/pdfmake-1.13.6/pdfmake.js"></script>
-<script src="site_libs/pdfmake-1.13.6/vfs_fonts.js"></script>
-<link href="site_libs/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet" />
-<script src="site_libs/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script>
-<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script>
-<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script>
-<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script>
-<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
-<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<script src="site_libs/datatables-binding-0.29/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.4/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="site_libs/jszip-1.13.4/jszip.min.js"></script>
+<script src="site_libs/pdfmake-1.13.4/pdfmake.js"></script>
+<script src="site_libs/pdfmake-1.13.4/vfs_fonts.js"></script>
+<link href="site_libs/dt-ext-buttons-1.13.4/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.13.4/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.4/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.4/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.4/js/buttons.print.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="site_libs/plotly-binding-4.10.2/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
@@ -383,15 +387,17 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Malignant cell identification</h1>
-<h4 class="author">Marcello Del Corvo</h4>
-<h4 class="date">14 November, 2024</h4>
+<h4 class="author">Yinxiu Zhan, Marcello Del Corvo</h4>
+<h4 class="date">28 November, 2024</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -400,7 +406,9 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -409,17 +417,27 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-11-14
+<strong>Last updated:</strong> 2024-11-28
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>phenotype_genotype/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>phenotype_genotype/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.1). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -428,100 +446,151 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20240315code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20240315)</code> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20240315code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20240315)</code> </a>
 </p>
 </div>
-<div id="strongSeedstrongcodesetseed20240315code" class="panel-collapse collapse">
+<div id="strongSeedstrongcodesetseed20240315code"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20240315)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20240315)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
 </p>
 </div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
 </p>
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
 </p>
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree8972435c2bff15c14ead4f85340c9765c0ea1503targetblank8972435a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/ieoresearch/phenotype_genotype/tree/8972435c2bff15c14ead4f85340c9765c0ea1503" target="_blank">8972435</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetree23289a08b4afe3b8bd80f2ecbd431fa24e0dd88ctargetblank23289a0a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/zhanyinx/phenotype_genotype/tree/23289a08b4afe3b8bd80f2ecbd431fa24e0dd88c" target="_blank">23289a0</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomieoresearchphenotypegenotypetree8972435c2bff15c14ead4f85340c9765c0ea1503targetblank8972435a" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetree23289a08b4afe3b8bd80f2ecbd431fa24e0dd88ctargetblank23289a0a"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/ieoresearch/phenotype_genotype/tree/8972435c2bff15c14ead4f85340c9765c0ea1503" target="_blank">8972435</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/zhanyinx/phenotype_genotype/tree/23289a08b4afe3b8bd80f2ecbd431fa24e0dd88c" target="_blank">23289a0</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
     Ignored:    data/
     Ignored:    src/
 
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -532,7 +601,14 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/00_palm_malignant_non_malignant_annotations.Rmd</code>) and HTML (<code>docs/00_palm_malignant_non_malignant_annotations.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/00_palm_malignant_non_malignant_annotations.Rmd</code>)
+and HTML
+(<code>docs/00_palm_malignant_non_malignant_annotations.html</code>)
+files. If you’ve configured a remote Git repository (see
+<code>?wflow_git_remote</code>), click on the hyperlinks in the table
+below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -561,33 +637,16 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/8972435c2bff15c14ead4f85340c9765c0ea1503/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">8972435</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/23289a08b4afe3b8bd80f2ecbd431fa24e0dd88c/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">23289a0</a>
 </td>
 <td>
-mdelcorvo
+Yinxiu Zhan
 </td>
 <td>
-2024-11-14
+2024-11-28
 </td>
 <td>
-Remove comparison of Tier I from Chiara Caprioli
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/3e733d12638829ff39f8703fcf02a24a830e1b81/docs/00_palm_malignant_non_malignant_annotations.html" target="_blank">3e733d1</a>
-</td>
-<td>
-mdelcorvo
-</td>
-<td>
-2024-11-14
-</td>
-<td>
-Build site.
+improve analysis
 </td>
 </tr>
 <tr>
@@ -595,16 +654,16 @@ Build site.
 Rmd
 </td>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/a2db70e41493f3be8bbb3b24fda19803f21cc1e6/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">a2db70e</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/1720256913e83cdf409d034379c455b60e3d446d/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">1720256</a>
 </td>
 <td>
 mdelcorvo
 </td>
 <td>
-2024-11-14
+2024-11-15
 </td>
 <td>
-Fix sample names
+add PALM04 report
 </td>
 </tr>
 <tr>
@@ -612,16 +671,16 @@ Fix sample names
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/7fee1c8b1b44d75eab79884bab17be65628c1251/docs/00_palm_malignant_non_malignant_annotations.html" target="_blank">7fee1c8</a>
+<a href="https://rawcdn.githack.com/zhanyinx/phenotype_genotype/1720256913e83cdf409d034379c455b60e3d446d/docs/00_palm_malignant_non_malignant_annotations.html" target="_blank">1720256</a>
 </td>
 <td>
 mdelcorvo
 </td>
 <td>
-2024-11-14
+2024-11-15
 </td>
 <td>
-Build site.
+add PALM04 report
 </td>
 </tr>
 <tr>
@@ -629,7 +688,7 @@ Build site.
 Rmd
 </td>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/c30bbb858de37f24cac0245024b54cd2162f43c6/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">c30bbb8</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/623cc811aeaecc1e2e962a379c16f940725d759b/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">623cc81</a>
 </td>
 <td>
 mdelcorvo
@@ -638,7 +697,7 @@ mdelcorvo
 2024-11-14
 </td>
 <td>
-Fix sample names
+add Add tme annotation for PALM
 </td>
 </tr>
 <tr>
@@ -646,7 +705,7 @@ Fix sample names
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/5507d196d573b4cf0b7cff1b9d9999c527f44f84/docs/00_palm_malignant_non_malignant_annotations.html" target="_blank">5507d19</a>
+<a href="https://rawcdn.githack.com/zhanyinx/phenotype_genotype/623cc811aeaecc1e2e962a379c16f940725d759b/docs/00_palm_malignant_non_malignant_annotations.html" target="_blank">623cc81</a>
 </td>
 <td>
 mdelcorvo
@@ -655,7 +714,7 @@ mdelcorvo
 2024-11-14
 </td>
 <td>
-Build site.
+add Add tme annotation for PALM
 </td>
 </tr>
 <tr>
@@ -663,7 +722,7 @@ Build site.
 Rmd
 </td>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/2d42f36975728db1114e2fc697a0617e1e8dccd2/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">2d42f36</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -672,7 +731,7 @@ mdelcorvo
 2024-11-14
 </td>
 <td>
-Fix size for x axis for 00_palm_malignant_non_malignant plots
+Add PALM malignant_non_malignant_annotations report
 </td>
 </tr>
 <tr>
@@ -680,24 +739,7 @@ Fix size for x axis for 00_palm_malignant_non_malignant plots
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/ieoresearch/phenotype_genotype/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/00_palm_malignant_non_malignant_annotations.html" target="_blank">051d751</a>
-</td>
-<td>
-mdelcorvo
-</td>
-<td>
-2024-11-14
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/301709d1d7b6a349e8abe1f2ea6ffac82bbae3c2/analysis/00_palm_malignant_non_malignant_annotations.Rmd" target="_blank">301709d</a>
+<a href="https://rawcdn.githack.com/zhanyinx/phenotype_genotype/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/00_palm_malignant_non_malignant_annotations.html" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -718,31 +760,71 @@ Add PALM malignant_non_malignant_annotations report
 </div>
 <div id="objective" class="section level1">
 <h1>Objective</h1>
-<p>The objective of this analysis is to conduct an exploratory data analysis on the Seurat object containing single-cell RNA sequencing (scRNA-seq) data from PALM patients, including samples from 1 to 19, plus three healthy donors serving as controls</p>
-<p><strong>Information Contained in the Seurat Object</strong>: The Seurat object stores several layers of information, including gene expression data, metadata for each cell, and detailed cell type annotations based on the strategy from the Triana paper. Specifically, cell type annotations have been generated using various tools and methods for assigning and validating cell identities.</p>
-<p><strong>Cell Type Annotation Strategy</strong> (based on the strategy from the <a href="https://www.nature.com/articles/s41590-021-01059-0">Triana Study</a>): The following variables are present within the Seurat object:</p>
+<p>The objective of this analysis is to conduct an exploratory data
+analysis on the Seurat object containing single-cell RNA sequencing
+(scRNA-seq) data from PALM patients, including samples from 1 to 19,
+plus three healthy donors serving as controls</p>
+<p><strong>Information Contained in the Seurat Object</strong>: The
+Seurat object stores several layers of information, including gene
+expression data, metadata for each cell, and detailed cell type
+annotations based on the strategy from the Triana paper. Specifically,
+cell type annotations have been generated using various tools and
+methods for assigning and validating cell identities.</p>
+<p><strong>Cell Type Annotation Strategy</strong> (based on the strategy
+from the <a
+href="https://www.nature.com/articles/s41590-021-01059-0">Triana
+Study</a>): The following variables are present within the Seurat
+object:</p>
 <ul>
-<li><p>lineage: This variable indicates the predicted cell lineage for each cell, as determined using scmap, a tool designed to project single-cell data onto a reference atlas of known cell types or states. This provides a reference-based classification of cell types.</p></li>
-<li><p>lineage_similarity_score: This score is also derived from scmap and represents the degree of similarity between a cell and its predicted lineage in the reference atlas. It quantifies how confidently the cell can be matched to the reference cell types.</p></li>
-<li><p>aggregated_ct: This represents manually curated, broader categories of cell types (check out the code first chunck).</p></li>
-<li><p>singleR_label: The cell type labels are predicted using SingleR, an automated tool for cell type annotation. SingleR compares the expression profile of each cell to reference datasets and assigns the most likely cell type based on gene expression similarities.</p></li>
-<li><p>singleR_score: This variable reflects the confidence score assigned by SingleR, indicating how closely the cell’s expression profile matches its predicted reference cell type.</p></li>
+<li><p>lineage: This variable indicates the predicted cell lineage for
+each cell, as determined using scmap, a tool designed to project
+single-cell data onto a reference atlas of known cell types or states.
+This provides a reference-based classification of cell types.</p></li>
+<li><p>lineage_similarity_score: This score is also derived from scmap
+and represents the degree of similarity between a cell and its predicted
+lineage in the reference atlas. It quantifies how confidently the cell
+can be matched to the reference cell types.</p></li>
+<li><p>aggregated_ct: This represents manually curated, broader
+categories of cell types (check out the code first chunck).</p></li>
+<li><p>singleR_label: The cell type labels are predicted using SingleR,
+an automated tool for cell type annotation. SingleR compares the
+expression profile of each cell to reference datasets and assigns the
+most likely cell type based on gene expression similarities.</p></li>
+<li><p>singleR_score: This variable reflects the confidence score
+assigned by SingleR, indicating how closely the cell’s expression
+profile matches its predicted reference cell type.</p></li>
 </ul>
 <p><strong>Tools Used</strong>:</p>
 <ul>
-<li><p>scmap: A reference-based method that projects single-cell RNA-seq data onto a predefined reference atlas. It helps assign cell types based on similarity to known cell populations.</p></li>
-<li><p>SingleR: An automated tool that annotates cell types by comparing single-cell gene expression data to reference datasets. It uses the correlation between a cell’s gene expression profile and reference profiles to predict cell types.</p></li>
+<li><p>scmap: A reference-based method that projects single-cell RNA-seq
+data onto a predefined reference atlas. It helps assign cell types based
+on similarity to known cell populations.</p></li>
+<li><p>SingleR: An automated tool that annotates cell types by comparing
+single-cell gene expression data to reference datasets. It uses the
+correlation between a cell’s gene expression profile and reference
+profiles to predict cell types.</p></li>
 </ul>
-<p>These annotations, combined with the other data stored in the Seurat object, provide a comprehensive view of the scRNA-seq data, allowing for in-depth analysis and interpretation of cell types across the samples.</p>
+<p>These annotations, combined with the other data stored in the Seurat
+object, provide a comprehensive view of the scRNA-seq data, allowing for
+in-depth analysis and interpretation of cell types across the
+samples.</p>
 </div>
 <div id="exploratory-data-analysis" class="section level1">
 <h1>Exploratory data analysis</h1>
-<p>We have confirmed that doublets were successfully filtered out. The number of cells per sample ranges from approximately 800 to more than 20,000, as shown in the table below.</p>
+<p>We have confirmed that doublets were successfully filtered out. The
+number of cells per sample ranges from approximately 3800 to more than
+20,000, as shown in the table below.</p>
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-782715c6e6448907f7d2" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_1","PALM_09_2","PALM_10_E","PALM_11_E","PALM_12_E","PALM_13_E","PALM_13_R","PALM_14_E","PALM_14_R","PALM_15_E","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E","PALM_DON_1","PALM_DON_2","PALM_DON_3","PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_1","PALM_09_2","PALM_10_E","PALM_11_E","PALM_12_E","PALM_13_E","PALM_13_R","PALM_14_E","PALM_14_R","PALM_15_E","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E","PALM_DON_1","PALM_DON_2","PALM_DON_3"],["singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet"],[10395,3859,4797,4239,10323,20442,6300,6282,6670,6510,9021,9380,879,4595,7587,5153,6012,5360,10823,5839,12219,10109,4829,7090,4438,6848,5102,5713,6837,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>sample_id<\/th>\n      <th>scDblFinder.class<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[0,1]},{"name":"sample_id","targets":0},{"name":"scDblFinder.class","targets":1},{"name":"Freq","targets":2}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-782715c6e6448907f7d2">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_2","PALM_10_E","PALM_11_E","PALM_12_E","PALM_13_E","PALM_13_R","PALM_14_E","PALM_14_R","PALM_15_E","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E","PALM_DON_1","PALM_DON_2","PALM_DON_3","PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_2","PALM_10_E","PALM_11_E","PALM_12_E","PALM_13_E","PALM_13_R","PALM_14_E","PALM_14_R","PALM_15_E","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E","PALM_DON_1","PALM_DON_2","PALM_DON_3"],["singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","singlet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet","doublet"],[10368,3793,4795,4244,10379,20402,6432,6343,6722,6578,9076,9307,4621,7844,5254,6005,5454,10836,5727,12220,10100,4832,7066,4466,6756,5141,5668,6831,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>sample_id<\/th>\n      <th>scDblFinder.class<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[0,1]}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
 <div id="umap-visualisation" class="section level2">
 <h2>Umap visualisation</h2>
-<p>We evaluated data integration by analyzing the UMAP reduction and quantifying the proportion of each cell type across patients. As shown by both the UMAP visualization and the barplot quantification, T cells were enriched in the healthy bone marrow (PALM_DON) samples, as expected. In contrast, PALM patients exhibited variability in cell type distributions, with notable enrichment in most of the samples for early myeloid and HSC_MPP populations.</p>
+<p>We evaluated data integration by analyzing the UMAP reduction and
+quantifying the proportion of each cell type across patients. As shown
+by both the UMAP visualization and the barplot quantification, T cells
+were enriched in the healthy bone marrow (PALM_DON) samples, as
+expected. In contrast, PALM patients exhibited variability in cell type
+distributions, with notable enrichment in most of the samples for early
+myeloid and HSC_MPP populations.</p>
 <p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-umap_celltype_sampleid-1">
@@ -768,7 +850,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/3e733d12638829ff39f8703fcf02a24a830e1b81/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" target="_blank">3e733d1</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/1720256913e83cdf409d034379c455b60e3d446d/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" target="_blank">1720256</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-15
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/623cc811aeaecc1e2e962a379c16f940725d759b/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" target="_blank">623cc81</a>
 </td>
 <td>
 mdelcorvo
@@ -779,18 +872,7 @@ mdelcorvo
 </tr>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/5507d196d573b4cf0b7cff1b9d9999c527f44f84/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" target="_blank">5507d19</a>
-</td>
-<td>
-mdelcorvo
-</td>
-<td>
-2024-11-14
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_sampleid-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -828,7 +910,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/quantification-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/quantification-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -841,7 +923,11 @@ mdelcorvo
 </table>
 </div>
 </div>
-<p>Next, we present the UMAP visualization color-coded by manually grouped lineages. The cell types most likely to contain cancer cells, specifically “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, and “Eo_baso_mast”, Erythroid and MK, are primarily clustered in the lower region of the UMAP.</p>
+<p>Next, we present the UMAP visualization color-coded by manually
+grouped lineages. The cell types most likely to contain cancer cells,
+specifically “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, and
+“Eo_baso_mast”, Erythroid and MK, are primarily clustered in the lower
+region of the UMAP.</p>
 <p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_grouped-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-umap_celltype_grouped-1">
@@ -867,7 +953,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_grouped-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/umap_celltype_grouped-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -896,12 +982,27 @@ mdelcorvo
 </div>
 <div id="malignant-cell-annotation" class="section level1">
 <h1>Malignant cell annotation</h1>
-<p>To identify highly confident malignant cells, we focus on cell types known to be more likely to harbor malignancy, including “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, and “MK”. We require that malignant cells be part of these predefined cell types based on aggregated annotations.</p>
-<p>Next, we impose an additional criterion: malignant cells should cluster distinctly from healthy bone marrow cells. Specifically, we require that these cells belong to clusters predominantly composed of malignant cells, with an adjustable threshold for determining the degree of malignancy within a cluster. This ensures that the cells are not just grouped with normal cells but form distinct populations.</p>
-<p>Finally, to strengthen the confidence in identifying malignant cells, we assess the relative expansion of each cell type within each patient compared to normal samples. Malignant cells should be expanded in PALM patients compared to healthy controls, reinforcing the idea that their presence is abnormal.</p>
+<p>To identify highly confident malignant cells, we focus on cell types
+known to be more likely to harbor malignancy, including “Early_myeloid”,
+“HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, and
+“MK”. We require that malignant cells be part of these predefined cell
+types based on aggregated annotations.</p>
+<p>Next, we impose an additional criterion: malignant cells should
+cluster distinctly from healthy bone marrow cells. Specifically, we
+require that these cells belong to clusters predominantly composed of
+malignant cells, with an adjustable threshold for determining the degree
+of malignancy within a cluster. This ensures that the cells are not just
+grouped with normal cells but form distinct populations.</p>
+<p>Finally, to strengthen the confidence in identifying malignant cells,
+we assess the relative expansion of each cell type within each patient
+compared to normal samples. Malignant cells should be expanded in PALM
+patients compared to healthy controls, reinforcing the idea that their
+presence is abnormal.</p>
 <div id="assess-the-cluster-composition" class="section level2">
 <h2>Assess the cluster composition</h2>
-<p>Below, we present a bar plot showing the proportion of normal and malignant cells in each cluster, quantifying the fraction of each cell type per cluster.</p>
+<p>Below, we present a bar plot showing the proportion of normal and
+malignant cells in each cluster, quantifying the fraction of each cell
+type per cluster.</p>
 <p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
@@ -927,7 +1028,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-3-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-3-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -940,7 +1041,10 @@ mdelcorvo
 </table>
 </div>
 </div>
-<p>To determine which clusters to evaluate for malignant cell presence, we plotted the distribution of the fraction of healthy cells across all clusters. We set the threshold at 0.9, selecting clusters with a lower proportion of healthy cells for further assessment of malignancy.</p>
+<p>To determine which clusters to evaluate for malignant cell presence,
+we plotted the distribution of the fraction of healthy cells across all
+clusters. We set the threshold at 0.9, selecting clusters with a lower
+proportion of healthy cells for further assessment of malignancy.</p>
 <p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
@@ -966,7 +1070,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-4-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-4-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -979,7 +1083,8 @@ mdelcorvo
 </table>
 </div>
 </div>
-<p>The UMAP visualisation below show the clusters to be considered for malignant cell presence</p>
+<p>The UMAP visualisation below show the clusters to be considered for
+malignant cell presence</p>
 <p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
@@ -1005,7 +1110,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-5-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-5-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -1019,9 +1124,13 @@ mdelcorvo
 </div>
 </div>
 </div>
-<div id="assess-expansion-pattern-in-aggregated-cell-type" class="section level2">
+<div id="assess-expansion-pattern-in-aggregated-cell-type"
+class="section level2">
 <h2>Assess expansion pattern in aggregated cell type</h2>
-<p>To identify the malignant cell type, we analyzed the distribution of cell type expansions for the sample. The distribution showed a bimodal pattern. Based on this, we set a cutoff of a 4-fold expansion to define malignant cells.</p>
+<p>To identify the malignant cell type, we analyzed the distribution of
+cell type expansions for the sample. The distribution showed a bimodal
+pattern. Based on this, we set a cutoff of a 4-fold expansion to define
+malignant cells.</p>
 <p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
@@ -1047,7 +1156,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-7-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-7-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -1085,7 +1194,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-8-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-8-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -1101,11 +1210,19 @@ mdelcorvo
 </div>
 <div id="combining-filters" class="section level2">
 <h2>Combining filters</h2>
-<p>Next, we require that all filters are met. Specifically, the cell must belong to one of the following categories: “Early_myeloid”, “HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, “MK”. Additionally, the cell must be part of a cluster enriched in malignant cells, and its cell type must show expansion.</p>
-<p>Notably, removing the criterion for inclusion in a specific cell type and specific cluster results in an increase of only 0.8% in the total malignant cell population. The criteria that is the most stringent is the expansion criteria.</p>
+<p>Next, we require that all filters are met. Specifically, the cell
+must belong to one of the following categories: “Early_myeloid”,
+“HSC_MPP”, “Late_myeloid”, “Mono”, “Eo_baso_mast”, “Erythroid”, “MK”.
+Additionally, the cell must be part of a cluster enriched in malignant
+cells, and its cell type must show expansion.</p>
+<p>Notably, removing the criterion for inclusion in a specific cell type
+and specific cluster results in an increase of only 0.8% in the total
+malignant cell population. The criteria that is the most stringent is
+the expansion criteria.</p>
 <div id="malignant-cell" class="section level3">
 <h3>Malignant cell</h3>
-<p>The UMAP visualization displays malignant cells, accompanied by a bar plot that quantifies the malignant cell fraction within each sample.</p>
+<p>The UMAP visualization displays malignant cells, accompanied by a bar
+plot that quantifies the malignant cell fraction within each sample.</p>
 <p><img src="figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-10-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
@@ -1131,7 +1248,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-10-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-10-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -1169,7 +1286,18 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/3e733d12638829ff39f8703fcf02a24a830e1b81/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" target="_blank">3e733d1</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/1720256913e83cdf409d034379c455b60e3d446d/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" target="_blank">1720256</a>
+</td>
+<td>
+mdelcorvo
+</td>
+<td>
+2024-11-15
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/623cc811aeaecc1e2e962a379c16f940725d759b/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" target="_blank">623cc81</a>
 </td>
 <td>
 mdelcorvo
@@ -1180,18 +1308,7 @@ mdelcorvo
 </tr>
 <tr>
 <td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/5507d196d573b4cf0b7cff1b9d9999c527f44f84/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" target="_blank">5507d19</a>
-</td>
-<td>
-mdelcorvo
-</td>
-<td>
-2024-11-14
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/ieoresearch/phenotype_genotype/blob/051d751e6749af4d8b9dfe2eeace8e04ebf3650c/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" target="_blank">051d751</a>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/06a32cd0ab7ed2b8bd47df8a37fcd38945465c2a/docs/figure/00_palm_malignant_non_malignant_annotations.Rmd/unnamed-chunk-11-1.png" target="_blank">06a32cd</a>
 </td>
 <td>
 mdelcorvo
@@ -1204,19 +1321,23 @@ mdelcorvo
 </table>
 </div>
 </div>
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-7f2e8bbd475421ad5ec3" style="width:576px;height:576px;"></div>
+<script type="application/json" data-for="htmlwidget-7f2e8bbd475421ad5ec3">{"x":{"data":[{"x":[0.68000000000000005,0.38,0.82999999999999996,0.92000000000000004,0.85999999999999999,0.44,0.80000000000000004,0.80000000000000004,0.5,0.5,0.87,0.16,0.80000000000000004,0.65000000000000002,0.92000000000000004,0.69999999999999996,0.31,0.48999999999999999,0.93000000000000005,0.90000000000000002,0.88,0.84999999999999998],"y":[0.62943672839506171,0.59187977853941476,0.63858185610010432,0.41140433553251649,0.92879853550438385,0.17125771983138907,0.81110074626865669,0.80766198959482893,0.3750371913121095,0.38035877166311949,0.7174966945791097,0.32975179972064039,0.64574767366370911,0.77677205507394187,0.90045679482299201,0.56197286395306201,0.62318840579710144,0.58281505728314242,0.77483443708609268,0.64576846872346449,0.72234661889834306,0.8164594434576673],"text":["PALM_01_E","PALM_02_E","PALM_02_R","PALM_03_E","PALM_04_E","PALM_05_E","PALM_06_1","PALM_06_2","PALM_07_1","PALM_07_2","PALM_08_E","PALM_08_R","PALM_09_2","PALM_10_E","PALM_11_E","PALM_13_E","PALM_14_E","PALM_14_R","PALM_16_E","PALM_17_E","PALM_18_E","PALM_19_E"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.6692913385826778,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.1215,0.96850000000000003],"y":[0.1215,0.96850000000000003],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(190,190,190,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":23.305936073059364,"r":7.3059360730593621,"b":37.260273972602747,"l":48.949771689497723},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.1215,0.96850000000000003],"tickmode":"array","ticktext":["0.25","0.50","0.75"],"tickvals":[0.25,0.5,0.75],"categoryorder":"array","categoryarray":["0.25","0.50","0.75"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Blast IP","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.13338067904773931,0.96667557628803358],"tickmode":"array","ticktext":["0.25","0.50","0.75"],"tickvals":[0.25,0.5,0.75],"categoryorder":"array","categoryarray":["0.25","0.50","0.75"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Bast single cell","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"40cc534c71a0":{"x":{},"y":{},"text":{},"type":"scatter"},"40cc6579ae7":{"intercept":{},"slope":{}}},"cur_data":"40cc534c71a0","visdat":{"40cc534c71a0":["function (y) ","x"],"40cc6579ae7":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.3.2 (2023-10-31)
-Platform: x86_64-conda-linux-gnu (64-bit)
-Running under: CentOS Linux 7 (Core)
+<pre><code>R version 4.3.1 (2023-06-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 22.04.3 LTS
 
 Matrix products: default
-BLAS/LAPACK: /hpcnfs/home/ieo5398/anaconda3/envs/snake/lib/libopenblasp-r0.3.24.so;  LAPACK version 3.11.0
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -1226,60 +1347,58 @@ locale:
  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
 [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 
-time zone: Europe/Rome
+time zone: Etc/UTC
 tzcode source: system (glibc)
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] mclust_6.0.1       Seurat_5.0.1       SeuratObject_5.0.1 sp_2.1-2          
- [5] lubridate_1.9.3    forcats_1.0.0      stringr_1.5.0      dplyr_1.1.3       
+ [1] plotly_4.10.2      mclust_6.0.0       SeuratObject_4.1.3 Seurat_4.3.0.1    
+ [5] lubridate_1.9.2    forcats_1.0.0      stringr_1.5.0      dplyr_1.1.3       
  [9] purrr_1.0.2        readr_2.1.4        tidyr_1.3.0        tibble_3.2.1      
-[13] ggplot2_3.4.4      tidyverse_2.0.0   
+[13] ggplot2_3.4.2      tidyverse_2.0.0   
 
 loaded via a namespace (and not attached):
   [1] RColorBrewer_1.1-3     rstudioapi_0.15.0      jsonlite_1.8.7        
-  [4] magrittr_2.0.3         spatstat.utils_3.0-4   farver_2.1.1          
-  [7] rmarkdown_2.25         fs_1.6.3               vctrs_0.6.4           
- [10] ROCR_1.0-11            spatstat.explore_3.2-5 htmltools_0.5.6.1     
- [13] sass_0.4.7             sctransform_0.4.1      parallelly_1.36.0     
+  [4] magrittr_2.0.3         spatstat.utils_3.0-3   farver_2.1.1          
+  [7] rmarkdown_2.24         fs_1.6.3               vctrs_0.6.3           
+ [10] ROCR_1.0-11            spatstat.explore_3.2-3 htmltools_0.5.6       
+ [13] sass_0.4.7             sctransform_0.3.5      parallelly_1.36.0     
  [16] KernSmooth_2.23-22     bslib_0.5.1            htmlwidgets_1.6.2     
- [19] ica_1.0-3              plyr_1.8.9             plotly_4.10.3         
- [22] zoo_1.8-12             cachem_1.0.8           whisker_0.4.1         
- [25] igraph_1.5.1           mime_0.12              lifecycle_1.0.3       
- [28] pkgconfig_2.0.3        Matrix_1.6-4           R6_2.5.1              
- [31] fastmap_1.1.1          fitdistrplus_1.1-11    future_1.33.0         
- [34] shiny_1.8.0            digest_0.6.33          colorspace_2.1-0      
- [37] patchwork_1.1.3        rprojroot_2.0.4        tensor_1.5            
- [40] RSpectra_0.16-1        irlba_2.3.5.1          crosstalk_1.2.1       
- [43] labeling_0.4.3         progressr_0.14.0       fansi_1.0.5           
- [46] spatstat.sparse_3.0-3  timechange_0.2.0       httr_1.4.7            
- [49] polyclip_1.10-7        abind_1.4-5            compiler_4.3.2        
- [52] withr_2.5.1            fastDummies_1.7.3      MASS_7.3-60           
- [55] tools_4.3.2            lmtest_0.9-40          httpuv_1.6.13         
- [58] future.apply_1.11.1    goftest_1.2-3          glue_1.6.2            
- [61] nlme_3.1-163           promises_1.2.1         grid_4.3.2            
- [64] Rtsne_0.16             cluster_2.1.4          reshape2_1.4.4        
- [67] generics_0.1.3         gtable_0.3.4           spatstat.data_3.0-3   
- [70] tzdb_0.4.0             data.table_1.14.8      hms_1.1.3             
- [73] utf8_1.2.4             spatstat.geom_3.2-7    RcppAnnoy_0.0.21      
- [76] ggrepel_0.9.6          RANN_2.6.1             pillar_1.9.0          
- [79] spam_2.10-0            RcppHNSW_0.5.0         later_1.3.2           
- [82] splines_4.3.2          lattice_0.22-5         survival_3.7-0        
- [85] deldir_1.0-9           tidyselect_1.2.0       miniUI_0.1.1.1        
- [88] pbapply_1.7-2          knitr_1.44             git2r_0.33.0          
- [91] gridExtra_2.3          scattermore_1.2        xfun_0.40             
- [94] matrixStats_1.0.0      DT_0.33                stringi_1.7.12        
- [97] workflowr_1.7.1        lazyeval_0.2.2         yaml_2.3.7            
-[100] evaluate_0.22          codetools_0.2-19       cli_3.6.1             
-[103] uwot_0.1.16            xtable_1.8-4           reticulate_1.34.0     
-[106] munsell_0.5.0          jquerylib_0.1.4        Rcpp_1.0.11           
-[109] globals_0.16.2         spatstat.random_3.2-2  png_0.1-8             
-[112] parallel_4.3.2         ellipsis_0.3.2         dotCall64_1.1-1       
-[115] listenv_0.9.0          viridisLite_0.4.2      scales_1.2.1          
-[118] ggridges_0.5.5         leiden_0.4.3.1         rlang_1.1.1           
-[121] cowplot_1.1.3         </code></pre>
+ [19] ica_1.0-3              plyr_1.8.8             zoo_1.8-12            
+ [22] cachem_1.0.8           whisker_0.4.1          igraph_1.4.3          
+ [25] mime_0.12              lifecycle_1.0.3        pkgconfig_2.0.3       
+ [28] Matrix_1.5-3           R6_2.5.1               fastmap_1.1.1         
+ [31] fitdistrplus_1.1-11    future_1.33.0          shiny_1.7.5           
+ [34] digest_0.6.33          colorspace_2.1-0       patchwork_1.1.3       
+ [37] rprojroot_2.0.3        tensor_1.5             irlba_2.3.5.1         
+ [40] crosstalk_1.2.0        labeling_0.4.3         progressr_0.14.0      
+ [43] fansi_1.0.4            spatstat.sparse_3.0-2  timechange_0.2.0      
+ [46] httr_1.4.7             polyclip_1.10-4        abind_1.4-5           
+ [49] compiler_4.3.1         withr_2.5.0            MASS_7.3-60           
+ [52] tools_4.3.1            lmtest_0.9-40          httpuv_1.6.11         
+ [55] future.apply_1.11.0    goftest_1.2-3          glue_1.6.2            
+ [58] nlme_3.1-162           promises_1.2.1         grid_4.3.1            
+ [61] Rtsne_0.16             cluster_2.1.4          reshape2_1.4.4        
+ [64] generics_0.1.3         gtable_0.3.4           spatstat.data_3.0-1   
+ [67] tzdb_0.4.0             data.table_1.14.8      hms_1.1.3             
+ [70] sp_2.0-0               utf8_1.2.3             spatstat.geom_3.2-5   
+ [73] RcppAnnoy_0.0.21       ggrepel_0.9.3          RANN_2.6.1            
+ [76] pillar_1.9.0           later_1.3.1            splines_4.3.1         
+ [79] lattice_0.21-8         survival_3.5-5         deldir_1.0-9          
+ [82] tidyselect_1.2.0       miniUI_0.1.1.1         pbapply_1.7-2         
+ [85] knitr_1.44             git2r_0.32.0           gridExtra_2.3         
+ [88] scattermore_1.2        xfun_0.40              matrixStats_1.0.0     
+ [91] DT_0.29                stringi_1.7.12         workflowr_1.7.1       
+ [94] lazyeval_0.2.2         yaml_2.3.7             evaluate_0.21         
+ [97] codetools_0.2-19       cli_3.6.1              uwot_0.1.16           
+[100] xtable_1.8-4           reticulate_1.32.0      munsell_0.5.0         
+[103] jquerylib_0.1.4        Rcpp_1.0.11            globals_0.16.2        
+[106] spatstat.random_3.1-6  png_0.1-8              parallel_4.3.1        
+[109] ellipsis_0.3.2         listenv_0.9.0          viridisLite_0.4.2     
+[112] scales_1.2.1           ggridges_0.5.4         leiden_0.4.3          
+[115] rlang_1.1.1            cowplot_1.1.1         </code></pre>
 </div>
 </div>
 </div>
