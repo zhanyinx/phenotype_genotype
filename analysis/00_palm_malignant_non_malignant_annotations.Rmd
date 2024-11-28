@@ -1,7 +1,7 @@
 ---
 title: "Malignant cell identification"
 author: 
-- Marcello Del Corvo
+- Yinxiu Zhan, Marcello Del Corvo
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   workflowr::wflow_html:
@@ -61,6 +61,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
   library(mclust)
+  library(plotly)
   source("src/functions.R")
 })
 
@@ -148,19 +149,13 @@ aggregation_list = list(
 # Exploratory data analysis
 
 ```{r load_data}
-srat = readRDS("data/PALM_final_seurat.rds")
-# Find the shared nearest neighbor graph (k = 30)
-#srat <- FindNeighbors(srat, dims = 1:10, k.param = 30)
-# Identify clusters with a resolution of 0.6
-#srat <- FindClusters(srat, resolution = 0.6)
-
-#srat <- RunUMAP(srat, dims = 1:10)
+srat = readRDS("data/PALM_seurat.rds")
 metadata = srat@meta.data
 cancer_cells <- c("Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK")
 
 ```
 
-We have confirmed that doublets were successfully filtered out. The number of cells per sample ranges from approximately 800 to more than 20,000, as shown in the table below.
+We have confirmed that doublets were successfully filtered out. The number of cells per sample ranges from approximately 3800 to more than 20,000, as shown in the table below.
 
 ```{r}
 DT::datatable(
@@ -182,7 +177,7 @@ DT::datatable(
 We evaluated data integration by analyzing the UMAP reduction and quantifying the proportion of each cell type across patients. As shown by both the UMAP visualization and the barplot quantification, T cells were enriched in the healthy bone marrow (PALM_DON) samples, as expected. In contrast, PALM patients exhibited variability in cell type distributions, with notable enrichment in most of the samples for early myeloid and HSC_MPP populations.
 
 ```{r umap_celltype_sampleid, fig.height=6, fig.width=6}
-mydimplot1(srat, var = "sample_id", reduction = "umap", label=TRUE)
+mydimplot(srat, var = "sample_id", reduction = "UMAP_scanorama", label=TRUE, raster=FALSE)
 ```
 
 
@@ -206,11 +201,10 @@ ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = aggregat
 
 ```
 
-
 Next, we present the UMAP visualization color-coded by manually grouped lineages. The cell types most likely to contain cancer cells, specifically "Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", and "Eo_baso_mast", Erythroid and MK,  are primarily clustered in the lower region of the UMAP.
 
 ```{r umap_celltype_grouped, fig.height=6, fig.width=6}
-mydimplot(srat, var = "aggregated_ct", reduction = "umap", label=FALSE)
+mydimplot(srat, var = "aggregated_ct", reduction = "UMAP_harmony", label=FALSE, raster=FALSE)
 ```
 
 <!-- ```{r umap_celltype_grouped1, fig.height=6, fig.width=6} -->
@@ -246,7 +240,7 @@ Below, we present a bar plot showing the proportion of normal and malignant cell
 ```{r}
 healthy_controls = c("PALM_DON_1", "PALM_DON_2", "PALM_DON_3")
 tmp = srat
-tmp@meta.data$RNA_snn_k_30_res_0.6 = as.factor(tmp@meta.data$RNA_snn_res.0.6)
+tmp@meta.data$RNA_snn_k_5_res_0.6 = as.factor(tmp@meta.data$RNA_snn_k_5_res_0.6)
 tmp$healthy = FALSE
 tmp$healthy[tmp$sample_id %in% healthy_controls] = TRUE
 tmp_metadata = tmp@meta.data
@@ -254,13 +248,13 @@ tmp_metadata = tmp@meta.data
 
 # Calculate normalized frequencies
 normalized_frequencies <- tmp_metadata %>%
-  group_by(healthy, RNA_snn_k_30_res_0.6) %>%
+  group_by(healthy, RNA_snn_k_5_res_0.6) %>%
   summarise(count = n(), .groups = 'drop') %>%
-  group_by(RNA_snn_k_30_res_0.6) %>%
+  group_by(RNA_snn_k_5_res_0.6) %>%
   mutate(frequency = count / sum(count)) %>%
   ungroup()
 
-ggplot(normalized_frequencies, aes(x = RNA_snn_k_30_res_0.6, y = frequency, fill = healthy)) +
+ggplot(normalized_frequencies, aes(x = RNA_snn_k_5_res_0.6, y = frequency, fill = healthy)) +
   geom_bar(stat = "identity", position = "stack") +
   theme_minimal() +
   labs(title = "",
@@ -273,23 +267,23 @@ ggplot(normalized_frequencies, aes(x = RNA_snn_k_30_res_0.6, y = frequency, fill
 To determine which clusters to evaluate for malignant cell presence, we plotted the distribution of the fraction of healthy cells across all clusters. We set the threshold at 0.9, selecting clusters with a lower proportion of healthy cells for further assessment of malignancy.
 
 ```{r}
-hist(normalized_frequencies$frequency[normalized_frequencies$healthy == FALSE], xlab="Fraction of malignant", main="", breaks=10)
+hist(normalized_frequencies$frequency[normalized_frequencies$healthy == FALSE], xlab="Fraction of malignant", main="", breaks=100)
 abline(v = 0.9, col = "red", lty = 2)
 ```
 
 The UMAP visualisation below show the clusters to be considered for malignant cell presence
 
 ```{r}
-select = as.vector(normalized_frequencies$RNA_snn_k_30_res_0.6[normalized_frequencies$healthy == FALSE & normalized_frequencies$frequency > 0.9])
+select = as.vector(normalized_frequencies$RNA_snn_k_5_res_0.6[normalized_frequencies$healthy == FALSE & normalized_frequencies$frequency > 0.9])
 tmp$clustermethod_pass = FALSE
-tmp$clustermethod_pass[tmp$RNA_snn_k_30_res_0.6 %in% select] = TRUE
+tmp$clustermethod_pass[tmp$RNA_snn_k_5_res_0.6 %in% select] = TRUE
 srat$clustermethod_pass = tmp$clustermethod_pass
   
 print(mydimplot(
   tmp,
   var = "clustermethod_pass",
-  reduction = "umap",
-  label = FALSE
+  reduction = "UMAP_scanorama",
+  label = FALSE, raster=TRUE
 ))
 ```
 
@@ -348,8 +342,8 @@ srat$expansion_pass = tmp$expansion_pass
 print(mydimplot(
   tmp,
   var = "expansion_pass",
-  reduction = "umap",
-  label = FALSE
+  reduction = "UMAP_scanorama",
+  label = FALSE, raster=TRUE
 ))
 ```
 
@@ -364,7 +358,7 @@ The criteria that is the most stringent is the expansion criteria.
 srat$tierI = srat$clustermethod_pass & srat$expansion_pass & srat$aggregated_ct %in% cancer_cells
 #occupancy_score = srat$occupancy_score
 #occupancy_score[is.na(occupancy_score)] = 0
-srat$tierI_chiara =  srat$aggregated_ct %in% cancer_cells
+# srat$tierI_chiara =  srat$aggregated_ct %in% cancer_cells
 ```
 
 
@@ -376,14 +370,13 @@ The UMAP visualization displays malignant cells, accompanied by a bar plot that 
 print(mydimplot(
   srat,
   var = "tierI",
-  reduction = "umap",
-  label = FALSE
+  reduction = "UMAP_scanorama",
+  label = FALSE, raster=TRUE
 ))
 ```
 
 
 ```{r}
-
 # Calculate normalized frequencies
 normalized_frequencies <- srat@meta.data %>%
   group_by(sample_id, tierI) %>%
@@ -402,6 +395,69 @@ ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = tierI)) 
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
 ```
 
+```{r}
+transform_percent <- function(x) {
+  # Remove the '%' symbol
+  x <- gsub("%", "", x)
+  # x = str_split(x, " ")[[1]]
+  
+  # Handle ranges (e.g., "80-90")
+  if (grepl("-", x)) {
+    # Split the range and calculate the average
+    range_vals <- as.numeric(unlist(strsplit(x, "-")))
+    return(mean(range_vals))
+  }
+  
+  # Handle 'greater than' cases (e.g., ">7")
+  if (grepl(">", x)) {
+    return(as.numeric(gsub(">", "", x)))  # Remove '>'
+  }
+  # Handle 'greater than' cases (e.g., "<7")
+  if (grepl("<", x)) {
+    return(as.numeric(gsub("<", "", x)))  # Remove '>'
+  }
+  
+  # Convert single values to numeric
+  return(as.numeric(x))
+}
+```
+
+```{r clinical_preprocessing}
+clinical = read.delim("data/clinical_data.tsv")
+clinical = clinical[,c("ID.IEO", "Blast.percentage..manual.", "Blast.percentage..IP.", "Disease.phase")]
+clinical$ID.IEO[clinical$ID.IEO==""] = c("PALM_02_R", "PALM_05_R", "PALM_08_R", "PALM_09_R", "PALM_13_R", "PALM_14_R", "PALM_21_R")
+clinical$ID.IEO[clinical$ID.IEO=="PALM-10"] = "PALM_10_R"
+clinical$ID.IEO = str_replace(clinical$ID.IEO, "-", "_")
+clinical$ID.IEO[clinical$Disease.phase=="Diagnosis"] = paste0(clinical$ID.IEO[clinical$Disease.phase=="Diagnosis"], "_E")
+tmp = clinical[clinical$ID.IEO %in% c("PALM_06_E", "PALM_07_E"),]
+clinical$ID.IEO[clinical$ID.IEO %in% c("PALM_06_E", "PALM_07_E")] = str_replace(tmp$ID.IEO, "_E", "_1")
+tmp$ID.IEO= str_replace(tmp$ID.IEO, "_E", "_2")
+clinical = rbind(clinical, tmp)
+clinical$ID.IEO[clinical$ID.IEO == "PALM_09_E"] = "PALM_09_2"
+clinical$ID.IEO[clinical$ID.IEO == "PALM_10_R"] = "PALM_10_E"
+clinical$Blast.percentage..manual. = sapply(clinical$Blast.percentage..manual., transform_percent)
+clinical$Blast.percentage..IP. = sapply(unlist(lapply(str_split(clinical$Blast.percentage..IP., " "), "[[", 1)), transform_percent)
+clinical$Blast.percentage..manual. = clinical$Blast.percentage..manual./ 100
+clinical$Blast.percentage..IP. = clinical$Blast.percentage..IP./100
+
+colnames(clinical) = c("sample_id", "Blast_manual", "Blast_IP", "Disease_phase")
+```
+
+
+```{r}
+merged = merge(clinical, normalized_frequencies[normalized_frequencies$tierI,], by.y=1, by.x=1)
+# Create the scatter plot
+p <- ggplot(merged, aes(x = Blast_IP, y = frequency, text = sample_id)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
+  ggtitle("") +
+  labs(x = "Blast IP", y = "Bast single cell") +
+  theme(plot.title = element_text(hjust = 0.5, size = 20))
+
+# Convert to interactive plotly plot
+fig <- ggplotly(p, tooltip = c("text"))
+fig
+```
 
 ```{r}
 if(!file.exists("data/00_palm_malignant_non_malignant_annotation.rds")){
