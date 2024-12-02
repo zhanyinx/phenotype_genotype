@@ -55,14 +55,17 @@ These annotations, combined with the other data stored in the Seurat object, pro
 
 ```{r}
 suppressPackageStartupMessages({
-  library(tidyverse)
-  library(Seurat)
-  library(SeuratObject)
-  library(ggplot2)
-  library(dplyr)
-  library(mclust)
-  library(plotly)
+  library(Seurat, lib.loc = "/usr/local/lib/R/site-library")
+  library(SeuratObject, lib.loc = "/usr/local/lib/R/site-library")
+ # library(ggplot2, lib.loc = "/usr/local/lib/R/site-library")
+  
+  library(tidyverse, lib.loc = "/usr/local/lib/R/site-library")
+
+  library(dplyr, lib.loc = "/usr/local/lib/R/site-library")
+  library(mclust, lib.loc = "/usr/local/lib/R/site-library")
+  library(plotly, lib.loc = "/usr/local/lib/R/site-library")
   source("src/functions.R")
+  source("src/PALM_settings.R")
 })
 
 ```
@@ -177,7 +180,7 @@ DT::datatable(
 We evaluated data integration by analyzing the UMAP reduction and quantifying the proportion of each cell type across patients. As shown by both the UMAP visualization and the barplot quantification, T cells were enriched in the healthy bone marrow (PALM_DON) samples, as expected. In contrast, PALM patients exhibited variability in cell type distributions, with notable enrichment in most of the samples for early myeloid and HSC_MPP populations.
 
 ```{r umap_celltype_sampleid, fig.height=6, fig.width=6}
-mydimplot(srat, var = "sample_id", reduction = "UMAP_scanorama", label=TRUE, raster=FALSE)
+mydimplot(srat, var = "sample_id", reduction = "UMAP_scanorama", label=TRUE, raster=FALSE, cols=colors$sample_id)
 ```
 
 
@@ -193,6 +196,7 @@ normalized_frequencies <- metadata %>%
 ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = aggregated_ct)) +
   geom_bar(stat = "identity", position = "stack") +
   theme_minimal() +
+  scale_fill_manual(values = colors$aggregated_ct)+
   labs(title = "",
        x = "Patients",
        y = "Fraction of cells",
@@ -201,10 +205,22 @@ ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = aggregat
 
 ```
 
+```{r}
+
+
+sum(normalized_frequencies[(normalized_frequencies$sample_id=='PALM_15_E')& (normalized_frequencies$aggregated_ct %in% cancer_cells),]$count)
+
+sum(normalized_frequencies[(normalized_frequencies$sample_id=='PALM_13_R')& (normalized_frequencies$aggregated_ct %in% cancer_cells),]$count)
+
+
+cancer_cells
+```
+
+
 Next, we present the UMAP visualization color-coded by manually grouped lineages. The cell types most likely to contain cancer cells, specifically "Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", and "Eo_baso_mast", Erythroid and MK,  are primarily clustered in the lower region of the UMAP.
 
 ```{r umap_celltype_grouped, fig.height=6, fig.width=6}
-mydimplot(srat, var = "aggregated_ct", reduction = "UMAP_harmony", label=FALSE, raster=FALSE)
+mydimplot(srat, var = "aggregated_ct", reduction = "UMAP_harmony", label=FALSE, raster=FALSE, cols=colors$aggregated_ct)
 ```
 
 <!-- ```{r umap_celltype_grouped1, fig.height=6, fig.width=6} -->
@@ -237,6 +253,15 @@ Finally, to strengthen the confidence in identifying malignant cells, we assess 
 
 Below, we present a bar plot showing the proportion of normal and malignant cells in each cluster, quantifying the fraction of each cell type per cluster.
 
+<!-- ```{r} -->
+<!-- DimPlot(srat, group.by = c( "RNA_snn_k_5_res_0.3" ,  "RNA_snn_k_5_res_0.6" , "RNA_snn_k_5_res_0.9",  "RNA_snn_k_5_res_1.2",    "RNA_snn_k_10_res_0.3","RNA_snn_k_10_res_0.6"), raster=FALSE, label = TRUE, reduction = 'UMAP_scanorama' ) #+ NoLegend() -->
+
+<!-- library(clustree) -->
+<!-- clustree(srat, prefix = 'RNA_snn_k_5_res_', suffix = '' ) -->
+<!-- clustree(srat, prefix = 'RNA_snn_k_10_res_', suffix = '' ) -->
+<!-- ``` -->
+
+
 ```{r}
 healthy_controls = c("PALM_DON_1", "PALM_DON_2", "PALM_DON_3")
 tmp = srat
@@ -268,13 +293,13 @@ To determine which clusters to evaluate for malignant cell presence, we plotted 
 
 ```{r}
 hist(normalized_frequencies$frequency[normalized_frequencies$healthy == FALSE], xlab="Fraction of malignant", main="", breaks=100)
-abline(v = 0.9, col = "red", lty = 2)
+abline(v = 0.75, col = "red", lty = 2)
 ```
 
 The UMAP visualisation below show the clusters to be considered for malignant cell presence
 
 ```{r}
-select = as.vector(normalized_frequencies$RNA_snn_k_5_res_0.6[normalized_frequencies$healthy == FALSE & normalized_frequencies$frequency > 0.9])
+select = as.vector(normalized_frequencies$RNA_snn_k_5_res_0.6[normalized_frequencies$healthy == FALSE & normalized_frequencies$frequency > 0.75])
 tmp$clustermethod_pass = FALSE
 tmp$clustermethod_pass[tmp$RNA_snn_k_5_res_0.6 %in% select] = TRUE
 srat$clustermethod_pass = tmp$clustermethod_pass
@@ -324,20 +349,52 @@ To identify the malignant cell type, we analyzed the distribution of cell type e
 ```{r}
 plot(density(log2((data_with_ratios$expansion))), xlab="Expansion (log2)", main="")
 # Plot the cutoff
-abline(v = 2, col = "red", lty = 2)
+cutoff=1.1
+abline(v = cutoff, col = "red", lty = 2)
 ```
+
+### Expansion patterns by patients and by cell type
+```{r}
+library(ggridges)
+ggplot(data_with_ratios, aes(x = expansion, y = sample_id_aggregated_hbm, fill = sample_id_aggregated_hbm)) +
+  geom_density_ridges(alpha = 0.8, scale = 1) +
+  scale_x_continuous(trans = 'log2') +
+  scale_fill_manual(values = colors$sample_id) +
+  labs(title = "Ridge Plot of Distributions", x = "Value", y = "Sample") +
+  geom_vline(xintercept = cutoff, color = "red", linetype = "dashed", size = 1) +  # Vertical line at x = 2
+  theme_minimal()
+
+ggplot(data_with_ratios, aes(x = expansion, y = aggregated_ct, fill = aggregated_ct)) +
+  geom_density_ridges(alpha = 0.8, scale = 1) +
+  scale_x_continuous(trans = 'log2') +
+  scale_fill_manual(values = colors$aggregated_ct) +
+  labs(title = "Ridge Plot of Distributions", x = "Value", y = "Sample") +
+  geom_vline(xintercept = cutoff, color = "red", linetype = "dashed", size = 1) +  # Vertical line at x = 2
+  theme_minimal()
+
+
+```
+
+
+```{r}
+data_with_ratios[data_with_ratios$sample_id_aggregated_hbm=='PALM_13_R', ]
+data_with_ratios[data_with_ratios$sample_id_aggregated_hbm=='PALM_15_E', ]
+
+```
+
 
 ```{r}
 tmp = srat
 tmp$id= paste0(tmp$sample_id, tmp$aggregated_ct)
 data_with_ratios$id = paste0(data_with_ratios$sample_id_aggregated_hbm, data_with_ratios$aggregated_ct)
 data_with_ratios$expansion_pass = FALSE
-data_with_ratios$expansion_pass[log2((data_with_ratios$expansion))>2] = TRUE
+data_with_ratios$expansion_pass[log2((data_with_ratios$expansion))>cutoff] = TRUE
 
 tmp$expansion_pass = FALSE
 tmp$expansion_pass[tmp$id %in% data_with_ratios$id[data_with_ratios$expansion_pass]] = TRUE
 
 srat$expansion_pass = tmp$expansion_pass
+
   
 print(mydimplot(
   tmp,
@@ -446,21 +503,77 @@ colnames(clinical) = c("sample_id", "Blast_manual", "Blast_IP", "Disease_phase")
 
 ```{r}
 merged = merge(clinical, normalized_frequencies[normalized_frequencies$tierI,], by.y=1, by.x=1)
+
+
 # Create the scatter plot
 p <- ggplot(merged, aes(x = Blast_IP, y = frequency, text = sample_id)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
   ggtitle("") +
-  labs(x = "Blast IP", y = "Bast single cell") +
+  labs(x = "Blast IP", y = "Blast single cell") +
   theme(plot.title = element_text(hjust = 0.5, size = 20))
+cor(merged$Blast_IP, merged$frequency)
 
 # Convert to interactive plotly plot
 fig <- ggplotly(p, tooltip = c("text"))
 fig
 ```
 
+### Optimization correlation Blast IP - Blast single cell
+Next we tested different combinations of thresholds and clusterings resolution to optimize the correlation of blst content.
+
+
+```{r}
+
+source('src/test_params_function.R')
+
+clustering_list=c( "RNA_snn_k_5_res_0.3" ,  "RNA_snn_k_5_res_0.6" , "RNA_snn_k_5_res_0.9",  "RNA_snn_k_5_res_1.2", "RNA_snn_k_10_res_0.3","RNA_snn_k_10_res_0.6")
+cutoff_exp_list=c(1.1,1.2, 1.3, 1.5, 1.7, 1.8, 2, 2.2)
+cutoff_freq_list=c(0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95)
+
+combinations <- expand.grid(clustering=clustering_list ,cutoff_exp = cutoff_exp_list, cutoff_freq = cutoff_freq_list)
+results <- apply(combinations, 1, function(row) {
+  tests(srat=srat, cutoff_exp=as.numeric(row["cutoff_exp"]), cutoff_freq=as.numeric(row["cutoff_freq"]), clustering=row["clustering"] )
+})
+
+combinations$result <- results
+head(combinations[order(combinations$result, decreasing = TRUE),], 10)
+
+
+
+## --- plots ---
+ggplot(combinations, aes(x = cutoff_exp, y = result, color = clustering)) +
+  geom_point(size = 3) +
+  labs(title = "Scatter Plot of Result vs cutoff_exp",
+       x = "cutoff_exp",
+       y = "Result") +
+  theme_minimal() | ggplot(combinations, aes(x = cutoff_freq, y = result, color = cutoff_exp)) +
+  geom_point(size = 3) +
+  labs(title = "Scatter Plot of Result vs cutoff_freq",
+       x = "cutoff_freq",
+       y = "Result") +
+  theme_minimal()
+
+
+plot_ly(combinations, x = ~cutoff_exp, y = ~cutoff_freq, z = ~result, color = ~clustering, type = "scatter3d", mode = "markers")
+
+
+```
+
+
+```{r}
+table(srat@meta.data$tierI, srat@meta.data$sample_id)
+```
+
+
+#### Selected Thresholds:
+Seurat clusters: RNA_snn_k_5_res_0.6
+Expansion cutoff: 1.1 
+Frequency cutoff: 0.75
+
+
 ```{r}
 if(!file.exists("data/00_palm_malignant_non_malignant_annotation.rds")){
-  saveRDS(srat, "data/00_palm_malignant_non_malignant_annotation.rds")
-}
+   saveRDS(srat, "data/00_palm_malignant_non_malignant_annotation.rds")
+ }
 ```
