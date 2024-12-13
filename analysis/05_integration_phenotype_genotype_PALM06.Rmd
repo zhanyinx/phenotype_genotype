@@ -1,5 +1,5 @@
 ---
-title: "Genotype phenotype PALM04"
+title: "Genotype phenotype PALM06"
 author: 
 - Y Zhan
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -45,7 +45,7 @@ suppressPackageStartupMessages({
 # Objective
 
 The objective of the analysis is to integrate the genotype data from PALM enrichemnt experiment with 10X expression data.
-We start with PALM04.
+We start with PALM06.
 
 # Genotype data
 
@@ -58,9 +58,9 @@ One key feature of NanoGen is its ability to call consensus at the base level, r
 For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
 
 ```{r}
-genotype_file = "data/enrichment/PALM04.csv"
-wes_file = "data/FEGR_BM.maf"
-sample_id = "PALM_04_E"
+genotype_file = "data/enrichment/PALM06.csv"
+wes_file = "data/NUFRA_BM.maf"
+sample_ids = c("PALM_06_1", "PALM_06_2")
 ```
 
 
@@ -137,115 +137,3 @@ DT::datatable(
 ```
 
 
-## Mutation co-occurence  
-
-Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: LSM3, NRAS
-
-```{r}
-# Define the genes of interest
-gene_interest <- c('NRAS', 'LSM3')
-co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
-DT::datatable(
-  co_occurence,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-
-gene_interest <- c('NRAS', 'LSM3')
-co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
-DT::datatable(
-  co_occurence,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-
-
-```
-
-
-# Genotype phenotype analysis: partial genotype
-
-```{r}
-# Read RNAseq
-srat = readRDS("data/01_palm_tme_annotation.rds")
-srat$cellid = unlist(lapply(str_split(names(srat$orig.ident), "-"), "[[", 1))
-```
-
-The table below provides a comprehensive list of all mutations, along with the associated single-cell metadata
-
-```{r}
-tmp_genotype = read.csv(genotype_file, row.names = 1)
-tmp_genotype$alt <- ifelse(grepl('-', tmp_genotype$alt), '-', tmp_genotype$alt)
-tmp_genotype['id'] = paste0(tmp_genotype[,'gene'], tmp_genotype[,'start'], tmp_genotype[,'alt'])
-#tmp_genotype = tmp_genotype[tmp_genotype$id %in% unique(variants$id),]
-tmp_genotype = as_tibble(tmp_genotype[tmp_genotype$gene %in% c("LSM3", "NRAS"),])
-tmp_genotype = tmp_genotype[, c("gene", "cell", "genotype")] %>% 
-  pivot_wider(names_from = gene, values_from = genotype) %>%
-  mutate_all( ~ replace(., . == "", "na"))
-
-metadata = srat@meta.data
-metadata = metadata[metadata$sample_id == sample_id, ] 
-table2show = merge(tmp_genotype, metadata[,c("cellid", "compartment", "aggregated_ct")], by.x="cell", by.y="cellid")
-
-DT::datatable(
-  data.frame(table2show),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-
-Given the low number of cells, requiring the genotype for all genes was not feasible. We studied therefore only single gene genotypes, thus the effect of mutation on a single gene.
-
-## NRAS MUT vs  NRAS WT 
-
-We identified 575 cells with NRAS mutations and 82 cells with NRAS WT.  The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data. We focused our analysis solely on the tumor compartment.
-
-```{r}
-# Extract mutated FRYL cells
-gene_interest <- c('NRAS')
-mutation_status1 = c('MUT')
-subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
-cells1 = subset$cell[subset$NRAS == "MUT"]
-
-mutation_status2 = c("WT")
-cells2 = subset$cell[subset$NRAS == "WT"]
-
-rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
-rna$mutation_status = paste(mutation_status1, collapse = "_")
-rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
-```
-
-
-```{r}
-DT::datatable(
-  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Blfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf'),
-    lengthMenu = list(c(10, 25, 50,-1),
-                      c(10, 25, 50, "All"))
-  ),
-  rownames = FALSE
-)
-```
-
-No differenetially expressed genes have been detected

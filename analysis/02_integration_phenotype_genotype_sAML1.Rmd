@@ -71,7 +71,9 @@ genotype['total_umis'] = (genotype[,'WT'] + genotype[,'MUT'] + genotype[,'MIS'])
 genotype$alt <- ifelse(grepl('-', genotype$alt), '-', genotype$alt)
 genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], genotype[,'alt'])
 
+tmp = data.frame(read.maf(wes_file)@maf.silent)
 variants = data.frame(read.maf(wes_file)@data)
+variants = rbind(variants, tmp)
 
 variants['id'] = paste0(variants[,'Hugo_Symbol'] , variants[,'Start_Position'] , variants[,'Tumor_Seq_Allele2'])
 genotype = as_tibble(genotype[genotype$id %in% (variants$id), ])
