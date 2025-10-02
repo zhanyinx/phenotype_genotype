@@ -8,6 +8,12 @@ editor_options:
   chunk_output_type: console
 ---
 
+<div class="alert alert-dismissible alert-info">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <strong>New label!</strong> The 'new' label denotes the most recently delivered report(s).
+</div>
+
+
 This  website contains scRNA-seq data analyses and integration with targeted mutation for scmseq project.
 
 # AML patients from Chiara
@@ -24,3 +30,4 @@ This  website contains scRNA-seq data analyses and integration with targeted mut
 - [2-Tumor microenviroment identification](01_palm_tme_annotation.html)
 - [3-Phenotype genotype integration in PALM04](02_integration_phenotype_genotype_PALM04.html)
 - [4-Phenotype genotype integration in PALM06](05_integration_phenotype_genotype_PALM06.html) 
+- [5-Phenotype genotype PALM08R nested PCR](07_nested_pcr_palm08_genotype.html) <span class="label btn-warning"> New report</span>
