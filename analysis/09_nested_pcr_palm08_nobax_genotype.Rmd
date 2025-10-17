@@ -58,7 +58,7 @@ One key feature of NanoGen is its ability to call consensus at the base level, r
 First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
 
 ```{r}
-genotype_file = "data/enrichment/palm08r_nested.csv"
+genotype_file = "data/enrichment/palm08r_nest_bio.csv"
 # genotype_file = "data/enrichment/sAML1.csv"
 wes_file = "data/UV_RECIDIVA_BM.maf"
 sample_id = "meister_test"
