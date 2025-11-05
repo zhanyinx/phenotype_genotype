@@ -1,0 +1,356 @@
+---
+title: "Malignant cell benchmark"
+author: 
+- Zhan Yinxiu
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      cache.lazy = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+
+```
+
+```{r libraries}
+# Load packages and functions
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(harmony)
+  library(dplyr)
+  library(tidyr)
+  library(SCEVAN)
+  #library(infercnv)
+  library(ggplot2)
+  library(gridExtra)
+  library(RColorBrewer)
+  library(clusterProfiler)
+  library(org.Hs.eg.db)
+  library(AnnotationDbi)
+  library(plotly)
+})
+
+```
+
+
+# SCEVAN malignant cell detection
+
+```{r functions}
+mydimplot <- function(seurat, var, reduction, label=FALSE, ...) {
+      
+    p <- DimPlot(
+      object = seurat, 
+      reduction = reduction, 
+      group.by = var,  
+      shuffle = T, seed = 123,
+      na.value = "lightgrey", label = label, label.size = 3, ...,
+      ) +
+      theme_bw() +
+      coord_equal() +
+      theme(
+        panel.grid = element_blank(),
+        aspect.ratio = 1,
+        axis.title = element_text(size = 13),
+        axis.text = element_text(size = 10),
+        # plot.title = element_blank(),
+        plot.title = element_text(face = 'bold', hjust = 0.5, vjust = 2),
+        legend.margin = margin(rep(0,4), "cm"),
+        legend.justification = "left",
+        legend.text = element_text(size = 10),
+        plot.margin = unit(c(0.1, 0.1, 0.1 , 0.1), "cm")
+      )
+  return(p)
+}
+
+transform_percent <- function(x) {
+  # Remove the '%' symbol
+  x <- gsub("%", "", x)
+  # x = str_split(x, " ")[[1]]
+  
+  # Handle ranges (e.g., "80-90")
+  if (grepl("-", x)) {
+    # Split the range and calculate the average
+    range_vals <- as.numeric(unlist(strsplit(x, "-")))
+    return(mean(range_vals))
+  }
+  
+  # Handle 'greater than' cases (e.g., ">7")
+  if (grepl(">", x)) {
+    return(as.numeric(gsub(">", "", x)))  # Remove '>'
+  }
+  # Handle 'greater than' cases (e.g., "<7")
+  if (grepl("<", x)) {
+    return(as.numeric(gsub("<", "", x)))  # Remove '>'
+  }
+  
+  # Convert single values to numeric
+  return(as.numeric(x))
+}
+```
+
+```{r load_data}
+merged_seurat = readRDS("/hpcscratch/ieo/ieo7348/nextflow_test/illumina/atlas/results/updated_clusters_merged_celltype.rds")
+merged_seurat$sample_type = "tumor"
+merged_seurat$sample_type[merged_seurat$sample_id %in% c("AML_DON1", "AML_DON2","AML_DON3", "PALM_DON1", "PALM_DON2", "PALM_DON3")] = "normal"
+```
+
+
+```{r call_malignant}
+malignant = list()
+
+for(sample in unique(merged_seurat$sample_id)){
+  if(file.exists(paste0("/hpcnfs/scratch/P_DIMA_SCMSEQ/softwares/phenotype_genotype/output/malignant.",sample,".rds"))){
+    malignant[[sample]] = readRDS(paste0("/hpcnfs/scratch/P_DIMA_SCMSEQ/softwares/phenotype_genotype/output/malignant.",sample,".rds"))
+  }else{
+    
+    tmp = subset(merged_seurat, subset = (sample_id == sample | sample_type == "normal") & (aggregated_ct == "HSC_MPP" | aggregated_ct == "Early_myeloid" | aggregated_ct == "Late_myeloid" | aggregated_ct == "Erythroid" | aggregated_ct == "MK" | aggregated_ct == "Eo_baso_mast" | aggregated_ct == "DC" | aggregated_ct == "Mono"))
+    data <- GetAssayData(tmp, slot = "counts")
+    colnames(data) = make.names(colnames(data))
+    rownames(data) = make.names(rownames(data))
+
+    tmp_normal = subset(tmp, subset = sample_type == "normal")
+
+    malignant[[sample]] = pipelineCNA(
+      data,
+      par_cores = 5,
+      sample = sample,
+      norm_cell = make.names(Cells(tmp_normal)),
+      SUBCLONES = TRUE
+    )
+    saveRDS(malignant[[sample]], paste0("/hpcnfs/scratch/P_DIMA_SCMSEQ/softwares/phenotype_genotype/output/malignant.",sample,".rds"))
+  }
+}
+
+```
+
+```{r assign_malignant_status}
+merged_seurat$malignant_samples = "na"
+for(sample in as.vector(unique(merged_seurat$sample_id))){
+  tmp = malignant[[sample]]
+  rownames(tmp) = gsub( "\\.", "-",rownames(tmp))
+  merged_seurat$malignant_samples[colnames(merged_seurat) %in% rownames(tmp)] = tmp$class
+}
+```
+
+
+```{r}
+clinical = read.delim("data/clinical_data.tsv")
+clinical = clinical[,c("ID.IEO", "Blast.percentage..manual.", "Blast.percentage..IP.", "Disease.phase")]
+clinical$ID.IEO[clinical$ID.IEO==""] = c("PALM_02_R", "PALM_05_R", "PALM_08_R", "PALM_09_R", "PALM_13_R", "PALM_14_R", "PALM_21_R")
+clinical$ID.IEO[clinical$ID.IEO=="PALM-10"] = "PALM_10_R"
+clinical$ID.IEO = str_replace(clinical$ID.IEO, "-", "_")
+clinical$ID.IEO[clinical$Disease.phase=="Diagnosis"] = paste0(clinical$ID.IEO[clinical$Disease.phase=="Diagnosis"], "_E")
+tmp = clinical[clinical$ID.IEO %in% c("PALM_06_E", "PALM_07_E"),]
+clinical$ID.IEO[clinical$ID.IEO %in% c("PALM_06_E", "PALM_07_E")] = str_replace(tmp$ID.IEO, "_E", "_1")
+tmp$ID.IEO= str_replace(tmp$ID.IEO, "_E", "_2")
+clinical = rbind(clinical, tmp)
+clinical$ID.IEO[clinical$ID.IEO == "PALM_09_E"] = "PALM_09_2"
+clinical$ID.IEO[clinical$ID.IEO == "PALM_10_R"] = "PALM_10_E"
+clinical$Blast.percentage..manual. = sapply(clinical$Blast.percentage..manual., transform_percent)
+clinical$Blast.percentage..IP. = sapply(unlist(lapply(str_split(clinical$Blast.percentage..IP., " "), "[[", 1)), transform_percent)
+clinical$Blast.percentage..manual. = clinical$Blast.percentage..manual./ 100
+clinical$Blast.percentage..IP. = clinical$Blast.percentage..IP./100
+
+colnames(clinical) = c("sample_id", "Blast_manual", "Blast_IP", "Disease_phase")
+```
+
+```{r}
+metadata = merged_seurat@meta.data
+metadata$malignant_samples[metadata$aggregated_ct %in% c("T_CD4", "T_CD8", "T_gd", "NK_cells", "B_early", "B_mature", "Stromal")] = "normal"
+metadata = metadata[metadata$malignant_samples!="na" & metadata$malignant_samples!="filtered",]
+percentage_malignant = aggregate(metadata$malignant_samples, list(metadata$sample_id), function(x){table(x)/length(x)}) 
+percentage_malignant$Group.1 = gsub("PALM", "PALM_", percentage_malignant$Group.1)
+percentage_malignant <- do.call(data.frame, percentage_malignant)
+
+```
+
+```{r}
+clinical_with_scblasts = merge(clinical, percentage_malignant, by=1)
+
+clinical_with_scblasts =clinical_with_scblasts[clinical_with_scblasts$sample_id!="PALM_15_E", ]
+
+# Create the scatter plot
+p <- ggplot(clinical_with_scblasts, aes(x = Blast_IP, y = x.tumor, text = sample_id)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
+  ggtitle("") +
+  labs(x = "Blast IP", y = "Blast single cell") +
+  theme(plot.title = element_text(hjust = 0.5, size = 20))
+cor(clinical_with_scblasts$Blast_IP, clinical_with_scblasts[, "x.tumor"])
+
+# Convert to interactive plotly plot
+fig <- ggplotly(p, tooltip = c("text"))
+fig
+```
+
+# Our method to detect malignant cells
+
+## Assess the cluster composition
+
+Below, we present a bar plot showing the proportion of normal and malignant cells in each cluster, quantifying the fraction of each cell type per cluster.
+
+```{r}
+healthy_controls = c("PALM_DON_1", "PALM_DON_2", "PALM_DON_3", "AML_DON1", "AML_DON2",  "AML_DON3")
+srat = merged_seurat
+tmp = merged_seurat
+tmp@meta.data$RNA_snn_k_5_res_0.6 = tmp@meta.data$seurat_clusters
+tmp$healthy = FALSE
+tmp$healthy[tmp$sample_id %in% healthy_controls] = TRUE
+tmp_metadata = tmp@meta.data
+#tmp_metadata$RNA_snn_k_30_res_0.6 = as.factor(tmp_metadata$RNA_snn_res.0.6)
+
+# Calculate normalized frequencies
+normalized_frequencies <- tmp_metadata %>%
+  group_by(healthy, RNA_snn_k_5_res_0.6) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(RNA_snn_k_5_res_0.6) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+ggplot(normalized_frequencies, aes(x = RNA_snn_k_5_res_0.6, y = frequency, fill = healthy)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "",
+       x = "Cluster id",
+       y = "Fraction of cells",
+       fill = "Healthy") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+To determine which clusters to evaluate for malignant cell presence, we plotted the distribution of the fraction of healthy cells across all clusters. We set the threshold at 0.9, selecting clusters with a lower proportion of healthy cells for further assessment of malignancy.
+
+```{r}
+hist(normalized_frequencies$frequency[normalized_frequencies$healthy == FALSE], xlab="Fraction of malignant", main="", breaks=100)
+abline(v = 0.8, col = "red", lty = 2)
+```
+
+The UMAP visualisation below show the clusters to be considered for malignant cell presence
+
+```{r}
+select = as.vector(normalized_frequencies$RNA_snn_k_5_res_0.6[normalized_frequencies$healthy == FALSE & normalized_frequencies$frequency > 0.8])
+tmp$clustermethod_pass = FALSE
+tmp$clustermethod_pass[tmp$RNA_snn_k_5_res_0.6 %in% select] = TRUE
+srat$clustermethod_pass = tmp$clustermethod_pass
+```
+
+
+## Assess expansion pattern in aggregated cell type
+
+```{r}
+metadata = srat@meta.data
+metadata$healthy = tmp$healthy
+metadata$sample_id_aggregated_hbm = metadata$sample_id
+metadata$sample_id_aggregated_hbm[tmp$healthy == TRUE] = "hBM"
+
+# Calculate normalized frequencies
+fraction <- metadata %>%
+  group_by(sample_id_aggregated_hbm, aggregated_ct) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(sample_id_aggregated_hbm) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+# Filter the `hBM` sample to get the reference frequencies
+hBM_frequencies <- fraction %>%
+  filter(sample_id_aggregated_hbm == "hBM") %>%
+  select(aggregated_ct, hBM_frequency = frequency)
+
+# Join the hBM frequencies back to the original tibble
+data_with_ratios <- fraction %>%
+  left_join(hBM_frequencies, by = "aggregated_ct") %>%
+  mutate(expansion = frequency / hBM_frequency) %>%
+  mutate(expansion = replace_na(expansion, max(expansion, na.rm = TRUE))) %>%
+  filter(sample_id_aggregated_hbm != "hBM")
+
+```
+
+
+To identify the malignant cell type, we analyzed the distribution of cell type expansions for the sample. The distribution showed a bimodal pattern. Based on this, we set a cutoff of a 4-fold expansion to define malignant cells.
+
+```{r}
+plot(density(log2((data_with_ratios$expansion))), xlab="Expansion (log2)", main="")
+# Plot the cutoff
+cutoff=2
+abline(v = cutoff, col = "red", lty = 2)
+```
+
+### Expansion patterns by patients and by cell type
+
+
+```{r}
+tmp = srat
+tmp$id= paste0(tmp$sample_id, tmp$aggregated_ct)
+data_with_ratios$id = paste0(data_with_ratios$sample_id_aggregated_hbm, data_with_ratios$aggregated_ct)
+data_with_ratios$expansion_pass = FALSE
+data_with_ratios$expansion_pass[log2((data_with_ratios$expansion))>cutoff] = TRUE
+
+tmp$expansion_pass = FALSE
+tmp$expansion_pass[tmp$id %in% data_with_ratios$id[data_with_ratios$expansion_pass]] = TRUE
+
+srat$expansion_pass = tmp$expansion_pass
+
+```
+
+## Combining filters
+
+Next, we require that all filters are met. Specifically, the cell must belong to one of the following categories: "Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK". Additionally, the cell must be part of a cluster enriched in malignant cells, and its cell type must show expansion.
+
+Notably, removing the criterion for inclusion in a specific cell type and specific cluster results in an increase of only 0.8\% in the total malignant cell population.
+The criteria that is the most stringent is the expansion criteria.
+
+```{r}
+cancer_cells <- c("Early_myeloid", "HSC_MPP", "Late_myeloid", "Mono", "Eo_baso_mast", "Erythroid", "MK", "DC")
+srat$tierI = srat$clustermethod_pass & srat$expansion_pass & srat$aggregated_ct %in% cancer_cells
+#occupancy_score = srat$occupancy_score
+#occupancy_score[is.na(occupancy_score)] = 0
+# srat$tierI_chiara =  srat$aggregated_ct %in% cancer_cells
+```
+
+```{r}
+# Calculate normalized frequencies
+normalized_frequencies <- srat@meta.data %>%
+  group_by(sample_id, tierI) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  group_by(sample_id) %>%
+  mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+ggplot(normalized_frequencies, aes(x = sample_id, y = frequency, fill = tierI)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "",
+       x = "Patient",
+       y = "Fraction of cells",
+       fill = "Tier I") +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
+```
+
+```{r}
+normalized_frequencies$sample_id = gsub("PALM", "PALM_", normalized_frequencies$sample_id)
+merged = merge(clinical, normalized_frequencies[normalized_frequencies$tierI,], by.y=1, by.x=1)
+# Create the scatter plot
+p <- ggplot(merged, aes(x = Blast_IP, y = frequency, text = sample_id)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
+  ggtitle("") +
+  labs(x = "Blast IP", y = "Blast single cell") +
+  theme(plot.title = element_text(hjust = 0.5, size = 20))
+cor(merged$Blast_IP, merged$frequency)
+
+# Convert to interactive plotly plot
+fig <- ggplotly(p, tooltip = c("text"))
+fig
+```
+
