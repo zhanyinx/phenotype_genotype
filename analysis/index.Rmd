@@ -37,4 +37,4 @@ This  website contains scRNA-seq data analyses and integration with targeted mut
 
 
 # Malignant cell annotation
-- [1-malignant cell annotation using expansion and SCEVAN](00a_benchmark_malignant_cell.html)
+- [1-malignant cell annotation using expansion and SCEVAN](00a_benchmark_malignant_cell.html) <span class="label btn-warning"> New report</span>
