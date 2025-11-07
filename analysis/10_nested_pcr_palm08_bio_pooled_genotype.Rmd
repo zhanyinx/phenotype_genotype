@@ -281,7 +281,7 @@ DT::datatable(
     lengthMenu = list(c(10, 25, 50,-1),
                       c(10, 25, 50, "All"))
   ),
-  rownames = FALSE
+  rownames = TRUE
 )
 ```
 
@@ -334,6 +334,6 @@ DT::datatable(
     lengthMenu = list(c(10, 25, 50,-1),
                       c(10, 25, 50, "All"))
   ),
-  rownames = FALSE
+  rownames = TRUE
 )
 ```
