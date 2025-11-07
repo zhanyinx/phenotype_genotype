@@ -38,6 +38,9 @@ suppressPackageStartupMessages({
   library(clusterProfiler)
   library(ReactomePA)
   source('src/functions.R')
+  library(stringi)
+  library(stringr)
+  library(maftools)
 })
 
 ```
@@ -61,7 +64,7 @@ First, we identify and retain only mutations that overlap with the WES data. For
 genotype_file = "data/enrichment/palm08r_nest_bio_pooled.csv"
 # genotype_file = "data/enrichment/sAML1.csv"
 wes_file = "data/UV_RECIDIVA_BM.maf"
-sample_id = "meister_test"
+sample_id = "PALM08_R"
 ```
 
 ```{r, results=FALSE}
@@ -189,3 +192,148 @@ DT::datatable(
 )
 ```
 
+
+# Genotype phenotype analysis: full genotype
+
+We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:
+
+1- STAG2 - RUNX1
+
+```{r}
+# Read RNAseq
+srat = readRDS("/hpcnfs/scratch/P_DIMA_SCMSEQ/softwares/phenotype_genotype/output/updated_clusters_merged_celltype.withmalignant.rds")
+srat$cellid = unlist(lapply(str_split(names(srat$orig.ident), "-"), "[[", 1))
+```
+
+The table below provides a comprehensive list of all mutations, along with the associated single-cell metadata
+
+```{r}
+tmp_genotype = read.csv(genotype_file, row.names = 1)
+tmp_genotype$alt <- ifelse(grepl('-', tmp_genotype$alt), '-', tmp_genotype$alt)
+tmp_genotype['id'] = paste0(tmp_genotype[,'gene'], tmp_genotype[,'start'], tmp_genotype[,'alt'])
+tmp_genotype = tmp_genotype[tmp_genotype$id %in% unique(variants$id),]
+tmp_genotype = as_tibble(tmp_genotype[tmp_genotype$gene %in% c("RUNX1", "STAG2"),])
+tmp_genotype = tmp_genotype[, c("gene", "cell", "genotype")] %>% 
+  pivot_wider(names_from = gene, values_from = genotype) %>%
+  mutate_all( ~ replace(., . == "", "na"))
+
+metadata = srat@meta.data
+metadata = metadata[metadata$sample_id == sample_id, ] 
+metadata$cellid = gsub("PALM08_R_", "", metadata$cellid)
+table2show = merge(tmp_genotype, metadata[,c("cellid", "aggregated_ct")], by.x="cell", by.y="cellid")
+
+DT::datatable(
+  data.frame(table2show),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+## STAG2 RUNX1 MUT vs  RUNX1 WT + STAG2 MUT
+
+We identified 153 cells with STAG2 RUNX1 mutations and 382 cells with RUNX1 WT and STAG2 mutations. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.  Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('STAG2', 'RUNX1')
+mutation_status1 = c('MUT', 'MUT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+
+gene_interest <- c('STAG2', 'RUNX1')
+mutation_status2 = c("MUT", "WT")
+
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+srat$cellid = gsub("PALM08_R_", "", srat$cellid)
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+
+We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
+
+```{r}
+# rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.2, ]
+
+DT::datatable(
+  data.frame(markers),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+
+
+## STAG2 RUNX1 WT vs  RUNX1 WT + STAG2 MUT
+
+We identified 71 cells with STAG2 RUNX1 WT and 382 cells with RUNX1 WT and STAG2 mutations. The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.  Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+# Extract mutated FLT3 cells
+gene_interest <- c('STAG2', 'RUNX1')
+mutation_status1 = c('MUT', 'WT')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+
+gene_interest <- c('STAG2', 'RUNX1')
+mutation_status2 = c("WT", "WT")
+
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+srat$cellid = gsub("PALM08_R_", "", srat$cellid)
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+
+We conducted differential gene expression analysis between the two groups and followed it with reactome pathway enrichment analysis. The dot plot below, along with the accompanying table, presents the enriched terms.
+
+```{r}
+# rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.2, ]
+
+DT::datatable(
+  data.frame(markers),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
