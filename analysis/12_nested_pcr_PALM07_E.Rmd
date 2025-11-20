@@ -47,7 +47,7 @@ suppressPackageStartupMessages({
 
 # Objective
 
-Genotype data integration of ONT enrichment experiment with 10X expression data for AML4 sample
+Genotype data integration of ONT enrichment experiment with 10X expression data for PALM07_E sample
 
 
 # Genotype data
@@ -62,7 +62,6 @@ First, we identify and retain only mutations that overlap with the WES data. For
 
 ```{r}
 genotype_file = "data/enrichment/PALM07_E.csv"
-# genotype_file = "data/enrichment/sAML1.csv"
 wes_file = "data/BADAMI_BM.maf"
 sample_id = "PALM07_E"
 ```
