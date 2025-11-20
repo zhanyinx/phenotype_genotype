@@ -1,0 +1,257 @@
+---
+title: "Genotype PALM07_E"
+author: 
+- Y Zhan
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(SeuratObject)
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(mclust)
+  library(maftools)
+  library(ggplot2)
+  library(plotly)
+  library(AnnotationDbi)
+  library(org.Hs.eg.db)
+  library(clusterProfiler)
+  library(ReactomePA)
+  source('src/functions.R')
+  library(stringi)
+  library(stringr)
+  library(maftools)
+})
+
+```
+
+# Objective
+
+Genotype data integration of ONT enrichment experiment with 10X expression data for AML4 sample
+
+
+# Genotype data
+
+The genotype data has been analyzed using [NanoGen](https://github.com/dimadatascience/NanoGen), a custom pipeline designed to call mutations from targeted enrichment data. NanoGen follows a multi-step process to ensure accurate mutation detection. It starts by using Blaze to identify cell barcodes, ensuring that each cell’s data is correctly assigned. It then collapses Unique Molecular Identifiers (UMIs) to eliminate PCR duplicates and other biases, allowing for a more accurate representation of the original sample.
+
+One key feature of NanoGen is its ability to call consensus at the base level, rather than at the sequence level, providing a more precise identification of mutations. NanoGen applies a negative binomial model to distinguish between true mutated reads and background noise, improving the reliability of mutation calls. To address the issue of mutated allele dropout, NanoGen imposes a strict threshold: it requires at least five distinct wild-type (WT) UMIs for a cell to be confidently classified as wild-type (WT).
+
+## Data exploration
+
+First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
+
+```{r}
+genotype_file = "data/enrichment/PALM07_E.csv"
+# genotype_file = "data/enrichment/sAML1.csv"
+wes_file = "data/BADAMI_BM.maf"
+sample_id = "PALM07_E"
+```
+Information from the log files:
+```{r}
+blaze_log="data/enrichment/palm07_e_blaze.log"
+target_log="data/enrichment/palm07_e_target.log"
+genotype_log="data/enrichment/palm07_e_genotype.log"
+```
+
+```{r}
+blaze <- readLines(blaze_log)
+
+total_reads <-blaze[grep("Total number of reads", blaze) + 1] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+n_cells <- blaze[grep("Identified # of cells", blaze)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+reads_in_cells <- blaze[grep("Total reads in cells", blaze)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+
+DT::datatable(data.frame(
+  total_reads    = format(total_reads, big.mark = ",", scientific = FALSE),
+  n_cells        = format(n_cells, big.mark = ",", scientific = FALSE),
+  reads_in_cells = format(reads_in_cells, big.mark = ",", scientific = FALSE)  
+))
+
+```
+
+```{r}
+lines <- readLines(target_log)
+on_target <- as.numeric(sub("On target:\\s*", "", lines[1]))
+total_reads <- as.numeric(sub("Total:\\s*", "", lines[2]))
+
+target <- read.delim(text = lines[3:length(lines)],
+                       header = FALSE,
+                       stringsAsFactors = FALSE)
+colnames(target) <- c("chr", "start", "end", "ref", "alt", "gene", "reads")
+
+DT::datatable(target)
+```
+
+```{r}
+genotype=readLines(genotype_log)
+
+n_cells <-genotype[grep("Total number of cells", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+n_UMIs <- genotype[grep("Total number of UMIs", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+median_UMI <- genotype[grep("Median UMI per cell", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+median_genes <- genotype[grep("Median genes covered per cell", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+fraction_w_UMI <- genotype[grep("Fraction of cells with UMIs", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+
+genotype_values<- data.frame(
+  Metric = c("n_cells", "n_UMIs", "median_UMI", "median_genes", "fraction_w_UMI"),
+  Value  = c(
+    format(n_cells, big.mark = ",", scientific = FALSE),
+    format(n_UMIs, big.mark = ",", scientific = FALSE),
+    median_UMI,
+    median_genes,
+    fraction_w_UMI
+  ),
+  stringsAsFactors = FALSE
+)
+
+DT::datatable(genotype_values)
+
+```
+
+```{r, results=FALSE}
+# Read and filter genotyped cells
+genotype = read.csv(genotype_file, row.names = 1)
+genotype = genotype[genotype$genotype!="", ]
+genotype['total_umis'] = (genotype[,'WT'] + genotype[,'MUT'] + genotype[,'MIS'])
+genotype$alt <- ifelse(grepl('-', genotype$alt), '-', genotype$alt)
+genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], gsub("[+-]", "", genotype[, 'alt']))
+
+tmp = data.frame(read.maf(wes_file)@maf.silent)
+variants = data.frame(read.maf(wes_file)@data)
+variants = rbind(variants, tmp)
+
+variants['id'] = paste0(variants[,'Hugo_Symbol'] , variants[,'Start_Position'] , variants[,'Tumor_Seq_Allele2'])
+genotype = as_tibble(genotype[genotype$id %in% (variants$id), ])
+
+# Calculate ccf and filter lowly genotyped mutations
+ccf = genotype %>%
+  group_by(gene, genotype) %>%            # Group by 'gene' and 'genotype'
+  summarise(count = n(), .groups = 'drop') %>%  # Count occurrences of each 'genotype'
+  pivot_wider(names_from = genotype,
+              values_from = count,
+              values_fill = 0)  # Pivot to wide format, filling missing values with 0
+ccf$MUT <- c(0,0,0,0)
+
+ccf = ccf[(ccf$MUT + ccf$WT) > 50,]
+ccf['ccf'] = ccf[,'MUT'] /(ccf[,'MUT'] + ccf[,'WT']) 
+
+# Add wes
+subset <- variants %>%
+  filter(id %in% genotype$id) %>%
+  select(Hugo_Symbol, tumor_f)
+
+ccf <- ccf %>%
+  left_join(subset, by = c("gene" = "Hugo_Symbol"))  %>%
+  mutate(wes_ccf = pmin(tumor_f * 2, 1))  # Ensure values > 1 are set to 1
+
+# Calculate correlation
+correlation <- cor(ccf$ccf, ccf$wes_ccf, use = "complete.obs")
+correlation_title <- sprintf("Correlation: %.2f", correlation)
+
+
+
+# Create the scatter plot
+p <- ggplot(ccf, aes(x = ccf, y = wes_ccf, text = gene)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
+  ggtitle(correlation_title) +
+  labs(x = "single cell CF", y = "WES_CF") +
+  theme(plot.title = element_text(hjust = 0.5, size = 20))
+
+# Convert to interactive plotly plot
+fig <- ggplotly(p, tooltip = c("text"))
+```
+
+Below, we present the correlation between the cellular fraction, defined as VAF * 2, in WES  and the cellular fraction in the target enrichment. As demonstrated, the target enrichment effectively recapitulates the cellular fraction observed in WES.
+
+```{r}
+fig
+```
+
+
+```{r}
+DT::datatable(
+  ccf,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+## Mutation co-occurence  
+
+Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: BAX ADCK1 DPF2 IPO9 RUNX1
+
+```{r}
+# Define the genes of interest
+gene_interest <- c('MYSM1', 'RUNX1')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
