@@ -33,7 +33,9 @@ This  website contains scRNA-seq data analyses and integration with targeted mut
 - [5-Phenotype genotype PALM08R nested PCR](07_nested_pcr_palm08_genotype.html) 
 - [6-Phenotype genotype PALM08R nested PCR no bio](08_nested_pcr_palm08_nobio_genotype.html)
 - [7-Phenotype genotype PALM08R nested PCR no bax](09_nested_pcr_palm08_nobax_genotype.html)
-- [8-Phenotype genotype PALM08R nested PCR bio pooled (5-7 pooled)](10_nested_pcr_palm08_bio_pooled_genotype.html) <span class="label btn-warning"> New report</span>
+- [8-Phenotype genotype PALM08R nested PCR bio pooled (5-7 pooled)](10_nested_pcr_palm08_bio_pooled_genotype.html) 
+- [9-Phenotype genotype PALM08E nested PCR](11_nested_pcr_PALM08_E.html) <span class="label btn-warning"> New report</span>
+- [10-Phenotype genotype PALM07E nested PCR](12_nested_pcr_PALM07_E.html) <span class="label btn-warning"> New report</span>
 
 
 # Malignant cell annotation
