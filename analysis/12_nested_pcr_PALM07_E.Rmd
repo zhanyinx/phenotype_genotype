@@ -115,8 +115,6 @@ target <- read.delim(text = lines[3:length(lines)],
 
 colnames(target) <- c("chr", "start", "end", "ref", "alt", "gene", "reads")
 
-data
-
 DT::datatable(target) %>%
   DT::formatCurrency('reads', currency = "", interval = 3, mark=",", digits=0)
 ```
