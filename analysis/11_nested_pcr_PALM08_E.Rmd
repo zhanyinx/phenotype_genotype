@@ -42,7 +42,6 @@ suppressPackageStartupMessages({
   library(stringr)
   library(maftools)
 })
-
 ```
 
 # Objective
@@ -93,25 +92,34 @@ reads_in_cells <- blaze[grep("Total reads in cells", blaze)] %>%
   as.numeric()
 
 
-DT::datatable(data.frame(
-  total_reads    = format(total_reads, big.mark = ",", scientific = FALSE),
-  n_cells        = format(n_cells, big.mark = ",", scientific = FALSE),
-  reads_in_cells = format(reads_in_cells, big.mark = ",", scientific = FALSE)  
-))
-
+DT::datatable(data.frame(Metrics = c("Total reads", "N.cells","Reads in cells"),
+                         Values = c(format(total_reads, big.mark = ",", scientific = FALSE),format(n_cells, big.mark = ",", scientific = FALSE),format(reads_in_cells, big.mark = ",", scientific = FALSE))))
 ```
 
 ```{r}
 lines <- readLines(target_log)
 on_target <- as.numeric(sub("On target:\\s*", "", lines[1]))
 total_reads <- as.numeric(sub("Total:\\s*", "", lines[2]))
+perc<- (on_target/reads_in_cells)*100
 
+
+DT::datatable(data.frame(
+  Metrics= c("Reads in cells", "Reads on target", "%"),
+  Values=c(format(reads_in_cells, big.mark = ","),format(on_target, big.mark = ","), round(perc,1))))
+
+```
+
+```{r}
 target <- read.delim(text = lines[3:length(lines)],
                        header = FALSE,
                        stringsAsFactors = FALSE)
+
 colnames(target) <- c("chr", "start", "end", "ref", "alt", "gene", "reads")
 
-DT::datatable(target)
+data
+
+DT::datatable(target) %>%
+  DT::formatCurrency('reads', currency = "", interval = 3, mark=",", digits=0)
 ```
 
 ```{r}
@@ -158,8 +166,6 @@ genotype_values<- data.frame(
 DT::datatable(genotype_values)
 
 ```
-
-
 
 ```{r, results=FALSE}
 # Read and filter genotyped cells
