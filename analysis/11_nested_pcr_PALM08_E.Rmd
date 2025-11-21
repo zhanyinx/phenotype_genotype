@@ -100,6 +100,7 @@ DT::datatable(data.frame(
 ))
 
 ```
+
 ```{r}
 lines <- readLines(target_log)
 on_target <- as.numeric(sub("On target:\\s*", "", lines[1]))
@@ -166,7 +167,7 @@ genotype = read.csv(genotype_file, row.names = 1)
 genotype = genotype[genotype$genotype!="", ]
 genotype['total_umis'] = (genotype[,'WT'] + genotype[,'MUT'] + genotype[,'MIS'])
 genotype$alt <- ifelse(grepl('-', genotype$alt), '-', genotype$alt)
-genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], gsub("[+-]", "", genotype[, 'alt']))
+genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], gsub("[+]", "", genotype[, 'alt']))
 
 tmp = data.frame(read.maf(wes_file)@maf.silent)
 variants = data.frame(read.maf(wes_file)@data)
