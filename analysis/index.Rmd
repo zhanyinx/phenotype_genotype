@@ -36,8 +36,8 @@ This  website contains scRNA-seq data analyses and integration with targeted mut
 - [8-Phenotype genotype PALM08R nested PCR bio pooled (5-7 pooled)](10_nested_pcr_palm08_bio_pooled_genotype.html) 
 - [9-Phenotype genotype PALM08E nested PCR](11_nested_pcr_PALM08_E.html) 
 - [10-Phenotype genotype PALM07E nested PCR](12_nested_pcr_PALM07_E.html)
-- [11-Phenotype genotype PALM14E nested PCR](13_nested_pcr_PALM14_E.html) <span class="label btn-warning"> New report</span>
-- [12-Phenotype genotype PALM14R nested PCR](14_nested_pcr_PALM14_R.html) <span class="label btn-warning"> New report</span>
+- [11-Phenotype genotype PALM14E nested PCR](13_PALM14_E.html) <span class="label btn-warning"> New report</span>
+- [12-Phenotype genotype PALM14R nested PCR](14_PALM14_R.html) <span class="label btn-warning"> New report</span>
 
 
 
