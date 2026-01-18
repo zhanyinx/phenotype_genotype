@@ -284,7 +284,7 @@ DT::datatable(
 
 We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:
 
-1- 
+1- CCND2-MAML1-TIMM23
 
 ```{r}
 # Read RNAseq
@@ -328,12 +328,11 @@ gene_interest <-c('CCND2', 'MAML1', 'TIMM23')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
 ```
 
-The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.
 
 ```{r}
 mutation_status1 = c("MUT", "MUT","MUT")
 mutation_status2 = c("WT", "MUT","MUT")
-mutation_status3=c("MUT","MUT","WT")
 
 cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
 cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
@@ -356,6 +355,8 @@ DT::datatable(
   rownames = FALSE
 )
 ```
+
+Considering that the number of cells are too low for meaningful comparision, we move to analyzing two gene combinations.
 
 ```{r}
 tmp_genotype = read.csv(genotype_file, row.names = 1)
@@ -386,12 +387,13 @@ DT::datatable(
 )
 ```
 
-
+2. This time, the analysis focus on CCND2-TIMM23.
 ```{r}
 gene_interest <-c('CCND2', 'TIMM23')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
 ```
 
+Again, first step was to identify in which compartment we genotyped cells for each gene. Next part of the analyses were done only in the tumor compartment cells.
 
 ```{r}
 mutation_status1 = c("MUT", "MUT")
@@ -420,7 +422,7 @@ DT::datatable(
 )
 ```
 
-1 differentially expressed genes between CEBPA-SEC31A MUT-MUT and WT-MUT, which was CEBPA.
+No DEGs were identified between CCND2-TIMM23 MUT-MUT and WT-MUT cells.
 
 ```{r}
 rna = subset(rna, subset = compartment =="tumor")
@@ -444,7 +446,8 @@ DT::datatable(
 
 ```
 
-Next, we did the same analysis comparing cells where both CEBPA and SEC31A is mutated, and only CEBPA.
+Next, we did the same analysis between CCND2-TIMM23 MUT-MUT and MUT-WT cells.
+
 ```{r}
 cells3 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status3, nrow = nrow(subset), ncol = length(mutation_status3), byrow = TRUE), 1, all)]
 srat$cellid = gsub("PALM14_E_", "", srat$cellid)
@@ -453,7 +456,7 @@ rna$mutation_status = paste(mutation_status1, collapse = "_")
 rna$mutation_status[rna$cellid %in% cells3 ] = paste(mutation_status3, collapse = "_")
 ```
 
-No significant differentially expressed genes between CEBPA-SEC31A MUT-MUT and MUT-WT.
+No DEGs between CCND2-TIMM23 MUT-MUT and MUT-WT cells.
 ```{r}
 rna = subset(rna, subset = compartment =="tumor")
 Idents(rna) = rna$mutation_status
@@ -475,7 +478,7 @@ DT::datatable(
 )
 ```
 
-
+This time, analysis was done between cells which had both WT CCND2-TIMM23, and MUT CCDN2 and WT TIMM23
 ```{r}
 gene_interest <- c('CCND2', 'TIMM23')
 mutation_status1 = c('WT', 'WT')
@@ -494,6 +497,7 @@ rna$mutation_status = paste(mutation_status1, collapse = "_")
 rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
 ```
 
+No DEGs were identified.
 
 ```{r}
 rna = subset(rna, subset = compartment =="tumor")

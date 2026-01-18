@@ -309,7 +309,7 @@ DT::datatable(
 
 We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:
 
-1-
+1- CCND2-TIMM23
 
 ```{r}
 # Read RNAseq
@@ -353,7 +353,7 @@ gene_interest <-c('CCND2', 'TIMM23')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
 ```
 
-We selected cells where CEBPA and SEC31A are either both mutated, or only SEC31A. This resulted in the following number of cells, representing the intersection of genotyped cells and those passing scRNA-seq filters.  
+We selected cells where CCND2 and TIMM23 are either both mutated, or only TIMM23 This resulted in the following number of cells, representing the intersection of genotyped cells and those passing scRNA-seq filters.  
 
 The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
 
