@@ -387,7 +387,7 @@ DT::datatable(
 )
 ```
 
-2. This time, the analysis focus on CCND2-TIMM23.
+2-This time, the analysis focused on CCND2-TIMM23.
 ```{r}
 gene_interest <-c('CCND2', 'TIMM23')
 subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
