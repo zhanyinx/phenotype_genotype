@@ -1,0 +1,517 @@
+---
+title: "Genotype PALM14_E"
+author: 
+- Y Zhan
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(SeuratObject)
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(mclust)
+  library(maftools)
+  library(ggplot2)
+  library(plotly)
+  library(AnnotationDbi)
+  library(org.Hs.eg.db)
+  library(clusterProfiler)
+  library(ReactomePA)
+  source('src/functions.R')
+  library(stringi)
+  library(stringr)
+  library(maftools)
+})
+```
+
+# Objective
+
+Genotype data integration of ONT enrichment experiment with 10X expression data for PALM14_E sample
+
+
+# Genotype data
+
+The genotype data has been analyzed using [NanoGen](https://github.com/dimadatascience/NanoGen), a custom pipeline designed to call mutations from targeted enrichment data. NanoGen follows a multi-step process to ensure accurate mutation detection. It starts by using Blaze to identify cell barcodes, ensuring that each cell’s data is correctly assigned. It then collapses Unique Molecular Identifiers (UMIs) to eliminate PCR duplicates and other biases, allowing for a more accurate representation of the original sample.
+
+One key feature of NanoGen is its ability to call consensus at the base level, rather than at the sequence level, providing a more precise identification of mutations. NanoGen applies a negative binomial model to distinguish between true mutated reads and background noise, improving the reliability of mutation calls. To address the issue of mutated allele dropout, NanoGen imposes a strict threshold: it requires at least five distinct wild-type (WT) UMIs for a cell to be confidently classified as wild-type (WT).
+
+## Data exploration
+
+First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
+
+```{r}
+genotype_file = "data/enrichment/PALM14_E.csv"
+# genotype_file = "data/enrichment/sAML1.csv"
+wes_file = "data/PALM_14_E.maf"
+sample_id = "PALM14_E"
+```
+
+Information from the log files:
+```{r}
+blaze_log="data/enrichment/palm14_e_blaze.log"
+target_log="data/enrichment/palm14_e_target.log"
+genotype_log="data/enrichment/palm14_e_genotype.log"
+```
+
+```{r}
+blaze <- readLines(blaze_log)
+
+total_reads <-blaze[grep("Total number of reads", blaze) + 1] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+n_cells <- blaze[grep("Identified # of cells", blaze)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+reads_in_cells <- blaze[grep("Total reads in cells", blaze)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+
+DT::datatable(data.frame(Metrics = c("Total reads", "N.cells","Reads in cells"),
+                         Values = c(format(total_reads, big.mark = ",", scientific = FALSE),format(n_cells, big.mark = ",", scientific = FALSE),format(reads_in_cells, big.mark = ",", scientific = FALSE))))
+```
+
+```{r}
+lines <- readLines(target_log)
+on_target <- as.numeric(sub("On target:\\s*", "", lines[1]))
+total_reads <- as.numeric(sub("Total:\\s*", "", lines[2]))
+perc<- (on_target/reads_in_cells)*100
+
+
+DT::datatable(data.frame(
+  Metrics= c("Reads in cells", "Reads on target", "%"),
+  Values=c(format(reads_in_cells, big.mark = ","),format(on_target, big.mark = ","), round(perc,1))))
+
+```
+
+```{r}
+target <- read.delim(text = lines[3:length(lines)],
+                       header = FALSE,
+                       stringsAsFactors = FALSE)
+
+colnames(target) <- c("chr", "start", "end", "ref", "alt", "gene", "reads")
+
+DT::datatable(target) %>%
+  DT::formatCurrency('reads', currency = "", interval = 3, mark=",", digits=0)
+```
+
+```{r}
+genotype=readLines(genotype_log)
+
+n_cells <-genotype[grep("Total number of cells", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+n_UMIs <- genotype[grep("Total number of UMIs", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+median_UMI <- genotype[grep("Median UMI per cell", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+median_genes <- genotype[grep("Median genes covered per cell", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+fraction_w_UMI <- genotype[grep("Fraction of cells with UMIs", genotype)] %>%
+  str_extract("[0-9]*\\.?[0-9]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+
+genotype_values<- data.frame(
+  Metric = c("n_cells", "n_UMIs", "median_UMI", "median_genes", "fraction_w_UMI"),
+  Value  = c(
+    format(n_cells, big.mark = ",", scientific = FALSE),
+    format(n_UMIs, big.mark = ",", scientific = FALSE),
+    median_UMI,
+    median_genes,
+    round(fraction_w_UMI,2)
+  ),
+  stringsAsFactors = FALSE
+)
+
+DT::datatable(genotype_values)
+
+```
+
+```{r, results=FALSE}
+# Read and filter genotyped cells
+genotype = read.csv(genotype_file, row.names = 1)
+genotype = genotype[genotype$genotype!="", ]
+genotype['total_umis'] = (genotype[,'WT'] + genotype[,'MUT'] + genotype[,'MIS'])
+genotype$alt <- ifelse(grepl('-', genotype$alt), '-', genotype$alt)
+genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], gsub("[+]", "", genotype[, 'alt']))
+
+tmp = data.frame(read.maf(wes_file)@maf.silent)
+variants = data.frame(read.maf(wes_file)@data)
+variants = rbind(variants, tmp)
+
+variants['id'] = paste0(variants[,'Hugo_Symbol'] , variants[,'Start_Position'] , variants[,'Tumor_Seq_Allele2'])
+genotype = as_tibble(genotype[genotype$id %in% (variants$id), ])
+
+# Calculate ccf and filter lowly genotyped mutations
+ccf = genotype %>%
+  group_by(gene,id, genotype) %>%            # Group by 'gene' and 'genotype'
+  summarise(count = n(), .groups = 'drop') %>%  # Count occurrences of each 'genotype'
+  pivot_wider(names_from = genotype,
+              values_from = count,
+              values_fill = 0)  # Pivot to wide format, filling missing values with 0
+
+ccf = ccf[(ccf$MUT + ccf$WT) > 50,]
+ccf['ccf'] = ccf[,'MUT'] /(ccf[,'MUT'] + ccf[,'WT']) 
+
+# Add wes
+subset <- variants %>%
+  filter(id %in% genotype$id) %>%
+  select(Hugo_Symbol,id, tumor_f)
+
+ccf <- ccf %>%
+  left_join(subset, by = c("gene" = "Hugo_Symbol", "id"="id"))  %>%
+  mutate(wes_ccf = pmin(tumor_f * 2, 1))  # Ensure values > 1 are set to 1
+
+# Calculate correlation
+correlation <- cor(ccf$ccf, ccf$wes_ccf, use = "complete.obs")
+correlation_title <- sprintf("Correlation: %.2f", correlation)
+
+
+
+# Create the scatter plot
+p <- ggplot(ccf, aes(x = ccf, y = wes_ccf, text = gene)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
+  ggtitle(correlation_title) +
+  labs(x = "single cell CF", y = "WES_CF") +
+  theme(plot.title = element_text(hjust = 0.5, size = 20))
+
+# Convert to interactive plotly plot
+fig <- ggplotly(p, tooltip = c("text"))
+```
+
+Below, we present the correlation between the cellular fraction, defined as VAF * 2, in WES  and the cellular fraction in the target enrichment. As demonstrated, the target enrichment effectively recapitulates the cellular fraction observed in WES.
+
+```{r}
+fig
+```
+
+
+```{r}
+DT::datatable(
+  ccf,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+## Mutation co-occurence  
+
+Next, we quantified the number of cells with multiple genotyped mutations, as shown in the tables below. We present the results for different mutation combinations. For this specific samples, we will look at these genes since they are the most genotyped: CEBPA, SEC31A, ENOX2
+
+```{r}
+# Define the genes of interest
+gene_interest <- c('CCND2', 'MAML1', 'TIMM23')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+gene_interest <- c('CCND2', 'TIMM23')
+co_occurence <- get_coccurence(genotype_file, variants, gene_interest)
+DT::datatable(
+  co_occurence,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+
+
+```
+
+
+
+
+# Genotype phenotype analysis: full genotype
+
+We begin by analyzing the phenotype-genotype relationships using only cells with genotyped data for multiple genes. Specifically, we will focus on the following cases:
+
+1- 
+
+```{r}
+# Read RNAseq
+srat = readRDS("./data/01_tme_annotation.rds")
+srat$cellid = unlist(lapply(str_split(names(srat$orig.ident), "-"), "[[", 1))
+```
+
+The table below provides a comprehensive list of all mutations, along with the associated single-cell metadata
+
+```{r}
+tmp_genotype = read.csv(genotype_file, row.names = 1)
+tmp_genotype$alt <- ifelse(grepl('-', tmp_genotype$alt), '-', tmp_genotype$alt)
+tmp_genotype['id'] = paste0(tmp_genotype[,'gene'], tmp_genotype[,'start'], tmp_genotype[,'alt'])
+tmp_genotype$id <- gsub("\\+", "", tmp_genotype$id)
+tmp_genotype = tmp_genotype[tmp_genotype$id %in% unique(variants$id),]
+tmp_genotype = as_tibble(tmp_genotype[tmp_genotype$gene %in% c('CCND2', 'MAML1', 'TIMM23'),])
+tmp_genotype = tmp_genotype[, c("gene", "cell", "genotype")] %>% 
+  pivot_wider(names_from = gene, values_from = genotype) %>%
+  mutate_all( ~ replace(., . == "", "na"))
+
+metadata = srat@meta.data
+metadata = metadata[metadata$sample_id == sample_id, ] 
+metadata$cellid = gsub("PALM14_E_", "", metadata$cellid)
+table2show = merge(tmp_genotype, metadata[,c("cellid","compartment", "aggregated_ct")], by.x="cell", by.y="cellid")
+
+DT::datatable(
+  data.frame(table2show),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+```{r}
+gene_interest <-c('CCND2', 'MAML1', 'TIMM23')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+```
+
+The table below presents the number of cells in each compartment after filtering for cells with available RNA expression data.Since the majority of cells belong to the tumor compartment and only a small number are from the TME, we focused our analysis solely on the tumor compartment.
+
+```{r}
+mutation_status1 = c("MUT", "MUT","MUT")
+mutation_status2 = c("WT", "MUT","MUT")
+mutation_status3=c("MUT","MUT","WT")
+
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+srat$cellid = gsub("PALM14_E_", "", srat$cellid)
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+```{r}
+tmp_genotype = read.csv(genotype_file, row.names = 1)
+tmp_genotype$alt <- ifelse(grepl('-', tmp_genotype$alt), '-', tmp_genotype$alt)
+tmp_genotype['id'] = paste0(tmp_genotype[,'gene'], tmp_genotype[,'start'], tmp_genotype[,'alt'])
+tmp_genotype$id <- gsub("\\+", "", tmp_genotype$id)
+tmp_genotype = tmp_genotype[tmp_genotype$id %in% unique(variants$id),]
+tmp_genotype = as_tibble(tmp_genotype[tmp_genotype$gene %in% c('CCND2',  'TIMM23'),])
+tmp_genotype = tmp_genotype[, c("gene", "cell", "genotype")] %>% 
+  pivot_wider(names_from = gene, values_from = genotype) %>%
+  mutate_all( ~ replace(., . == "", "na"))
+
+metadata = srat@meta.data
+metadata = metadata[metadata$sample_id == sample_id, ] 
+metadata$cellid = gsub("PALM14_E_", "", metadata$cellid)
+table2show = merge(tmp_genotype, metadata[,c("cellid","compartment", "aggregated_ct")], by.x="cell", by.y="cellid")
+
+DT::datatable(
+  data.frame(table2show),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+
+```{r}
+gene_interest <-c('CCND2', 'TIMM23')
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+```
+
+
+```{r}
+mutation_status1 = c("MUT", "MUT")
+mutation_status2 = c("WT", "MUT")
+mutation_status3=c("MUT","WT")
+
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+
+srat$cellid = gsub("PALM14_E_", "", srat$cellid)
+
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+
+DT::datatable(
+  data.frame(table(rna@meta.data[, c("compartment", "mutation_status")])),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
+
+1 differentially expressed genes between CEBPA-SEC31A MUT-MUT and WT-MUT, which was CEBPA.
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+
+DT::datatable(
+  data.frame(markers),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = TRUE
+)
+
+```
+
+Next, we did the same analysis comparing cells where both CEBPA and SEC31A is mutated, and only CEBPA.
+```{r}
+cells3 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status3, nrow = nrow(subset), ncol = length(mutation_status3), byrow = TRUE), 1, all)]
+srat$cellid = gsub("PALM14_E_", "", srat$cellid)
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells3))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells3 ] = paste(mutation_status3, collapse = "_")
+```
+
+No significant differentially expressed genes between CEBPA-SEC31A MUT-MUT and MUT-WT.
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status3, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.5, ]
+
+DT::datatable(
+  data.frame(markers),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = TRUE
+)
+```
+
+
+```{r}
+gene_interest <- c('CCND2', 'TIMM23')
+mutation_status1 = c('WT', 'WT')
+mutation_status2 = c("MUT", "WT")
+
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+cells1 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status1, nrow = nrow(subset), ncol = length(mutation_status1), byrow = TRUE), 1, all)]
+
+
+subset = get_cellid_full_genotype(genotype_file, variants, gene_interest)
+
+cells2 = subset$cell[apply(subset[,gene_interest] == matrix(mutation_status2, nrow = nrow(subset), ncol = length(mutation_status2), byrow = TRUE), 1, all)]
+srat$cellid = gsub("PALM14_E_", "", srat$cellid)
+rna = subset(srat, subset = sample_id == sample_id & cellid %in% c(cells1, cells2))
+rna$mutation_status = paste(mutation_status1, collapse = "_")
+rna$mutation_status[rna$cellid %in% cells2 ] = paste(mutation_status2, collapse = "_")
+```
+
+
+```{r}
+rna = subset(rna, subset = compartment =="tumor")
+Idents(rna) = rna$mutation_status
+markers = FindMarkers(rna, ident.1 = paste(mutation_status1, collapse = "_"), ident.2 = paste(mutation_status2, collapse = "_"), 
+                       group.by = "mutation_status", 
+                       min.pct = 0.1, logfc.threshold = 0.25)
+markers = markers[markers$p_val_adj < 0.05, ]
+
+DT::datatable(
+  data.frame(markers),
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = TRUE
+)
+```
