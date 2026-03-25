@@ -159,7 +159,7 @@ DT::datatable(genotype_values)
 
 ```
 
-```{r, results=FALSE}
+```{r}
 # Read and filter genotyped cells
 genotype = read.csv(genotype_file, row.names = 1)
 genotype = genotype[genotype$genotype!="", ]
