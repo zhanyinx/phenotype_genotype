@@ -36,6 +36,15 @@
 <script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
 <link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
 <script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+<script src="site_libs/jszip-1.10.20/jszip.min.js"></script>
+<script src="site_libs/pdfmake-1.10.20/pdfmake.js"></script>
+<script src="site_libs/pdfmake-1.10.20/vfs_fonts.js"></script>
+<link href="site_libs/dt-ext-buttons-1.10.20/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.10.20/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.flash.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.print.min.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -532,16 +541,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetreeea0f253fb35d3bb325af8ced1c1b049460f793cctargetblankea0f253a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/zhanyinx/phenotype_genotype/tree/ea0f253fb35d3bb325af8ced1c1b049460f793cc" target="_blank">ea0f253</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetree1e91e09b6222e90c05ec69923885981f55e4895atargetblank1e91e09a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/zhanyinx/phenotype_genotype/tree/1e91e09b6222e90c05ec69923885981f55e4895a" target="_blank">1e91e09</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetreeea0f253fb35d3bb325af8ced1c1b049460f793cctargetblankea0f253a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomzhanyinxphenotypegenotypetree1e91e09b6222e90c05ec69923885981f55e4895atargetblank1e91e09a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/zhanyinx/phenotype_genotype/tree/ea0f253fb35d3bb325af8ced1c1b049460f793cc" target="_blank">ea0f253</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/zhanyinx/phenotype_genotype/tree/1e91e09b6222e90c05ec69923885981f55e4895a" target="_blank">1e91e09</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -591,6 +600,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/zhanyinx/phenotype_genotype/blob/1e91e09b6222e90c05ec69923885981f55e4895a/analysis/15_PALM08_E_SNP.rmd" target="_blank">1e91e09</a>
+</td>
+<td>
+Basak Ozay
+</td>
+<td>
+2026-03-25
+</td>
+<td>
+SNP tests
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/zhanyinx/phenotype_genotype/c6ba92f364cefe4963f152ea7c03d49a6e0698e1/docs/15_PALM08_E_SNP.html" target="_blank">c6ba92f</a>
+</td>
+<td>
+Basak Ozay
+</td>
+<td>
+2026-03-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -650,6 +693,8 @@ SNP tests
 <script type="application/json" data-for="htmlwidget-7f2e8bbd475421ad5ec3">{"x":{"filter":"none","data":[["1","2","3"],["chr5","chr11","chr11"],[138930863,32396399,32434752],[138930863,32396399,32434752],["C","T","G"],["G","C","A"],["CTNNA1","WT1","WT1"],[28919,4495,91303]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>chr<\/th>\n      <th>start<\/th>\n      <th>end<\/th>\n      <th>ref<\/th>\n      <th>alt<\/th>\n      <th>gene<\/th>\n      <th>reads<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"targets":7,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatCurrency(data, \"\", 0, 3, \",\", \".\", true);\n  }"},{"className":"dt-right","targets":[2,3,7]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":["options.columnDefs.0.render"],"jsHooks":[]}</script>
 <div id="htmlwidget-bdb697fcf84443e89835" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-bdb697fcf84443e89835">{"x":{"filter":"none","data":[["1","2","3","4","5"],["n_cells","n_UMIs","median_UMI","median_genes","fraction_w_UMI"],["9,386","1,138","0","0","0.03"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Metric<\/th>\n      <th>Value<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"order":[],"autoWidth":false,"orderClasses":false,"columnDefs":[{"orderable":false,"targets":0}]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-e6af24d9f946a256fb7a" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e6af24d9f946a256fb7a">{"x":{"filter":"none","extensions":["Buttons"],"data":[["CTNNA1","WT1","WT1"],["CTNNA1138930863G","WT132396399C","WT132434752A"],[52,23,26],[23,0,56],[0.693333333333333,1,0.317073170731707]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>gene<\/th>\n      <th>id<\/th>\n      <th>MUT<\/th>\n      <th>WT<\/th>\n      <th>ccf<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[2,3,4]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
