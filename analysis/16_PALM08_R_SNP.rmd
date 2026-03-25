@@ -1,0 +1,191 @@
+---
+title: "PALM08_R SNP"
+author: 
+- B Ozay
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(SeuratObject)
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(mclust)
+  library(maftools)
+  library(ggplot2)
+  library(plotly)
+  library(AnnotationDbi)
+  library(org.Hs.eg.db)
+  library(clusterProfiler)
+  library(ReactomePA)
+  source('src/functions.R')
+  library(stringi)
+  library(stringr)
+  library(maftools)
+})
+```
+
+# Objective
+
+Genotype data integration of ONT enrichment experiment with 10X expression data for PALM14_E sample
+
+
+# Genotype data
+
+The genotype data has been analyzed using [NanoGen](https://github.com/dimadatascience/NanoGen), a custom pipeline designed to call mutations from targeted enrichment data. NanoGen follows a multi-step process to ensure accurate mutation detection. It starts by using Blaze to identify cell barcodes, ensuring that each cell’s data is correctly assigned. It then collapses Unique Molecular Identifiers (UMIs) to eliminate PCR duplicates and other biases, allowing for a more accurate representation of the original sample.
+
+One key feature of NanoGen is its ability to call consensus at the base level, rather than at the sequence level, providing a more precise identification of mutations. NanoGen applies a negative binomial model to distinguish between true mutated reads and background noise, improving the reliability of mutation calls. To address the issue of mutated allele dropout, NanoGen imposes a strict threshold: it requires at least five distinct wild-type (WT) UMIs for a cell to be confidently classified as wild-type (WT).
+
+## Data exploration
+
+First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
+
+```{r}
+genotype_file = "data/enrichment/PALM08_R_snp.csv"
+# genotype_file = "data/enrichment/sAML1.csv"
+```
+
+Information from the log files:
+```{r}
+blaze_log="data/enrichment/palm08r_snp_blaze.log"
+target_log="data/enrichment/palm08r_snp_target.log"
+genotype_log="data/enrichment/palm08r_snp_genotype.log"
+```
+
+
+
+```{r}
+blaze <- readLines(blaze_log)
+
+total_reads <-blaze[grep("Total number of reads", blaze) + 1] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+n_cells <- blaze[grep("Identified # of cells", blaze)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+reads_in_cells <- blaze[grep("Total reads in cells", blaze)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+lines <- readLines(target_log)
+on_target <- as.numeric(sub("On target:\\s*", "", lines[1]))
+total_reads <- as.numeric(sub("Total:\\s*", "", lines[2]))
+perc<- (on_target/reads_in_cells)*100
+
+
+DT::datatable(data.frame(
+  Metrics= c("Reads in cells", "Reads on target", "%"),
+  Values=c(format(reads_in_cells, big.mark = ","),format(on_target, big.mark = ","), round(perc,1))))
+
+```
+
+```{r}
+target <- read.delim(text = lines[3:length(lines)],
+                       header = FALSE,
+                       stringsAsFactors = FALSE)
+
+colnames(target) <- c("chr", "start", "end", "ref", "alt", "gene", "reads")
+
+DT::datatable(target) %>%
+  DT::formatCurrency('reads', currency = "", interval = 3, mark=",", digits=0)
+```
+
+```{r}
+genotype=readLines(genotype_log)
+
+n_cells <-genotype[grep("Total number of cells", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+n_UMIs <- genotype[grep("Total number of UMIs", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+median_UMI <- genotype[grep("Median UMI per cell", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+median_genes <- genotype[grep("Median genes covered per cell", genotype)] %>%
+  str_extract("[0-9,]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+fraction_w_UMI <- genotype[grep("Fraction of cells with UMIs", genotype)] %>%
+  str_extract("[0-9]*\\.?[0-9]+") %>%
+  str_replace_all(",", "") %>%
+  as.numeric()
+
+
+genotype_values<- data.frame(
+  Metric = c("n_cells", "n_UMIs", "median_UMI", "median_genes", "fraction_w_UMI"),
+  Value  = c(
+    format(n_cells, big.mark = ",", scientific = FALSE),
+    format(n_UMIs, big.mark = ",", scientific = FALSE),
+    median_UMI,
+    median_genes,
+    round(fraction_w_UMI,2)
+  ),
+  stringsAsFactors = FALSE
+)
+
+DT::datatable(genotype_values)
+
+```
+
+```{r, results=FALSE}
+# Read and filter genotyped cells
+genotype = read.csv(genotype_file, row.names = 1)
+genotype = genotype[genotype$genotype!="", ]
+genotype['total_umis'] = (genotype[,'WT'] + genotype[,'MUT'] + genotype[,'MIS'])
+genotype$alt <- ifelse(grepl('-', genotype$alt), '-', genotype$alt)
+genotype['id'] = paste0(genotype[,'gene'], genotype[,'start'], gsub("[+]", "", genotype[, 'alt']))
+
+# Calculate ccf and filter lowly genotyped mutations
+ccf = genotype %>%
+  group_by(gene,id, genotype) %>%            # Group by 'gene' and 'genotype'
+  summarise(count = n(), .groups = 'drop') %>%  # Count occurrences of each 'genotype'
+  pivot_wider(names_from = genotype,
+              values_from = count,
+              values_fill = 0)  # Pivot to wide format, filling missing values with 0
+
+ccf['ccf'] = ccf[,'MUT'] /(ccf[,'MUT'] + ccf[,'WT']) 
+
+DT::datatable(
+  ccf,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf'),
+    lengthMenu = list(c(10, 25, 50,-1),
+                      c(10, 25, 50, "All"))
+  ),
+  rownames = FALSE
+)
+```
