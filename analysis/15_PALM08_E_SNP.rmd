@@ -162,9 +162,11 @@ DT::datatable(genotype_values)
 
 The mutations we analyzed previously:
 
-138930654	138930654	G	A	CTNNA1, shown as CTNNA1138930654A on the table.
+138930654	138930654 G	A	CTNNA1, shown as CTNNA1138930654A on the table.
+
 32434715	32434715	C	+G	WT1, shown as WT132434715G on the table.
 
+Interestingly, while the number of reads are the same as previously, WT132434715G has 8 cells genotyped as MUT, compared to the 0 of before.. 
 
 ```{r}
 

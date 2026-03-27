@@ -160,8 +160,12 @@ DT::datatable(genotype_values)
 ```
 
 
-The original mutation we analyzed is:
+The mutation we analyzed previously is:
+
 77887134	77887134	C	T	ADCK1, shown as ADCK177887134T on the table. 
+
+Compared to the previous analysis, where ADCK1 had 490 MUT and 92 WT cells, it now has 499 MUT and 89 WT.
+
 
 ```{r}
 # Read and filter genotyped cells
