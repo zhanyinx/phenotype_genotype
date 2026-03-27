@@ -60,15 +60,15 @@ One key feature of NanoGen is its ability to call consensus at the base level, r
 First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
 
 ```{r}
-genotype_file = "data/enrichment/PALM08_E_snp.csv"
+genotype_file = "data/enrichment/palm08e_mut_snp.csv"
 # genotype_file = "data/enrichment/sAML1.csv"
 ```
 
 Information from the log files:
 ```{r}
-blaze_log="data/enrichment/palm08e_snp_blaze.log"
-target_log="data/enrichment/palm08e_snp_target.log"
-genotype_log="data/enrichment/palm08e_snp_genotype.log"
+blaze_log="data/enrichment/palm08e_mut_snp_blaze.log"
+target_log="data/enrichment/palm08e_mut_snp_target.log"
+genotype_log="data/enrichment/palm08e_mut_snp_genotype.log"
 ```
 
 
@@ -159,6 +159,13 @@ DT::datatable(genotype_values)
 
 ```
 
+
+The mutations we analyzed previously:
+
+138930654	138930654	G	A	CTNNA1, shown as CTNNA1138930654A on the table.
+32434715	32434715	C	+G	WT1, shown as WT132434715G on the table.
+
+
 ```{r}
 
 # Read and filter genotyped cells
@@ -189,6 +196,5 @@ DT::datatable(
   ),
   rownames = FALSE
 )
-
 
 ```

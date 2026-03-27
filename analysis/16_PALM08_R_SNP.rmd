@@ -60,15 +60,15 @@ One key feature of NanoGen is its ability to call consensus at the base level, r
 First, we identify and retain only mutations that overlap with the WES data. For each candidate mutation, we calculate its cellular fraction. Next, we filter out any genes with fewer than 50 genotyped cells.
 
 ```{r}
-genotype_file = "data/enrichment/PALM08_R_snp.csv"
+genotype_file = "data/enrichment/palm08r_mut_snp.csv"
 # genotype_file = "data/enrichment/sAML1.csv"
 ```
 
 Information from the log files:
 ```{r}
-blaze_log="data/enrichment/palm08r_snp_blaze.log"
-target_log="data/enrichment/palm08r_snp_target.log"
-genotype_log="data/enrichment/palm08r_snp_genotype.log"
+blaze_log="data/enrichment/palm08r_mut_snp_blaze.log"
+target_log="data/enrichment/palm08r_mut_snp_target.log"
+genotype_log="data/enrichment/palm08r_mut_snp_genotype.log"
 ```
 
 
@@ -158,6 +158,10 @@ genotype_values<- data.frame(
 DT::datatable(genotype_values)
 
 ```
+
+
+The original mutation we analyzed is:
+77887134	77887134	C	T	ADCK1, shown as ADCK177887134T on the table. 
 
 ```{r}
 # Read and filter genotyped cells
