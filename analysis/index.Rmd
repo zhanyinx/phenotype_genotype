@@ -41,11 +41,11 @@ This  website contains scRNA-seq data analyses and integration with targeted mut
 - [13-PALM08E SNP](15_PALM08_E_SNP.html) 
 - [14-PALM08R SNP](16_PALM08_R_SNP.html)
 - [15-Phenotype genotype PALM11E nested PCR](17_PALM11_E.html)
-- [16-Phenotype genotype PALM11E pooled](18_PALM11_E_pooled.html) <span class="label btn-warning"> New report</span>
-- [17-Phenotype genotype PALM09E pooled](19_PALM09_E_pooled.html) <span class="label btn-warning"> New report</span>
-- [18-Phenotype genotype PALM14R pooled](20_PALM14_R_pooled.html) <span class="label btn-warning"> New report</span>
-- [19-Phenotype genotype PALM14R pooled](21_PALM09E_redemultiplexed.html) <span class="label btn-warning"> New report</span>
-- [20-Phenotype genotype PALM14R pooled](22_PALM11_E_redemultiplexed.html) <span class="label btn-warning"> New report</span>
+- [16-Phenotype genotype PALM11E pooled](18_PALM11_E_pooled.html) <span class="label btn-warning"> 
+- [17-Phenotype genotype PALM09E pooled](19_PALM09_E_pooled.html) <span class="label btn-warning">
+- [18-Phenotype genotype PALM14R pooled](20_PALM14_R_pooled.html) <span class="label btn-warning">
+- [19-Phenotype genotype PALM09E](21_PALM09E_redemultiplexed.html) <span class="label btn-warning"> New report</span>
+- [20-Phenotype genotype PALM11E](22_PALM11_E_redemultiplexed.html) <span class="label btn-warning"> New report</span>
 
 
 
