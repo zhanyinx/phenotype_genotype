@@ -1,0 +1,435 @@
+---
+title: "TRUST4_report"
+author: 
+- B Ozay
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    toc_depth: 4
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+  bibliography: "./reference.bib"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo       = FALSE,
+                      message    = FALSE,
+                      warning    = FALSE,
+                      cache      = FALSE,
+                      autodep    = TRUE,
+                      fig.align  = 'center',
+                      fig.width  = 6,
+                      fig.height = 6)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(stringr)
+  library(tidyverse)
+  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+  library(biomaRt)
+  library(IsoformSwitchAnalyzeR)
+  library(GenomicFeatures)
+  library(AnnotationDbi)
+  library(org.Hs.eg.db)
+  library(SecretSanta) #remotes::install_github("gogleva/SecretSanta")
+  library(idpr) #BiocManager::install("idpr")
+  library(DGEobj.utils)
+  library(Biostrings)
+  library(ggpubr)
+  library(patchwork)
+  library(msaR)
+  library(seqinr)
+  library(SecretSanta) ##library(SignalP)
+  library(Seurat)
+  #library(immunarch)
+  library(viridis)
+  library(gghighlight)
+   #library(TrustVDJ) #was removed from cran?  still in github though
+}
+)
+source("../../../TRUST4_analysis/code/trust4_metric_functions.r")
+source("../../../TRUST4_analysis/code/helpers.r")
+
+set.seed(123)
+```
+
+## TRUST4 Analysis
+
+### **Introduction**
+
+After the genotyping analysis of our samples showed that T and B cells also contained mutations, we aimed to perform a validation of the T and B cell type annotation. In order to do that, we selected **TRUST4**, a bioinformatics algorithm that can perform V(D)J analysis using scRNAseq data.
+
+#### V(D)J analysis
+
+T and B cells create receptor repertoires through somatic V(D)J (variable (V), diversity (D), and joining (J) gene segments) recombination. This recombination creates clones of unique TCR/BCR chains that are important for the function of adaptive immune system. As they don't present in other cell types, they are a good way to characterize T and B cells. Previously, TCR/BCR analysis had not been part of scRNAseq analyses, but recent progress has extended to use of RNA-seq technologies in this regard[@seo2025]. The optimal approach is to use a 5' V(D)J libraries as V(D)J regions are located at the 5' end of transcripts.
+
+### Methods
+
+TRUST4 was selected as the tool for the TCR/BCR identification part of our pipeline. A algorithm designed for the reconstruction of TCR/BCR sequences from RNAseq data, TRUST4 can work without a need for receptor enrichment.
+
+For this step, we used a total of 12 Illumina samples, with cDNA libraries created using 10x GEM 3' chemistry. All subsequent analysis was done using RStudio.
+
+### Results
+
+Initially, we ran TRUST4 with our whole transcriptome nanopore samples, as we thought the longer read lengths would allow for better identification. However, due to the low depth of nanopore and higher potential for insertion-deletions, the results of TRUST4 were noisy. As such, we decided to use the matched Illumina samples with TRUST4 instead.
+
+```{r, message=F, warning=F, fig.width=10, fig.height=5}
+all_trust4 <- readRDS("../../../TRUST4_analysis/data/trust4_short.rds") #all samples we used for trust4
+all_enriched <- readRDS("./data/all_enriched_samples.rds") #the genotyped samples, but includes cells only present in Illumina
+all_genotyped <- readRDS("./data/all_genotyped_samples.rds") #the genotyped samples
+
+normalized_frequencies <- all_trust4@meta.data %>%
+  dplyr::group_by(sample_id)%>%
+  dplyr::mutate(total_n=n())%>%
+  dplyr::mutate(sample_label = paste0(sample_id, "\n(n=", total_n, ")")) %>%
+  dplyr::group_by(sample_label, aggregated_ct) %>%
+  dplyr::summarise(count = n(), total_n = first(total_n), .groups = 'drop') %>%
+  dplyr::group_by(sample_label) %>%
+  dplyr::mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+
+p1 <- ggplot(normalized_frequencies, aes(x = sample_label, y = frequency, fill = aggregated_ct)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values=colors$aggregated_ct)+
+  theme_minimal() +
+  labs(title = "Samples with TRUST4 data",
+       x = "Patients",
+       y = "Fraction of cells",
+       fill = "Subtypes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+normalized_frequencies <- all_enriched@meta.data %>% filter(sample_id %in% c("PALM09_E","PALM10_R","PALM11_E")) %>%
+  dplyr::group_by(sample_id)%>%
+  dplyr::mutate(total_n=n())%>%
+  dplyr::mutate(sample_label = paste0(sample_id, "\n(n=", total_n, ")")) %>%
+  dplyr::group_by(sample_label, aggregated_ct) %>%
+  dplyr::summarise(count = n(), total_n = first(total_n), .groups = 'drop') %>%
+  dplyr::group_by(sample_label) %>%
+  dplyr::mutate(frequency = count / sum(count)) %>%
+  ungroup()
+
+
+p2 <- ggplot(normalized_frequencies, aes(x = sample_label, y = frequency, fill = aggregated_ct)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values=colors$aggregated_ct)+
+  theme_minimal() +
+  labs(title = "Samples without TRUST4 data",
+       x = "Patients",
+       y = "Fraction of cells",
+       fill = "Subtypes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+NoLegend()
+
+p1+p2+plot_layout(guides="collect", widths = c(2,1))
+```
+
+As said previously, the main goal of this analysis was to validate T and B cells present in the genotyped samples. To that end, we first ran TRUST4 with the Illumina data of the 8 genotyped samples that we had at the time. Upon initial analysis, we saw that 3 of them were found to contain no V(D)J reads by the TRUST4 algorithm.
+
+At this initial analysis, we also discovered that the number of TCR/BCR containing cells were quite low. As it reduced the total genotyped cells as well, we adjusted our workflow to identify the error rate of our cell type annotation approach, rather than only using TCR/BCR+ cells. This made us include another 4 samples that contained high numbers of T and B cells among our pediatric AML cohort, so that we could increase the final number of BCR/TCR+ cells for the later steps of our analysis.
+
+```{r, echo=FALSE, warning=F, message=F}
+dirs <- list.dirs("../../../TRUST4_analysis/",full.name=F,recursive=F)
+dirs <- dirs[grepl("*_short",dirs)]
+
+samples <- gsub("_short","",dirs)
+
+dt <- data.frame("samples"=samples,
+                 "dirs"=dirs)
+
+bcr_list <- list()
+tcr_list <- list()
+
+
+for (s in 1:nrow(dt)){
+  
+  outdir_BCR="../../../TRUST4_analysis/analysis/short_reads/reports/BCR/"
+  outdir_TCR="../../../TRUST4_analysis/analysis/short_reads/reports/TCR/"
+  
+  sample=dt[[1]][s]
+  
+  df <- read.csv(file = file.path("../../../TRUST4_analysis/",dt[[2]][s],paste0(sample,"_report.tsv")),sep = "\t",stringsAsFactors = F)
+  head_ <- colnames(df)
+  head_[1] <- "#count"
+  colnames(df) <- head_
+  
+  bcr <- subset(df, grepl("^IG",V) | grepl("^IG",J) | grepl("^IG",C))
+  tcr <- subset(df, grepl("^TR",V) | grepl("^TR",J) | grepl("^TR",C))
+  
+  bcr_list[[sample]] <- bcr
+  tcr_list[[sample]] <- tcr
+  
+  #write_delim(tcr, file = paste(outdir_TCR, paste0(sample,"_TCR.txt"),sep = ""),delim = "\t")
+  #write_delim(bcr, file = paste(outdir_BCR, paste0(sample,"_BCR.txt"),sep = ""),delim = "\t")
+}
+
+# immdata_tcr <- repLoad("./short_reads/reports/TCR")
+# exp_len <- repExplore(immdata_tcr$data, .method = "len", .col = "aa")
+# exp_cnt <- repExplore(immdata_tcr$data, .method = "count")
+# exp_vol <- repExplore(immdata_tcr$data, .method = "volume")
+# 
+# p1 <- vis(exp_len)
+# p2 <- vis(exp_cnt)
+# p3 <- vis(exp_vol)
+# p1
+# p2/p3
+# ggsave("./short_reads/reports/all_tcr.jpg",plot=(p3)/(p2+p1),width = 15,height = 10)
+
+##########
+# immdata_bcr <- repLoad("./short_reads/reports/BCR")
+# exp_len <- repExplore(immdata_bcr$data, .method = "len", .col = "aa")
+# exp_cnt <- repExplore(immdata_bcr$data, .method = "count")
+# exp_vol <- repExplore(immdata_bcr$data, .method = "volume")
+# 
+# p1 <- vis(exp_len)
+# p2 <- vis(exp_cnt)
+# p3 <- vis(exp_vol)
+# p1
+# p2/p3
+# ggsave("./short_reads/reports/all_bcr.jpg",plot=(p3)/(p2+p1),width = 15,height = 10)
+
+b_cells <- list()
+t_cells <- list()
+
+for (s in 1:nrow(dt)){
+  
+  sample <- dt[[1]][s]
+  
+  seu_obj <- subset(x = all_trust4,sample_id==sample)
+  seu_obj$barcode<- stringr::str_remove(colnames(seu_obj),pattern = paste0(sample,"_")) %>% stringr::str_remove(pattern = "-1")
+  
+  bc <- read.csv(file = file.path("../../../TRUST4_analysis", dt[[2]][s],paste0(sample,"_barcode_report.tsv")),sep = "\t",stringsAsFactors = F)
+  head_<- colnames(bc)
+  head_[1]<- "barcode"
+  colnames(bc)<- head_
+  
+  bc_air <- read.csv(file = file.path("../../../TRUST4_analysis",dt[[2]][s],paste0(sample,"_barcode_airr.tsv")),sep = "\t",stringsAsFactors = F)
+  meta_short<- seu_obj@meta.data
+  
+  bcr <- bcr_list[[sample]]
+  
+  bcr$barcode<- stringr::str_remove(bcr$cid,pattern = "_\\d+$")
+  com_bc_<- intersect(bc_air$cell_id ,meta_short$barcode )
+  com_bc<- intersect(com_bc_ ,bcr$barcode )
+  
+  b_cells[[sample]] <- paste0(sample,"_",com_bc,"-1")
+  
+  bc_air$barcode<- bc_air$cell_id
+  immun_1<- bc_air[bc_air$cell_id %in% com_bc,]
+  immun_2<- bcr[bcr$barcode %in% com_bc,]
+  
+  df_immu<- merge(immun_1,immun_2,by="barcode")
+  df_immu_bcr_all<- merge(df_immu,meta_short,by="barcode")
+  df_immu_bcr_all$singleR_score <- as.numeric(df_immu_bcr_all$singleR_score)
+  
+  # write_delim(df_immu_bcr_all,paste0("./short_reads/",sample,"_bcr_all.txt"),delim = "\t")
+  
+  
+  ######tcr-all
+  
+  tcr <- tcr_list[[sample]]
+  
+  tcr$barcode<- stringr::str_remove(tcr$cid,pattern = "_\\d+$")
+  com_bc_<- intersect(bc_air$cell_id ,meta_short$barcode )
+  com_bc<- intersect(com_bc_ ,tcr$barcode )
+  
+  t_cells[[sample]] <- paste0(sample,"_",com_bc,"-1")
+  
+  bc_air$barcode<- bc_air$cell_id
+  immun_1<- bc_air[bc_air$cell_id %in% com_bc,]
+  immun_2<- tcr[tcr$barcode %in% com_bc,]
+  df_immu<- merge(immun_1,immun_2,by="barcode")
+  df_immu_tcr_all<- merge(df_immu,meta_short,by="barcode")
+  df_immu_tcr_all$singleR_score <- as.numeric(df_immu_tcr_all$singleR_score)
+  
+  
+  # write_delim(df_immu_tcr_all,paste0("./short_reads/", sample,"_tcr_all.txt"),delim = "\t")
+}
+
+b_cells_all <- unlist(b_cells, use.names = F)
+t_cells_all <- unlist(t_cells, use.names = F)
+
+cells.trust4 <- list("BCR"=b_cells_all,
+                     "TCR"=t_cells_all)
+# 
+# DimPlot(all_trust4,reduction="umap.harmony", group.by="aggregated_ct")+
+#   scale_color_manual(values=colors$aggregated_ct)
+
+```
+
+```{r fig.height=5, fig.width=10, message=FALSE, warning=FALSE, messages=F, warnings=FALSE}
+p1 <- DimPlot(all_trust4, reduction="umap.harmony", group.by = "aggregated_ct", label=T, label.box = T)+
+  scale_color_manual(values=colors$aggregated_ct)+
+  gghighlight(aggregated_ct %in% c("B_early","B_mature","T_CD4","T_CD8","T_gd"), unhighlighted_colour = alpha("grey93",0.2))+
+  labs(title = "Cell type identification")
+
+
+p2 <- DimPlot(all_trust4, reduction="umap.harmony", group.by = "aggregated_ct", sizes.highlight = F, cells.highlight = cells.trust4, cols.highlight=c("magenta","darkblue"))+labs(title="TRUST4 results")
+
+p1+p2
+```
+
+After integration, there were 9,090 B and 27,190 T cells present within the 9 samples according to our cell type annotation. TRUST4 identified 1,980 BCR+ and 1,073 TCR+ cells. This included, as can be seen in the figure above, cells that were not annotated as T or B, but as myeloid lineages as well.
+
+```{r warnings= F, messages = F, fig.width=10, fig.height=5}
+
+b_cells_short <- rownames(all_trust4[,all_trust4$aggregated_ct %in% c("B_early","B_mature")]@meta.data)
+
+t_cells_short <- rownames(all_trust4[,all_trust4$aggregated_ct %in% c("T_CD4","T_CD8","T_gd")]@meta.data)
+
+
+cells.short <- list("B_cells"=b_cells_short,
+                    "T_cells"=t_cells_short)
+
+all_trust4$TCR <- rownames(all_trust4@meta.data) %in% cells.trust4$TCR
+all_trust4$BCR <- rownames(all_trust4@meta.data) %in% cells.trust4$BCR
+
+B_cell_types <- c("B_early","B_mature")
+T_cell_types <- c("T_CD4","T_CD8","T_gd")
+
+
+p1 <- all_trust4@meta.data %>% 
+  filter(BCR == TRUE & aggregated_ct %in% B_cell_types) %>%
+  dplyr::group_by(lineage) %>% 
+  dplyr::summarise(count=n(), .groups='drop') %>%
+  dplyr::mutate(percentage=count/sum(count)) %>%
+  ggplot(aes(x=reorder(lineage, -count), y=percentage, fill=lineage)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=count), vjust=-0.25) +
+  theme(
+        plot.background = element_rect(fill="white"),
+        text=element_text(size=12),
+        axis.text.x=element_blank(),
+        axis.title.x = element_blank()) + #axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)
+  labs(title="TCR+ cells by lineage")+scale_fill_manual(values=colors$lineage)
+
+
+bcr_pos <- all_trust4@meta.data %>%
+  filter(BCR == TRUE & aggregated_ct %in% B_cell_types) %>%
+  dplyr::group_by(lineage) %>% 
+  dplyr::summarise(count=n(), .groups='drop') %>%
+  dplyr::mutate(percentage=count/sum(count))
+
+all_b <- all_trust4@meta.data %>% 
+  filter(aggregated_ct %in% B_cell_types) %>%
+  dplyr::group_by(lineage) %>% 
+  dplyr::summarise(count=n(), .groups='drop') %>%
+  dplyr::mutate(percentage=count/sum(count))  
+
+b_together <- left_join(bcr_pos, all_b, suffix=c(".bcr_pos",".all"),by = "lineage")
+
+p2 <- ggscatter(b_together, "count.bcr_pos","count.all",
+          add = "reg.line",               
+          #conf.int = TRUE,              
+          #color = "blue", fill = "lightgray",
+          label = b_together$lineage,
+          font.label = c(9, "plain"),
+          repel=T,
+          xlab = "BCR+ B-cells", ylab = "All B-cells")+stat_cor(method = "pearson")+
+  labs(title="Corr. between n. cells and BCR")
+
+p1+p2
+```
+
+```{r warnings=F, fig.width=11, fig.height=5}
+p1 <- all_trust4@meta.data %>% 
+  filter(TCR == TRUE & aggregated_ct %in% T_cell_types) %>%
+  dplyr::group_by(lineage) %>% 
+  dplyr::summarise(count=n(), .groups='drop') %>%
+  dplyr::mutate(percentage=count/sum(count)) %>%
+  ggplot(aes(x=reorder(lineage, -count), y=percentage, fill=lineage)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=count), vjust=-0.25) +
+  theme(
+        plot.background = element_rect(fill="white"),
+        text=element_text(size=12),
+        axis.text.x=element_blank(),
+        axis.title.x = element_blank()) + #axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)
+  labs(title="TCR+ cells by lineage")+scale_fill_manual(values=colors$lineage)
+
+
+tcr_pos <- all_trust4@meta.data %>%
+  filter(TCR == TRUE & aggregated_ct %in% T_cell_types) %>%
+  dplyr::group_by(lineage) %>% 
+  dplyr::summarise(count=n(), .groups='drop') %>%
+  dplyr::mutate(percentage=count/sum(count))
+
+all_t <- all_trust4@meta.data %>% 
+  filter(aggregated_ct %in% T_cell_types) %>%
+  dplyr::group_by(lineage) %>% 
+  dplyr::summarise(count=n(), .groups='drop') %>%
+  dplyr::mutate(percentage=count/sum(count))  
+
+t_together <- left_join(tcr_pos, all_t, suffix=c(".bcr_pos",".all"),by = "lineage")
+
+p2 <- ggscatter(t_together, "count.bcr_pos","count.all",
+          add = "reg.line",               
+          #conf.int = TRUE,              
+          #color = "blue", fill = "lightgray",
+          label = t_together$lineage,
+          font.label = c(9, "plain"),
+          repel=T,
+          xlab = "TCR+ T-cells", ylab = "All T-cells")+stat_cor(method = "pearson")+
+  labs(title="Corr. between n. cells and TCR")
+
+p1+p2
+```
+
+We also saught to see if all the present lineages were assigned a TCR/BCR sequence. As can be seen in the two figures above, both in T and B, all the present lineages contained at least one TCR or BCR sequence. When we compared the number of cells of a certain lineage with the number of cells that contained a TCR/BCR sequence within that lineage, we saw that there was a high correlation.
+
+Following our initial analysis, we wanted to extrapolate the overall error of our cell type analysis using the results of TRUST4.
+
+### Identifying error rates
+
+According to Song et al., 2021 the precision of the TRUST4 algorithm has (calculated in 5' scRNAseq library compared to a V(D)J library) is 98.2 % for B Cells and 94.6% for T Cells, making their error rates as 1.8% and 5.4 respectively. We calculated our own error rate through:
+
+$$
+\frac{\text{T cells}^{TCR+}}{\text{T cells}^{TCR+} + \text{Non T cells}^{TCR+}}\
+$$
+
+```{r}
+plot_data_comb <- all_trust4@meta.data %>%
+  mutate(
+    TCR_Status = case_when(
+      TCR == TRUE & aggregated_ct %in% T_cell_types ~ "Correct",
+      TCR == TRUE & !(aggregated_ct %in% T_cell_types) ~ "Mis_id",
+      TRUE ~ NA_character_
+    ),
+    BCR_Status = case_when(
+      BCR == TRUE & aggregated_ct %in% B_cell_types ~ "Correct",
+      BCR == TRUE & !(aggregated_ct %in% B_cell_types) ~ "Mis_id",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  dplyr::summarise(
+    BCR_correct = sum(BCR_Status == "Correct", na.rm = TRUE),
+    BCR_misid = sum(BCR_Status == "Mis_id", na.rm = TRUE),
+    TCR_correct = sum(TCR_Status == "Correct", na.rm = TRUE),
+    TCR_misid = sum(TCR_Status == "Mis_id", na.rm = TRUE))%>%
+  pivot_longer(everything(), names_to = c("receptor", "status"), names_sep = "_") %>%
+  dplyr::group_by(receptor) %>%
+  dplyr::mutate(pct = value / sum(value) * 100)
+
+plot_data_comb$status <- factor(plot_data_comb$status, levels= c("misid","correct"))
+
+ggplot(plot_data_comb, aes(x = receptor, y = pct, fill = status)) +
+  geom_bar(stat = "identity", width = 0.5, color = "black") + 
+  scale_fill_manual(values = c("correct" = "olivedrab3", "misid" = "tomato1")) +
+  theme_gray() +
+  labs(title = "TRUST4 Identification Accuracy",
+       x = NULL, y = "Percentage of Identified Receptors (%)") +
+  geom_text(aes(label = paste0(round(pct, 1), "%")), 
+            position = position_stack(vjust = 0.5), 
+            color = "white", 
+            fontface = "bold")+
+  theme(axis.title = element_text(face="bold", size=14),
+        axis.text = element_text(face='bold', size=12),
+        title = element_text(face="bold",size=15),
+        legend.text = element_text(face="bold",size=12))
+
+```
+
+According to calculations, our error rates were 5.8% and 6.1% for BCR and TCR identification respectively. Taken into account TRUST4's error rates, the error in cell type annotation would be 5.8-1.8 = 4% for B cells and 6.1-5.4=0.7% for T cells.
+
+In the end, based on all our results and considering that: (1) we found the low error rates to be low, (2) only using the TCR/BCR+ T/B cells would highly reduce the number of cells we would have for genotyping analysis (205 vs 2,346 for T and 355 vs 1,006 for B), and (3) three of our genotyped samples would need to be discarded completely (which would normally give an additional 1,217 genotyped T and 156 genotyped B cells), we decided to use all the T and B cells rather that only the TCR/BCR+ ones.

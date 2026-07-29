@@ -48,7 +48,7 @@ This  website contains scRNA-seq data analyses and integration with targeted mut
 - [20-Phenotype genotype PALM11E](22_PALM11E_redemultiplexed.html) 
 - [21-Phenotype genotype PALM10R](24_PALM10_R.html) <span class="label btn-warning"> New report</span>
 - [22-Phenotype genotype PALM22E](25_PALM22_E.html) <span class="label btn-warning"> New report</span>
-
+- [23-TRUST4 Report](TRUST4_report.html) <span class="label btn-warning"> New report</span>
 
 # Malignant cell annotation
 - [1-malignant cell annotation using expansion and SCEVAN](00a_benchmark_malignant_cell.html) <span class="label btn-warning"> New report</span>
